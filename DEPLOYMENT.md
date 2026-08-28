@@ -4,7 +4,7 @@ The app is split across two hosted pieces:
 
 - **`frontend/`** — a static Vite/React SPA. Deploys to **Vercel**.
 - **Backend** — entirely **Supabase**: Postgres (schema + RLS in
-  `supabase/migrations/`), Supabase Auth (email/password + Google), Supabase
+  `supabase/migrations/`), Supabase Auth (email/password), Supabase
   Realtime (live group updates), and one Edge Function (`supabase/functions/expenses/`)
   that owns expense writes (validation, split-building, the audit trail, and
   triggering settlement recalculation). There is no separate server to host —
@@ -35,11 +35,8 @@ In the Supabase dashboard, **Authentication → Providers**:
 - **Email**: enabled by default on new projects. Decide whether to require
   email confirmation (Authentication → Providers → Email → "Confirm email")
   — the frontend handles both cases (`useRegister` in `hooks/useAuth.ts`).
-- **Google**: enable the provider and add your Google OAuth **Client ID**
-  under "Authorized Client IDs" (this app signs in via Google Identity
-  Services' one-tap button and exchanges the ID token with
-  `supabase.auth.signInWithIdToken()` — the Client ID here must match
-  `VITE_GOOGLE_CLIENT_ID` below).
+  Email/password is currently the only sign-in method — Google sign-in was
+  removed (see git history if it's ever wanted back).
 
 Also set **Authentication → URL Configuration → Site URL** (and Redirect
 URLs, if used) to your deployed Vercel URL.
@@ -76,10 +73,7 @@ instead; then the root `vercel.json` is simply unused.)
 committed in `frontend/.env.production` rather than set as Vercel project
 env vars — both are meant to be public (the anon key only grants what RLS
 allows; it ships in every client bundle regardless of where it's sourced
-from). `VITE_GOOGLE_CLIENT_ID` is **not** committed — add it either as a
-Vercel project env var or by editing `frontend/.env.production` once
-Google sign-in is configured (see below); it's a public client ID, not a
-secret, so either place is fine.
+from).
 
 No CORS configuration is needed on the Supabase side — PostgREST and Edge
 Functions accept requests from any origin by default; access control is

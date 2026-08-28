@@ -64,24 +64,6 @@ export function useLogin(redirectTo = '/') {
   })
 }
 
-export function useGoogleAuth(redirectTo = '/') {
-  const setUser = useAuthStore((s) => s.setUser)
-  const navigate = useNavigate()
-
-  return useMutation({
-    mutationFn: async (idToken: string) => {
-      const { data, error } = await supabase.auth.signInWithIdToken({ provider: 'google', token: idToken })
-      if (error) throw error
-      return data
-    },
-    onSuccess: async ({ user }) => {
-      setUser(await loadProfile(user.id))
-      navigate(redirectTo, { replace: true })
-    },
-    onError: (err) => toast.error(getErrorMessage(err)),
-  })
-}
-
 export function useLogout() {
   const setUser = useAuthStore((s) => s.setUser)
   const navigate = useNavigate()

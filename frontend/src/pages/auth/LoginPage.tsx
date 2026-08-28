@@ -4,10 +4,9 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { AuthLayout } from '@/components/auth/AuthLayout'
-import { GoogleButton } from '@/components/auth/GoogleButton'
 import { Button } from '@/components/common/Button'
 import { Input } from '@/components/common/Input'
-import { useLogin, useGoogleAuth } from '@/hooks/useAuth'
+import { useLogin } from '@/hooks/useAuth'
 import { useAuthStore } from '@/store/auth'
 
 const schema = z.object({
@@ -23,7 +22,6 @@ export default function LoginPage() {
   const nextUrl = searchParams.get('next') ?? '/'
   const user = useAuthStore((s) => s.user)
   const login = useLogin(nextUrl)
-  const googleAuth = useGoogleAuth(nextUrl)
 
   // Redirect if already logged in
   useEffect(() => {
@@ -46,23 +44,6 @@ export default function LoginPage() {
       footerLinkText="Create one"
       footerLinkTo="/auth/register"
     >
-      {/* Google */}
-      <GoogleButton
-        onToken={(token) => googleAuth.mutate(token)}
-        loading={googleAuth.isPending}
-        className="mb-4"
-      />
-
-      {/* Divider */}
-      <div className="relative mb-4">
-        <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-gray-200" />
-        </div>
-        <div className="relative flex justify-center">
-          <span className="bg-white px-3 text-xs text-gray-400 uppercase tracking-wider">or</span>
-        </div>
-      </div>
-
       {/* Email/password form */}
       <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-4">
         <Input
