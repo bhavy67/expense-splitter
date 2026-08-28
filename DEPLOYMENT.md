@@ -52,18 +52,34 @@ setup needed there.
 
 ## 2. Frontend (Vercel)
 
-1. Import the repo into Vercel and set **Root Directory** to `frontend`
-   (this is a monorepo). Framework preset "Vite" is auto-detected;
-   `frontend/vercel.json` adds the SPA rewrite so client-side routes survive
-   a refresh/direct link.
-2. Set environment variables (see `frontend/.env.example`) in the Vercel
-   project settings:
-   - `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` — Settings → API in the
-     Supabase dashboard (`https://ekghmehgnotdrelhghpk.supabase.co` for the
-     project above; both are safe to expose client-side — the anon key only
-     grants what RLS allows).
-   - `VITE_GOOGLE_CLIENT_ID` — if using Google sign-in.
-3. Deploy. Vercel builds with `npm run build` and serves `dist/`.
+Deployed as project **`expense-splitter`** in the `bhavyladani-project`
+team, git-linked to `bhavy67/expense-splitter` (auto-deploys `main`).
+Live at https://expense-splitter-one-iota.vercel.app.
+
+This is a monorepo, and the Vercel project's **Root Directory** setting is
+unset (repo root) — rather than changing that setting, the root-level
+`vercel.json` tells Vercel how to build the subdirectory directly:
+
+```json
+{
+  "buildCommand": "cd frontend && npm install && npm run build",
+  "outputDirectory": "frontend/dist",
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+}
+```
+
+(`frontend/vercel.json` also exists, for the cleaner setup — set the
+project's Root Directory to `frontend` in the dashboard and it takes over
+instead; then the root `vercel.json` is simply unused.)
+
+**Config values**: `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` are
+committed in `frontend/.env.production` rather than set as Vercel project
+env vars — both are meant to be public (the anon key only grants what RLS
+allows; it ships in every client bundle regardless of where it's sourced
+from). `VITE_GOOGLE_CLIENT_ID` is **not** committed — add it either as a
+Vercel project env var or by editing `frontend/.env.production` once
+Google sign-in is configured (see below); it's a public client ID, not a
+secret, so either place is fine.
 
 No CORS configuration is needed on the Supabase side — PostgREST and Edge
 Functions accept requests from any origin by default; access control is
