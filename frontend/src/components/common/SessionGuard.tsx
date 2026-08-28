@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react'
-import axios from 'axios'
+import { useEffect } from 'react'
+import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/store/auth'
+import type { User } from '@/types'
 
 function Spinner() {
   return (
@@ -10,31 +11,39 @@ function Spinner() {
   )
 }
 
+async function loadProfile(userId: string): Promise<User | null> {
+  const { data } = await supabase.from('profiles').select('*').eq('id', userId).maybeSingle()
+  if (!data) return null
+  return {
+    id: data.id,
+    email: data.email,
+    name: data.name,
+    avatar_url: data.avatar_url,
+    created_at: data.created_at,
+  }
+}
+
 export function SessionGuard({ children }: { children: React.ReactNode }) {
-  const user = useAuthStore((s) => s.user)
-  const accessToken = useAuthStore((s) => s.accessToken)
-  const setAccessToken = useAuthStore((s) => s.setAccessToken)
-  const clearAuth = useAuthStore((s) => s.clearAuth)
-  const [ready, setReady] = useState(false)
+  const ready = useAuthStore((s) => s.ready)
+  const setUser = useAuthStore((s) => s.setUser)
+  const setReady = useAuthStore((s) => s.setReady)
 
   useEffect(() => {
-    // No user in store → nothing to restore, render immediately
-    if (!user) {
+    // Restores the session from localStorage (if any) before first render.
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      setUser(session ? await loadProfile(session.user.id) : null)
       setReady(true)
-      return
-    }
-    // Token already in memory (e.g. hot reload in dev) → ready
-    if (accessToken) {
-      setReady(true)
-      return
-    }
-    // User persisted but token gone (page refresh) → try to restore via cookie
-    axios
-      .post<{ access_token: string }>('/api/v1/auth/refresh', {}, { withCredentials: true })
-      .then((res) => setAccessToken(res.data.access_token))
-      .catch(() => clearAuth())
-      .finally(() => setReady(true))
-  }, []) // run once on mount only
+    })
+
+    // Keeps the store in sync with sign-in/out and background token refresh.
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      setUser(session ? await loadProfile(session.user.id) : null)
+    })
+
+    return () => subscription.unsubscribe()
+  }, [setUser, setReady])
 
   if (!ready) return <Spinner />
   return <>{children}</>

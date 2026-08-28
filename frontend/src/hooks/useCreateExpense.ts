@@ -1,8 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { api } from '@/lib/api'
+import { callEdgeFunction } from '@/lib/supabase'
 import { toast } from '@/components/common/Toast'
 import type { Expense } from '@/types'
-import type { AxiosError } from 'axios'
 
 export interface SplitEntryPayload {
   user_id: string
@@ -33,10 +32,7 @@ export function useCreateExpense(groupId: string) {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async (payload: CreateExpensePayload) => {
-      const res = await api.post<Expense>(`/groups/${groupId}/expenses`, payload)
-      return res.data
-    },
+    mutationFn: (payload: CreateExpensePayload) => callEdgeFunction<Expense>(`expenses/${groupId}`, 'POST', payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['expenses', groupId] })
       queryClient.invalidateQueries({ queryKey: ['settlements', groupId] })
@@ -44,11 +40,11 @@ export function useCreateExpense(groupId: string) {
       toast.success('Expense added')
     },
     onError: (err: unknown) => {
-      const e = err as AxiosError<{ detail: string | { msg: string }[] }>
-      const detail = e.response?.data?.detail
-      if (typeof detail === 'string') toast.error(detail)
-      else if (Array.isArray(detail)) toast.error(detail[0]?.msg ?? 'Validation error')
-      else toast.error('Failed to add expense')
+      const message =
+        err && typeof err === 'object' && 'message' in err
+          ? String((err as { message: unknown }).message)
+          : 'Failed to add expense'
+      toast.error(message)
     },
   })
 }

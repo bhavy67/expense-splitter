@@ -1,17 +1,3 @@
-# Python
-__pycache__/
-*.py[cod]
-*.pyo
-.venv/
-venv/
-*.egg-info/
-dist/
-build/
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-*.log
-
 # Env
 .env
 .env.local
@@ -20,8 +6,10 @@ build/
 # Node
 node_modules/
 dist/
-.next/
-.nuxt/
+
+# Supabase CLI (local dev)
+supabase/.branches
+supabase/.temp
 
 # IDE
 .vscode/
@@ -30,11 +18,5 @@ dist/
 *.swo
 .DS_Store
 
-# DB
-*.sqlite
-*.db
-
-# Coverage
-htmlcov/
-.coverage
-coverage.xml
+# Logs
+*.log

@@ -1,122 +1,123 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
-import { api } from '@/lib/api'
+import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/store/auth'
 import { toast } from '@/components/common/Toast'
 import type { User } from '@/types'
-import type { AxiosError } from 'axios'
-
-interface TokenResponse {
-  access_token: string
-}
 
 function getErrorMessage(err: unknown): string {
-  const axiosErr = err as AxiosError<{ detail: string | { msg: string }[] }>
-  const detail = axiosErr.response?.data?.detail
-  if (!detail) return 'Something went wrong. Please try again.'
-  if (typeof detail === 'string') return detail
-  if (Array.isArray(detail)) return detail[0]?.msg ?? 'Validation error'
-  return 'Something went wrong.'
+  if (err && typeof err === 'object' && 'message' in err && typeof (err as { message: unknown }).message === 'string') {
+    return (err as { message: string }).message
+  }
+  return 'Something went wrong. Please try again.'
 }
 
-async function fetchMe(token: string): Promise<User> {
-  const res = await api.get<User>('/auth/me', {
-    headers: { Authorization: `Bearer ${token}` },
-  })
-  return res.data
+async function loadProfile(userId: string): Promise<User> {
+  const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).single()
+  if (error || !data) throw error ?? new Error('Profile not found')
+  return { id: data.id, email: data.email, name: data.name, avatar_url: data.avatar_url, created_at: data.created_at }
 }
 
 export function useRegister() {
-  const setAuth = useAuthStore((s) => s.setAuth)
+  const setUser = useAuthStore((s) => s.setUser)
   const navigate = useNavigate()
 
   return useMutation({
     mutationFn: async (data: { email: string; name: string; password: string }) => {
-      const res = await api.post<TokenResponse>('/auth/register', data)
-      return res.data
+      const { data: signUpData, error } = await supabase.auth.signUp({
+        email: data.email,
+        password: data.password,
+        options: { data: { name: data.name } },
+      })
+      if (error) throw error
+      return signUpData
     },
-    onSuccess: async ({ access_token }) => {
-      const user = await fetchMe(access_token)
-      setAuth(user, access_token)
-      navigate('/')
+    onSuccess: async ({ session, user }) => {
+      if (session && user) {
+        setUser(await loadProfile(user.id))
+        navigate('/')
+      } else {
+        // Email confirmation is required before a session is issued.
+        toast.success('Check your email to confirm your account, then sign in.')
+        navigate('/auth/login')
+      }
     },
-    onError: (err) => {
-      toast.error(getErrorMessage(err))
-    },
+    onError: (err) => toast.error(getErrorMessage(err)),
   })
 }
 
 export function useLogin(redirectTo = '/') {
-  const setAuth = useAuthStore((s) => s.setAuth)
+  const setUser = useAuthStore((s) => s.setUser)
   const navigate = useNavigate()
 
   return useMutation({
     mutationFn: async (data: { email: string; password: string }) => {
-      const res = await api.post<TokenResponse>('/auth/login', data)
-      return res.data
+      const { data: signInData, error } = await supabase.auth.signInWithPassword(data)
+      if (error) throw error
+      return signInData
     },
-    onSuccess: async ({ access_token }) => {
-      const user = await fetchMe(access_token)
-      setAuth(user, access_token)
+    onSuccess: async ({ user }) => {
+      setUser(await loadProfile(user.id))
       navigate(redirectTo, { replace: true })
     },
-    onError: (err) => {
-      toast.error(getErrorMessage(err))
-    },
+    onError: (err) => toast.error(getErrorMessage(err)),
   })
 }
 
 export function useGoogleAuth(redirectTo = '/') {
-  const setAuth = useAuthStore((s) => s.setAuth)
+  const setUser = useAuthStore((s) => s.setUser)
   const navigate = useNavigate()
 
   return useMutation({
     mutationFn: async (idToken: string) => {
-      const res = await api.post<TokenResponse>('/auth/google', { id_token: idToken })
-      return res.data
+      const { data, error } = await supabase.auth.signInWithIdToken({ provider: 'google', token: idToken })
+      if (error) throw error
+      return data
     },
-    onSuccess: async ({ access_token }) => {
-      const user = await fetchMe(access_token)
-      setAuth(user, access_token)
+    onSuccess: async ({ user }) => {
+      setUser(await loadProfile(user.id))
       navigate(redirectTo, { replace: true })
     },
-    onError: (err) => {
-      toast.error(getErrorMessage(err))
-    },
+    onError: (err) => toast.error(getErrorMessage(err)),
   })
 }
 
 export function useLogout() {
-  const clearAuth = useAuthStore((s) => s.clearAuth)
+  const setUser = useAuthStore((s) => s.setUser)
   const navigate = useNavigate()
 
   return async () => {
     try {
-      await api.post('/auth/logout')
+      await supabase.auth.signOut()
     } finally {
-      clearAuth()
+      setUser(null)
       navigate('/auth/login')
     }
   }
 }
 
 export function useUpdateProfile() {
-  const setAuth = useAuthStore((s) => s.setAuth)
-  const accessToken = useAuthStore((s) => s.accessToken)
+  const setUser = useAuthStore((s) => s.setUser)
   const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: async (data: { name?: string; avatar_url?: string }) => {
-      const res = await api.patch<import('@/types').User>('/auth/me', data)
-      return res.data
+      const userId = useAuthStore.getState().user?.id
+      if (!userId) throw new Error('Not signed in')
+      const { data: updated, error } = await supabase
+        .from('profiles')
+        .update(data)
+        .eq('id', userId)
+        .select('*')
+        .single()
+      if (error || !updated) throw error ?? new Error('Failed to update profile')
+      return updated
     },
-    onSuccess: (user) => {
-      setAuth(user, accessToken ?? '')
+    onSuccess: (data) => {
+      setUser({ id: data.id, email: data.email, name: data.name, avatar_url: data.avatar_url, created_at: data.created_at })
       queryClient.invalidateQueries({ queryKey: ['groups'] })
       toast.success('Profile updated')
     },
-    onError: (err) => {
-      toast.error(getErrorMessage(err))
-    },
+    onError: (err) => toast.error(getErrorMessage(err)),
   })
 }

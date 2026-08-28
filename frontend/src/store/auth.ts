@@ -1,33 +1,20 @@
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
 import type { User } from '@/types'
 
 interface AuthState {
   user: User | null
-  accessToken: string | null
-  setAuth: (user: User, token: string) => void
-  setAccessToken: (token: string) => void
-  clearAuth: () => void
+  ready: boolean
+  setUser: (user: User | null) => void
+  setReady: (ready: boolean) => void
 }
 
-export const useAuthStore = create<AuthState>()(
-  persist(
-    (set) => ({
-      user: null,
-      accessToken: null,
-      setAuth: (user, accessToken) => set({ user, accessToken }),
-      setAccessToken: (accessToken) => set({ accessToken }),
-      clearAuth: () => set({ user: null, accessToken: null }),
-    }),
-    {
-      name: 'auth',
-      partialize: (state) => ({ user: state.user }),
-      // Don't persist the access token — keep it in memory only
-    }
-  )
-)
-
-// Expose store for WS reconnect
-if (typeof window !== 'undefined') {
-  ;(window as any).__authStore = useAuthStore
-}
+// Supabase's client manages the session (access + refresh tokens) itself in
+// localStorage and refreshes it in the background — there's no manual
+// token juggling here anymore. This store just mirrors the current user's
+// profile for the UI, kept in sync by SessionGuard via onAuthStateChange.
+export const useAuthStore = create<AuthState>()((set) => ({
+  user: null,
+  ready: false,
+  setUser: (user) => set({ user }),
+  setReady: (ready) => set({ ready }),
+}))
