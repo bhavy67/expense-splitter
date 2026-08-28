@@ -54,6 +54,17 @@ Deployed as project **`expense-splitter`** in the `bhavyladani-project`
 team, git-linked to `bhavy67/expense-splitter` (auto-deploys `main`).
 Live at https://expense-splitter-one-iota.vercel.app.
 
+**Getting `splititt.vercel.app`**: the app is branded SplitItt, but the
+Vercel *project* is still named `expense-splitter` — there's no API to
+rename a project or claim a specific `*.vercel.app` alias, only a dashboard
+action: **Project Settings → General → Project Name → `splititt`**. Vercel
+automatically re-provisions the default domain to match on rename (as long
+as `splititt.vercel.app` isn't already claimed by someone else), and the
+GitHub integration/auto-deploy keeps working untouched. Deliberately did
+*not* work around this by creating a second, separately-deployed project
+literally named `splititt` — Vercel project names are unique per team, so
+that would only squat the name and block the real (git-linked) fix.
+
 This is a monorepo, and the Vercel project's **Root Directory** setting is
 unset (repo root) — rather than changing that setting, the root-level
 `vercel.json` tells Vercel how to build the subdirectory directly:
