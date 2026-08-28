@@ -1,0 +1,22 @@
+# Env
+.env
+.env.local
+.env.*.local
+
+# Node
+node_modules/
+dist/
+
+# Supabase CLI (local dev)
+supabase/.branches
+supabase/.temp
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Logs
+*.log
