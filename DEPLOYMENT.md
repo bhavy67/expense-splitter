@@ -1,62 +1,87 @@
 # Deployment
 
-This app has two parts that deploy separately:
+The app is split across two hosted pieces:
 
-- **`frontend/`** — a static Vite/React SPA. Deploys to **Vercel** directly.
-- **`backend/`** — a FastAPI service that holds a live Postgres connection
-  pool, talks to Redis, and serves long-lived WebSocket connections
-  (`/ws/groups/{id}`) for realtime group updates. Vercel's serverless
-  functions are request/response only — no persistent connections — so the
-  backend **cannot** run on Vercel as-is. Deploy it to a host that runs a
-  long-lived process, e.g. Render, Railway, Fly.io, or a VPS. A production
-  `Dockerfile` is already provided in `backend/`, so any Docker-based host
-  works with no extra changes.
+- **`frontend/`** — a static Vite/React SPA. Deploys to **Vercel**.
+- **Backend** — entirely **Supabase**: Postgres (schema + RLS in
+  `supabase/migrations/`), Supabase Auth (email/password + Google), Supabase
+  Realtime (live group updates), and one Edge Function (`supabase/functions/expenses/`)
+  that owns expense writes (validation, split-building, the audit trail, and
+  triggering settlement recalculation). There is no separate server to host —
+  everything backend-side lives inside the Supabase project already
+  provisioned for this app (**"Expense Splitter"**, `ekghmehgnotdrelhghpk`,
+  `ap-south-1`).
 
-## 1. Backend (Render/Railway/Fly.io/etc.)
+## 1. Supabase project setup
 
-1. Provision managed Postgres and Redis on your chosen host.
-2. Deploy `backend/` (it already has a `Dockerfile`; `start.sh` runs Alembic
-   migrations then starts uvicorn).
-3. Set environment variables (see `backend/.env.example`):
-   - `DATABASE_URL`, `REDIS_URL` — from your managed instances
-   - `JWT_SECRET_KEY` — generate with `python -c "import secrets; print(secrets.token_hex(64))"`
-   - `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` — if using Google sign-in
-   - `APP_ENV=production` — required so the auth refresh cookie is issued as
-     `Secure; SameSite=None`, which browsers require for a cookie to be sent
-     cross-site (the frontend on Vercel and the backend here are different
-     origins)
-   - `CORS_ORIGINS=https://your-app.vercel.app` — the exact frontend origin
-     (comma-separate if you also want to allow a preview/staging domain)
-4. Confirm the backend is reachable over HTTPS and that `/health` returns
-   `{"status": "ok"}`, and that WebSocket upgrades work (`wss://your-backend/ws/...`) —
-   some hosts need WebSockets enabled explicitly.
+The schema, RLS policies, RPC functions (`join_group`, `recalculate_settlements`,
+etc.), and the `expenses` Edge Function are already applied to the project.
+To reproduce this on a different project (or after a reset):
+
+```bash
+# from supabase/migrations/ — apply in order via the SQL editor, the
+# Supabase CLI (`supabase db push`), or the apply_migration MCP tool.
+20260828000001_init_schema.sql
+20260828000002_harden_function_privileges.sql
+
+# deploy the Edge Function (Supabase CLI: `supabase functions deploy expenses`)
+supabase/functions/expenses/index.ts
+```
+
+### Auth providers (manual — no API for this)
+
+In the Supabase dashboard, **Authentication → Providers**:
+
+- **Email**: enabled by default on new projects. Decide whether to require
+  email confirmation (Authentication → Providers → Email → "Confirm email")
+  — the frontend handles both cases (`useRegister` in `hooks/useAuth.ts`).
+- **Google**: enable the provider and add your Google OAuth **Client ID**
+  under "Authorized Client IDs" (this app signs in via Google Identity
+  Services' one-tap button and exchanges the ID token with
+  `supabase.auth.signInWithIdToken()` — the Client ID here must match
+  `VITE_GOOGLE_CLIENT_ID` below).
+
+Also set **Authentication → URL Configuration → Site URL** (and Redirect
+URLs, if used) to your deployed Vercel URL.
+
+### Service-role key (for the Edge Function)
+
+`SUPABASE_URL`, `SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY` are
+injected into Edge Functions automatically by Supabase — no manual env var
+setup needed there.
 
 ## 2. Frontend (Vercel)
 
 1. Import the repo into Vercel and set **Root Directory** to `frontend`
-   (this is a monorepo — Vercel needs to know where the Vite app lives).
-   Framework preset "Vite" is auto-detected; `frontend/vercel.json` adds the
-   SPA rewrite so client-side routes work on refresh/direct link.
+   (this is a monorepo). Framework preset "Vite" is auto-detected;
+   `frontend/vercel.json` adds the SPA rewrite so client-side routes survive
+   a refresh/direct link.
 2. Set environment variables (see `frontend/.env.example`) in the Vercel
    project settings:
-   - `VITE_API_URL=https://your-backend-url.com` — your deployed backend's
-     origin, no trailing slash, no `/api` suffix
-   - `VITE_WS_URL` — only needed if the WS endpoint lives on a different
-     host than the API; otherwise it's derived from `VITE_API_URL`
-   - `VITE_GOOGLE_CLIENT_ID` — if using Google sign-in
+   - `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` — Settings → API in the
+     Supabase dashboard (`https://ekghmehgnotdrelhghpk.supabase.co` for the
+     project above; both are safe to expose client-side — the anon key only
+     grants what RLS allows).
+   - `VITE_GOOGLE_CLIENT_ID` — if using Google sign-in.
 3. Deploy. Vercel builds with `npm run build` and serves `dist/`.
 
-## 3. Wire them together
-
-- Add the Vercel URL to the backend's `CORS_ORIGINS`.
-- If using Google OAuth, add the Vercel URL to the OAuth client's Authorized
-  JavaScript origins in the Google Cloud Console.
-- Redeploy the backend after changing `CORS_ORIGINS`/`APP_ENV`.
+No CORS configuration is needed on the Supabase side — PostgREST and Edge
+Functions accept requests from any origin by default; access control is
+entirely RLS/JWT-based, not origin-based.
 
 ## Local development
 
-Unchanged — `docker-compose.yml` for Postgres/Redis, `npm run dev` for the
-frontend (proxies `/api` and `/ws` to `localhost:8000` via `vite.config.ts`),
-and `uvicorn app.main:app --reload` (or the backend's own tooling) for the
-API. No env vars are required locally; leaving `VITE_API_URL`/`VITE_WS_URL`
-unset keeps using the relative dev-proxy paths.
+- `npm run dev` in `frontend/` — talks directly to the hosted Supabase
+  project via `VITE_SUPABASE_URL`/`VITE_SUPABASE_ANON_KEY` in a local
+  `.env` file (copy `.env.example`). There's no local backend process to
+  run.
+- To develop against a local Supabase stack instead: `supabase start`
+  (Supabase CLI), then point `.env` at the printed local URL/anon key, and
+  `supabase functions serve expenses` to run the Edge Function locally.
+
+## Regenerating types after a schema change
+
+`frontend/src/lib/database.types.ts` is generated from the live schema
+(`mcp__Supabase__generate_typescript_types`, or `supabase gen types
+typescript` via the CLI). Regenerate it after any migration that adds/changes
+tables, columns, or RPC function signatures.

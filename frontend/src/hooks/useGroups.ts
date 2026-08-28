@@ -1,20 +1,27 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { api } from '@/lib/api'
+import { supabase } from '@/lib/supabase'
+import { useAuthStore } from '@/store/auth'
 import { toast } from '@/components/common/Toast'
 import type { Group, GroupSummary } from '@/types'
-import type { AxiosError } from 'axios'
+import type { Database } from '@/lib/database.types'
+
+type GroupType = Database['public']['Enums']['group_type']
 
 function getErrorMessage(err: unknown) {
-  const e = err as AxiosError<{ detail: string }>
-  return e.response?.data?.detail ?? 'Something went wrong'
+  if (err && typeof err === 'object' && 'message' in err) return String((err as { message: unknown }).message)
+  return 'Something went wrong'
 }
+
+const GROUP_WITH_MEMBERS_SELECT =
+  '*, members:group_members(role,joined_at,is_active,user:profiles(id,email,name,avatar_url,created_at))'
 
 export function useGroups() {
   return useQuery({
     queryKey: ['groups'],
     queryFn: async () => {
-      const res = await api.get<GroupSummary[]>('/groups')
-      return res.data
+      const { data, error } = await supabase.rpc('list_group_summaries')
+      if (error) throw error
+      return data as unknown as GroupSummary[]
     },
   })
 }
@@ -23,8 +30,14 @@ export function useGroup(groupId: string) {
   return useQuery({
     queryKey: ['group', groupId],
     queryFn: async () => {
-      const res = await api.get<Group>(`/groups/${groupId}`)
-      return res.data
+      const { data, error } = await supabase
+        .from('groups')
+        .select(GROUP_WITH_MEMBERS_SELECT)
+        .eq('id', groupId)
+        .is('deleted_at', null)
+        .single()
+      if (error) throw error
+      return data as unknown as Group
     },
     enabled: !!groupId,
   })
@@ -33,14 +46,16 @@ export function useGroup(groupId: string) {
 export function useCreateGroup() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async (data: {
-      name: string
-      description?: string
-      type: string
-      currency_code: string
-    }) => {
-      const res = await api.post<Group>('/groups', data)
-      return res.data
+    mutationFn: async (data: { name: string; description?: string; type: string; currency_code: string }) => {
+      const userId = useAuthStore.getState().user?.id
+      if (!userId) throw new Error('Not signed in')
+      const { data: group, error } = await supabase
+        .from('groups')
+        .insert({ ...data, type: data.type as GroupType, created_by: userId })
+        .select(GROUP_WITH_MEMBERS_SELECT)
+        .single()
+      if (error) throw error
+      return group as unknown as Group
     },
     onSuccess: (group) => {
       queryClient.invalidateQueries({ queryKey: ['groups'] })
@@ -54,8 +69,14 @@ export function useUpdateGroup(groupId: string) {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: async (data: { name?: string; description?: string; type?: string }) => {
-      const res = await api.put<Group>(`/groups/${groupId}`, data)
-      return res.data
+      const { data: group, error } = await supabase
+        .from('groups')
+        .update({ ...data, type: data.type as GroupType | undefined })
+        .eq('id', groupId)
+        .select(GROUP_WITH_MEMBERS_SELECT)
+        .single()
+      if (error) throw error
+      return group as unknown as Group
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['group', groupId] })
@@ -70,7 +91,8 @@ export function useRemoveMember(groupId: string) {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: async (userId: string) => {
-      await api.delete(`/groups/${groupId}/members/${userId}`)
+      const { error } = await supabase.rpc('remove_group_member', { p_group_id: groupId, p_user_id: userId })
+      if (error) throw error
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['group', groupId] })
@@ -84,7 +106,8 @@ export function useLeaveGroup(groupId: string) {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: async () => {
-      await api.post(`/groups/${groupId}/leave`)
+      const { error } = await supabase.rpc('leave_group', { p_group_id: groupId })
+      if (error) throw error
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['groups'] })
@@ -97,8 +120,15 @@ export function useJoinGroup() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: async (inviteCode: string) => {
-      const res = await api.post<Group>(`/groups/join/${inviteCode}`)
-      return res.data
+      const { data: groupId, error } = await supabase.rpc('join_group', { p_invite_code: inviteCode })
+      if (error) throw error
+      const { data: group, error: fetchErr } = await supabase
+        .from('groups')
+        .select(GROUP_WITH_MEMBERS_SELECT)
+        .eq('id', groupId)
+        .single()
+      if (fetchErr) throw fetchErr
+      return group as unknown as Group
     },
     onSuccess: (group) => {
       queryClient.invalidateQueries({ queryKey: ['groups'] })
@@ -112,10 +142,9 @@ export function useRegenerateInvite(groupId: string) {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: async () => {
-      const res = await api.post<{ invite_code: string; invite_url: string }>(
-        `/groups/${groupId}/invite`
-      )
-      return res.data
+      const { data: inviteCode, error } = await supabase.rpc('regenerate_invite_code', { p_group_id: groupId })
+      if (error) throw error
+      return { invite_code: inviteCode, invite_url: `/join/${inviteCode}` }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['group', groupId] })

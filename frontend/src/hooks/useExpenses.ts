@@ -1,8 +1,16 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { api } from '@/lib/api'
+import { supabase, callEdgeFunction } from '@/lib/supabase'
 import { toast } from '@/components/common/Toast'
 import type { Expense, PaginatedResponse } from '@/types'
-import type { AxiosError } from 'axios'
+import type { Database } from '@/lib/database.types'
+
+const EXPENSE_SELECT =
+  '*, splits:expense_splits(id,user_id,amount,percentage), items:expense_items(id,description,amount,splits:expense_splits(id,user_id,amount,percentage))'
+
+function getErrorMessage(err: unknown, fallback: string) {
+  if (err && typeof err === 'object' && 'message' in err) return String((err as { message: unknown }).message)
+  return fallback
+}
 
 interface ExpenseFilters {
   page?: number
@@ -17,14 +25,36 @@ export function useExpenses(groupId: string, filters: ExpenseFilters = {}) {
   return useQuery({
     queryKey: ['expenses', groupId, filters],
     queryFn: async () => {
-      const params = new URLSearchParams()
-      Object.entries(filters).forEach(([k, v]) => {
-        if (v !== undefined && v !== '') params.set(k, String(v))
-      })
-      const res = await api.get<PaginatedResponse<Expense>>(
-        `/groups/${groupId}/expenses?${params}`
-      )
-      return res.data
+      const page = filters.page ?? 1
+      const perPage = filters.per_page ?? 20
+      const from = (page - 1) * perPage
+      const to = from + perPage - 1
+
+      let query = supabase
+        .from('expenses')
+        .select(EXPENSE_SELECT, { count: 'exact' })
+        .eq('group_id', groupId)
+        .is('deleted_at', null)
+
+      if (filters.paid_by) query = query.eq('paid_by', filters.paid_by)
+      if (filters.category) {
+        query = query.eq('category', filters.category as Database['public']['Enums']['expense_category'])
+      }
+      if (filters.date_from) query = query.gte('expense_date', filters.date_from)
+      if (filters.date_to) query = query.lte('expense_date', filters.date_to)
+
+      const { data, count, error } = await query
+        .order('expense_date', { ascending: false })
+        .order('created_at', { ascending: false })
+        .range(from, to)
+      if (error) throw error
+
+      return {
+        data: (data ?? []) as unknown as Expense[],
+        total: count ?? 0,
+        page,
+        per_page: perPage,
+      } satisfies PaginatedResponse<Expense>
     },
     enabled: !!groupId,
   })
@@ -34,8 +64,15 @@ export function useExpense(groupId: string, expenseId: string) {
   return useQuery({
     queryKey: ['expense', groupId, expenseId],
     queryFn: async () => {
-      const res = await api.get<Expense>(`/groups/${groupId}/expenses/${expenseId}`)
-      return res.data
+      const { data, error } = await supabase
+        .from('expenses')
+        .select(EXPENSE_SELECT)
+        .eq('id', expenseId)
+        .eq('group_id', groupId)
+        .is('deleted_at', null)
+        .single()
+      if (error) throw error
+      return data as unknown as Expense
     },
     enabled: !!groupId && !!expenseId,
   })
@@ -53,10 +90,8 @@ export interface UpdateExpensePayload {
 export function useUpdateExpense(groupId: string, expenseId: string) {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async (payload: UpdateExpensePayload) => {
-      const res = await api.put<Expense>(`/groups/${groupId}/expenses/${expenseId}`, payload)
-      return res.data
-    },
+    mutationFn: (payload: UpdateExpensePayload) =>
+      callEdgeFunction<Expense>(`expenses/${groupId}/${expenseId}`, 'PUT', payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['expense', groupId, expenseId] })
       queryClient.invalidateQueries({ queryKey: ['expenses', groupId] })
@@ -64,29 +99,21 @@ export function useUpdateExpense(groupId: string, expenseId: string) {
       queryClient.invalidateQueries({ queryKey: ['groups'] })
       toast.success('Expense updated')
     },
-    onError: (err: unknown) => {
-      const e = err as AxiosError<{ detail: string }>
-      toast.error(e.response?.data?.detail ?? 'Failed to update expense')
-    },
+    onError: (err) => toast.error(getErrorMessage(err, 'Failed to update expense')),
   })
 }
 
 export function useDeleteExpense(groupId: string) {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async (expenseId: string) => {
-      await api.delete(`/groups/${groupId}/expenses/${expenseId}`)
-    },
+    mutationFn: (expenseId: string) => callEdgeFunction<void>(`expenses/${groupId}/${expenseId}`, 'DELETE'),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['expenses', groupId] })
       queryClient.invalidateQueries({ queryKey: ['settlements', groupId] })
       queryClient.invalidateQueries({ queryKey: ['groups'] })
       toast.success('Expense deleted')
     },
-    onError: (err: unknown) => {
-      const e = err as AxiosError<{ detail: string }>
-      toast.error(e.response?.data?.detail ?? 'Failed to delete expense')
-    },
+    onError: (err) => toast.error(getErrorMessage(err, 'Failed to delete expense')),
   })
 }
 
@@ -94,10 +121,19 @@ export function useExpenseHistory(groupId: string, expenseId: string) {
   return useQuery({
     queryKey: ['expense-history', groupId, expenseId],
     queryFn: async () => {
-      const res = await api.get<{ id: string; action: string; snapshot: Record<string, unknown>; created_at: string; changed_by: string }[]>(
-        `/groups/${groupId}/expenses/${expenseId}/history`
-      )
-      return res.data
+      const { data, error } = await supabase
+        .from('expense_audit')
+        .select('*')
+        .eq('expense_id', expenseId)
+        .order('created_at', { ascending: false })
+      if (error) throw error
+      return data as {
+        id: string
+        action: string
+        snapshot: Record<string, unknown>
+        created_at: string
+        changed_by: string
+      }[]
     },
     enabled: !!groupId && !!expenseId,
   })

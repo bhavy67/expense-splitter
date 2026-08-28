@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { api } from '@/lib/api'
+import { supabase } from '@/lib/supabase'
 import { formatCurrency } from '@/lib/currency'
 import { cn } from '@/lib/utils'
 import type { GroupMember } from '@/types'
@@ -28,8 +28,9 @@ function useGroupAnalytics(groupId: string) {
   return useQuery({
     queryKey: ['analytics', groupId],
     queryFn: async () => {
-      const res = await api.get<AnalyticsData>(`/groups/${groupId}/analytics`)
-      return res.data
+      const { data, error } = await supabase.rpc('group_analytics', { p_group_id: groupId })
+      if (error) throw error
+      return data as unknown as AnalyticsData
     },
     enabled: !!groupId,
   })
