@@ -1,9 +1,22 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #6366f1;
-  --color-primary-dark: #4f46e5;
-  --font-sans: 'Inter', system-ui, sans-serif;
+  /* ── SplitItt brand — a fresh jade/spearmint, distinct from generic SaaS
+     indigo. Every `indigo-*` utility in the app resolves to this scale, so
+     the whole product rebrands from these ten lines alone. ── */
+  --color-indigo-50: #effdf6;
+  --color-indigo-100: #d7f7e7;
+  --color-indigo-200: #b0edd1;
+  --color-indigo-300: #7edbb3;
+  --color-indigo-400: #48c28d;
+  --color-indigo-500: #22a672;
+  --color-indigo-600: #128a5c;
+  --color-indigo-700: #0b6e49;
+  --color-indigo-800: #0a5739;
+  --color-indigo-900: #08452f;
+  --color-indigo-950: #03271b;
+
+  --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, sans-serif;
 }
 
 * {
@@ -18,4 +31,9 @@ body {
 
 #root {
   min-height: 100svh;
+}
+
+::selection {
+  background: var(--color-indigo-200);
+  color: var(--color-indigo-950);
 }
