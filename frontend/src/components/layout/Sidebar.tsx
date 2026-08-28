@@ -2,6 +2,7 @@ import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { LayoutDashboard, UserCircle, LogOut, Plus } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Avatar } from '@/components/common/Avatar'
+import { Logo } from '@/components/common/Logo'
 import { useAuthStore } from '@/store/auth'
 import { useGroups } from '@/hooks/useGroups'
 import { useLogout } from '@/hooks/useAuth'
@@ -88,13 +89,8 @@ export function Sidebar() {
   return (
     <aside className="hidden md:flex flex-col w-60 shrink-0 h-screen sticky top-0 border-r border-gray-200 bg-white px-3 py-4">
       {/* Logo */}
-      <Link to="/" className="flex items-center gap-2.5 px-2 mb-6">
-        <div className="w-8 h-8 rounded-xl bg-indigo-600 flex items-center justify-center shrink-0">
-          <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m-8-8h16" />
-          </svg>
-        </div>
-        <span className="font-bold text-gray-900 text-base tracking-tight">SplitEase</span>
+      <Link to="/" className="px-2 mb-6">
+        <Logo size={26} />
       </Link>
 
       {/* Main nav */}

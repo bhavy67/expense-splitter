@@ -9,8 +9,9 @@ The app is split across two hosted pieces:
   that owns expense writes (validation, split-building, the audit trail, and
   triggering settlement recalculation). There is no separate server to host —
   everything backend-side lives inside the Supabase project already
-  provisioned for this app (**"Expense Splitter"**, `ekghmehgnotdrelhghpk`,
-  `ap-south-1`).
+  provisioned for this app (**"Expense Splitter"** — the Supabase project's
+  own name predates the SplitItt rebrand and hasn't been renamed;
+  `ekghmehgnotdrelhghpk`, `ap-south-1`).
 
 ## 1. Supabase project setup
 

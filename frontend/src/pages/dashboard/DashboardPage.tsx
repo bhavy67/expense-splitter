@@ -9,6 +9,7 @@ import { EmptyState } from '@/components/common/EmptyState'
 import { useGroups } from '@/hooks/useGroups'
 import { useAuthStore } from '@/store/auth'
 import { formatCurrency } from '@/lib/currency'
+import { cn } from '@/lib/utils'
 import type { GroupSummary } from '@/types'
 
 const GROUP_ICONS: Record<string, string> = {
@@ -16,15 +17,19 @@ const GROUP_ICONS: Record<string, string> = {
 }
 
 function SummaryCard({ label, amount, variant }: { label: string; amount: number; variant: 'owe' | 'owed' | 'net' }) {
-  const colors = {
-    owe: 'bg-red-50 text-red-700 border-red-100',
-    owed: 'bg-emerald-50 text-emerald-700 border-emerald-100',
-    net: amount >= 0 ? 'bg-blue-50 text-blue-700 border-blue-100' : 'bg-red-50 text-red-700 border-red-100',
-  }
+  const palette =
+    variant === 'owe'
+      ? { card: 'bg-red-50 border-red-100 text-red-700', accent: 'bg-red-400' }
+      : variant === 'owed'
+        ? { card: 'bg-emerald-50 border-emerald-100 text-emerald-700', accent: 'bg-emerald-400' }
+        : amount >= 0
+          ? { card: 'bg-indigo-50 border-indigo-100 text-indigo-700', accent: 'bg-indigo-500' }
+          : { card: 'bg-red-50 border-red-100 text-red-700', accent: 'bg-red-400' }
   const Icon = variant === 'owe' ? TrendingDown : variant === 'owed' ? TrendingUp : Minus
 
   return (
-    <div className={`rounded-2xl border p-4 ${colors[variant]}`}>
+    <div className={cn('relative overflow-hidden rounded-2xl border p-4 pt-5', palette.card)}>
+      <span className={cn('absolute inset-x-0 top-0 h-1', palette.accent)} />
       <div className="flex items-center gap-2 mb-1">
         <Icon className="w-4 h-4 opacity-70" />
         <span className="text-xs font-medium opacity-70 uppercase tracking-wide">{label}</span>

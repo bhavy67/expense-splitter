@@ -23,7 +23,7 @@ export function BottomNav() {
         {/* FAB-style center button */}
         <button
           onClick={() => navigate('/?new=1')}
-          className="w-12 h-12 rounded-2xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-200 -mt-4 transition-transform active:scale-95"
+          className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-indigo-700 flex items-center justify-center shadow-lg shadow-indigo-900/25 -mt-4 transition-transform active:scale-95"
         >
           <Plus className="w-5 h-5 text-white" />
         </button>
