@@ -28,13 +28,17 @@ def _issue_tokens(response: Response, user_id: str) -> TokenResponse:
 
     access = create_access_token(user_id)
     refresh = create_refresh_token(user_id)
+    # In production the frontend (e.g. Vercel) and backend are on different
+    # origins, so the refresh cookie must be sent cross-site: that requires
+    # SameSite=None, which browsers only honor when Secure is also set.
+    is_production = settings.APP_ENV == "production"
     response.set_cookie(
         REFRESH_COOKIE,
         refresh,
         max_age=COOKIE_MAX_AGE,
         httponly=True,
-        secure=settings.APP_ENV == "production",
-        samesite="lax",
+        secure=is_production,
+        samesite="none" if is_production else "lax",
     )
     return TokenResponse(access_token=access)
 

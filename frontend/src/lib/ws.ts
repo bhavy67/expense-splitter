@@ -3,6 +3,23 @@ type WSEvent = {
   payload: unknown
 }
 
+// Resolve the WebSocket origin. Explicit VITE_WS_URL wins; otherwise derive
+// it from VITE_API_URL (swapping http(s) for ws(s)) so a single env var
+// covers both REST and WS when the backend lives on another origin. With
+// neither set, fall back to the current page's origin (same-origin/dev-proxy
+// setups).
+function resolveWsOrigin(): string | null {
+  const explicit = import.meta.env.VITE_WS_URL as string | undefined
+  if (explicit) return explicit.replace(/\/$/, '')
+
+  const apiUrl = import.meta.env.VITE_API_URL as string | undefined
+  if (apiUrl) return apiUrl.replace(/\/$/, '').replace(/^http/, 'ws')
+
+  return null
+}
+
+const WS_ORIGIN = resolveWsOrigin()
+
 type Listener = (event: WSEvent) => void
 
 class GroupWebSocket {
@@ -20,8 +37,9 @@ class GroupWebSocket {
   }
 
   private _open(groupId: string, token: string) {
-    const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws'
-    this.ws = new WebSocket(`${protocol}://${window.location.host}/ws/groups/${groupId}?token=${token}`)
+    const origin =
+      WS_ORIGIN ?? `${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.host}`
+    this.ws = new WebSocket(`${origin}/ws/groups/${groupId}?token=${token}`)
 
     this.ws.onmessage = (e) => {
       try {

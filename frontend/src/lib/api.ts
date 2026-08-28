@@ -1,8 +1,15 @@
 import axios from 'axios'
 import { useAuthStore } from '@/store/auth'
 
+// When the frontend and backend are deployed on different origins (e.g. the
+// frontend on Vercel, the backend elsewhere), set VITE_API_URL to the
+// backend's origin. Left unset, requests go to a relative path and rely on
+// the Vite dev proxy (local dev) or same-origin hosting.
+const API_ROOT = import.meta.env.VITE_API_URL ?? ''
+export const API_BASE = `${API_ROOT}/api/v1`
+
 export const api = axios.create({
-  baseURL: '/api/v1',
+  baseURL: API_BASE,
   withCredentials: true, // sends httpOnly refresh cookie
 })
 
@@ -25,7 +32,7 @@ api.interceptors.response.use(
 
       if (!refreshPromise) {
         refreshPromise = axios
-          .post<{ access_token: string }>('/api/v1/auth/refresh', {}, { withCredentials: true })
+          .post<{ access_token: string }>(`${API_BASE}/auth/refresh`, {}, { withCredentials: true })
           .then((res) => {
             useAuthStore.getState().setAccessToken(res.data.access_token)
             return res.data.access_token
