@@ -1,16 +1,24 @@
 import { cn } from '@/lib/utils'
+import { getPreset } from '@/lib/avatars'
 
 interface AvatarProps {
   name: string
   src?: string | null
   size?: 'sm' | 'md' | 'lg'
   className?: string
+  animated?: boolean
 }
 
 const sizes = {
-  sm: 'w-7 h-7 text-xs',
-  md: 'w-9 h-9 text-sm',
-  lg: 'w-11 h-11 text-base',
+  sm: 'w-7 h-7 text-sm',
+  md: 'w-9 h-9 text-base',
+  lg: 'w-11 h-11 text-lg',
+}
+
+const emojiSizes = {
+  sm: 'text-sm',
+  md: 'text-base',
+  lg: 'text-xl',
 }
 
 function initials(name: string) {
@@ -22,7 +30,6 @@ function initials(name: string) {
     .toUpperCase()
 }
 
-// Deterministic color from name
 const COLORS = [
   'bg-violet-500', 'bg-indigo-500', 'bg-blue-500', 'bg-teal-500',
   'bg-emerald-500', 'bg-amber-500', 'bg-orange-500', 'bg-rose-500',
@@ -34,13 +41,30 @@ function colorFor(name: string) {
   return COLORS[Math.abs(hash) % COLORS.length]
 }
 
-export function Avatar({ name, src, size = 'md', className }: AvatarProps) {
+export function Avatar({ name, src, size = 'md', className, animated = false }: AvatarProps) {
+  const preset = getPreset(src)
+
+  if (preset) {
+    return (
+      <div
+        className={cn('rounded-full shrink-0 flex items-center justify-center ring-2 ring-white dark:ring-zinc-900', sizes[size], animated && 'avatar-animated', className)}
+        style={{
+          background: preset.gradient,
+          ['--avatar-glow' as string]: preset.glow,
+        }}
+        title={name}
+      >
+        <span className={emojiSizes[size]} style={{ lineHeight: 1 }}>{preset.emoji}</span>
+      </div>
+    )
+  }
+
   if (src) {
     return (
       <img
         src={src}
         alt={name}
-        className={cn('rounded-full object-cover ring-2 ring-white', sizes[size], className)}
+        className={cn('rounded-full object-cover ring-2 ring-white dark:ring-zinc-900', sizes[size], className)}
       />
     )
   }
@@ -48,7 +72,7 @@ export function Avatar({ name, src, size = 'md', className }: AvatarProps) {
   return (
     <div
       className={cn(
-        'rounded-full flex items-center justify-center font-semibold text-white ring-2 ring-white shrink-0',
+        'rounded-full flex items-center justify-center font-semibold text-white ring-2 ring-white dark:ring-zinc-900 shrink-0',
         colorFor(name),
         sizes[size],
         className

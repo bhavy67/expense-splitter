@@ -4,10 +4,13 @@ import { AnimatePresence } from 'framer-motion'
 import { useAuthStore } from '@/store/auth'
 import { ToastProvider } from '@/components/common/Toast'
 
-const LoginPage = lazy(() => import('@/pages/auth/LoginPage'))
-const RegisterPage = lazy(() => import('@/pages/auth/RegisterPage'))
-const ForgotPasswordPage = lazy(() => import('@/pages/auth/ForgotPasswordPage'))
-const ResetPasswordPage = lazy(() => import('@/pages/auth/ResetPasswordPage'))
+// Auth pages are eagerly imported — they're always the entry point so lazy
+// loading them causes a visible flash on first navigation between login/register.
+import LoginPage from '@/pages/auth/LoginPage'
+import RegisterPage from '@/pages/auth/RegisterPage'
+import ForgotPasswordPage from '@/pages/auth/ForgotPasswordPage'
+import ResetPasswordPage from '@/pages/auth/ResetPasswordPage'
+
 const DashboardPage = lazy(() => import('@/pages/dashboard/DashboardPage'))
 const GroupPage = lazy(() => import('@/pages/groups/GroupPage'))
 const AddExpensePage = lazy(() => import('@/pages/expenses/AddExpensePage'))

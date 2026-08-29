@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/store/auth'
 import { toast } from '@/components/common/Toast'
+import { defaultAvatarForEmail } from '@/lib/avatars'
 import type { User } from '@/types'
 
 function getErrorMessage(err: unknown): string {
@@ -30,15 +31,17 @@ export function useRegister() {
         options: { data: { name: data.name } },
       })
       if (error) throw error
-      return signUpData
+      return { signUpData, email: data.email }
     },
-    onSuccess: async ({ session, user }) => {
+    onSuccess: async ({ signUpData: { session, user }, email }) => {
       if (session && user) {
+        // Assign a default avatar based on the email so every new account gets one
+        const defaultAvatar = defaultAvatarForEmail(email)
+        await supabase.from('profiles').update({ avatar_url: defaultAvatar }).eq('id', user.id)
         setUser(await loadProfile(user.id))
         navigate('/')
       } else {
-        // Email confirmation is required before a session is issued.
-        toast.success('Check your email to confirm your account, then sign in.')
+        toast.success('Account created! Check your email to confirm, then sign in.')
         navigate('/auth/login')
       }
     },
@@ -72,7 +75,7 @@ export function useForgotPassword() {
       })
       if (error) throw error
     },
-    onSuccess: () => toast.success('Reset link sent — check your email.'),
+    onSuccess: () => toast.success('Reset link sent — check your inbox.'),
     onError: (err) => toast.error(getErrorMessage(err)),
   })
 }
@@ -87,7 +90,7 @@ export function useResetPassword() {
     },
     onSuccess: async () => {
       await supabase.auth.signOut()
-      toast.success('Password updated — please sign in.')
+      toast.success('Password updated successfully. Please sign in.')
       navigate('/auth/login', { replace: true })
     },
     onError: (err) => toast.error(getErrorMessage(err)),
@@ -128,7 +131,7 @@ export function useUpdateProfile() {
     onSuccess: (data) => {
       setUser({ id: data.id, email: data.email, name: data.name, avatar_url: data.avatar_url, created_at: data.created_at })
       queryClient.invalidateQueries({ queryKey: ['groups'] })
-      toast.success('Profile updated')
+      toast.success('Profile saved!')
     },
     onError: (err) => toast.error(getErrorMessage(err)),
   })
