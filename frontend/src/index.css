@@ -49,6 +49,15 @@ body {
   min-height: 100svh;
 }
 
+button,
+[role="button"],
+a,
+label,
+select,
+summary {
+  cursor: pointer;
+}
+
 ::selection {
   background: var(--color-indigo-200);
   color: var(--color-indigo-950);
