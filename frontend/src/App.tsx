@@ -5,6 +5,8 @@ import { ToastProvider } from '@/components/common/Toast'
 
 const LoginPage = lazy(() => import('@/pages/auth/LoginPage'))
 const RegisterPage = lazy(() => import('@/pages/auth/RegisterPage'))
+const ForgotPasswordPage = lazy(() => import('@/pages/auth/ForgotPasswordPage'))
+const ResetPasswordPage = lazy(() => import('@/pages/auth/ResetPasswordPage'))
 const DashboardPage = lazy(() => import('@/pages/dashboard/DashboardPage'))
 const GroupPage = lazy(() => import('@/pages/groups/GroupPage'))
 const AddExpensePage = lazy(() => import('@/pages/expenses/AddExpensePage'))
@@ -36,6 +38,8 @@ export default function App() {
           {/* Auth */}
           <Route path="/auth/login" element={<LoginPage />} />
           <Route path="/auth/register" element={<RegisterPage />} />
+          <Route path="/auth/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/auth/reset-password" element={<ResetPasswordPage />} />
 
           {/* Invite link join */}
           <Route path="/join/:inviteCode" element={<JoinGroupPage />} />
