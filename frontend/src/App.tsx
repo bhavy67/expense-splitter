@@ -3,6 +3,7 @@ import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { AnimatePresence } from 'framer-motion'
 import { useAuthStore } from '@/store/auth'
 import { ToastProvider } from '@/components/common/Toast'
+import { InstallPrompt } from '@/components/common/InstallPrompt'
 
 // Auth pages are eagerly imported — they're always the entry point so lazy
 // loading them causes a visible flash on first navigation between login/register.
@@ -64,6 +65,7 @@ export default function App() {
       </Suspense>
 
       <ToastProvider />
+      <InstallPrompt />
     </>
   )
 }
