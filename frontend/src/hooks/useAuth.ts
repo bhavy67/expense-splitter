@@ -64,6 +64,36 @@ export function useLogin(redirectTo = '/') {
   })
 }
 
+export function useForgotPassword() {
+  return useMutation({
+    mutationFn: async (email: string) => {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/auth/reset-password`,
+      })
+      if (error) throw error
+    },
+    onSuccess: () => toast.success('Reset link sent — check your email.'),
+    onError: (err) => toast.error(getErrorMessage(err)),
+  })
+}
+
+export function useResetPassword() {
+  const navigate = useNavigate()
+
+  return useMutation({
+    mutationFn: async (password: string) => {
+      const { error } = await supabase.auth.updateUser({ password })
+      if (error) throw error
+    },
+    onSuccess: async () => {
+      await supabase.auth.signOut()
+      toast.success('Password updated — please sign in.')
+      navigate('/auth/login', { replace: true })
+    },
+    onError: (err) => toast.error(getErrorMessage(err)),
+  })
+}
+
 export function useLogout() {
   const setUser = useAuthStore((s) => s.setUser)
   const navigate = useNavigate()
