@@ -8,6 +8,7 @@ import { Button } from '@/components/common/Button'
 import { formatCurrency } from '@/lib/currency'
 import { cn } from '@/lib/utils'
 import { useExpense, useUpdateExpense, useDeleteExpense, useExpenseHistory } from '@/hooks/useExpenses'
+import { ExpenseComments } from '@/components/expenses/ExpenseComments'
 import { useGroup } from '@/hooks/useGroups'
 import { useAuthStore } from '@/store/auth'
 
@@ -430,6 +431,9 @@ export default function ExpenseDetailPage() {
             )}
           </div>
         )}
+
+        {/* Comments */}
+        {!editing && <ExpenseComments expenseId={expenseId!} />}
       </div>
 
       {showDelete && (

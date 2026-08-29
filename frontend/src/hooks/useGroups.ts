@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/store/auth'
 import { toast } from '@/components/common/Toast'
-import type { Group, GroupSummary } from '@/types'
+import type { ActivityItem, Group, GroupSummary } from '@/types'
 import type { Database } from '@/lib/database.types'
 
 type GroupType = Database['public']['Enums']['group_type']
@@ -135,6 +135,33 @@ export function useJoinGroup() {
       toast.success(`Joined "${group.name}"!`)
     },
     onError: (err) => toast.error(getErrorMessage(err)),
+  })
+}
+
+export function useGroupActivity(groupId: string) {
+  return useQuery({
+    queryKey: ['group-activity', groupId],
+    queryFn: async () => {
+      const { data: activity, error } = await supabase
+        .from('group_activity')
+        .select('*')
+        .eq('group_id', groupId)
+        .order('occurred_at', { ascending: false })
+        .limit(50)
+      if (error) throw error
+
+      const actorIds = [...new Set((activity ?? []).map((a) => a.actor_id).filter(Boolean))]
+      const { data: profiles } = actorIds.length
+        ? await supabase.from('profiles').select('id, name, avatar_url').in('id', actorIds)
+        : { data: [] }
+
+      const profileMap = Object.fromEntries((profiles ?? []).map((p) => [p.id, p]))
+      return (activity ?? []).map((item) => ({
+        ...item,
+        actor: profileMap[item.actor_id] ?? null,
+      })) as ActivityItem[]
+    },
+    enabled: !!groupId,
   })
 }
 
