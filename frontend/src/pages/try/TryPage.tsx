@@ -398,8 +398,6 @@ function ResultsStep({
     })
   }
 
-  const personMap = Object.fromEntries(people.map((p) => [p.id, p]))
-
   return (
     <div className="flex flex-col gap-6">
       <div>

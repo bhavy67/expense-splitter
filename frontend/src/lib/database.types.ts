@@ -30,6 +30,45 @@ export type Database = {
         }
         Relationships: []
       }
+      expense_comments: {
+        Row: {
+          content: string
+          created_at: string
+          expense_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          expense_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          expense_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'expense_comments_expense_id_fkey'
+            columns: ['expense_id']
+            isOneToOne: false
+            referencedRelation: 'expenses'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'expense_comments_user_id_fkey'
+            columns: ['user_id']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       expense_audit: {
         Row: {
           action: Database['public']['Enums']['audit_action']
@@ -521,7 +560,18 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      group_activity: {
+        Row: {
+          activity_type: 'expense_created' | 'expense_edited' | 'payment_recorded'
+          actor_id: string | null
+          entity_id: string | null
+          entity_title: string | null
+          group_id: string | null
+          occurred_at: string | null
+          total_amount: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       confirm_payment: {
