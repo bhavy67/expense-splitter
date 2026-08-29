@@ -7,6 +7,8 @@ import { Avatar } from '@/components/common/Avatar'
 import { Button } from '@/components/common/Button'
 import { useAuthStore } from '@/store/auth'
 import { useLogout, useUpdateProfile } from '@/hooks/useAuth'
+import { AVATAR_PRESETS, getPreset } from '@/lib/avatars'
+import { cn } from '@/lib/utils'
 
 export default function ProfilePage() {
   const navigate = useNavigate()
@@ -15,20 +17,20 @@ export default function ProfilePage() {
   const update = useUpdateProfile()
 
   const [name, setName] = useState(user?.name ?? '')
-  const [avatarUrl, setAvatarUrl] = useState(user?.avatar_url ?? '')
-  const dirty = name !== (user?.name ?? '') || avatarUrl !== (user?.avatar_url ?? '')
+  const [selectedAvatar, setSelectedAvatar] = useState(user?.avatar_url ?? 'avatar:0')
+
+  const dirty = name !== (user?.name ?? '') || selectedAvatar !== (user?.avatar_url ?? '')
 
   useEffect(() => {
     setName(user?.name ?? '')
-    setAvatarUrl(user?.avatar_url ?? '')
+    setSelectedAvatar(user?.avatar_url ?? 'avatar:0')
   }, [user])
 
   function save() {
-    update.mutate({
-      name: name || undefined,
-      avatar_url: avatarUrl || undefined,
-    })
+    update.mutate({ name: name || undefined, avatar_url: selectedAvatar })
   }
+
+  const currentPreset = getPreset(selectedAvatar)
 
   return (
     <AppShell>
@@ -46,14 +48,20 @@ export default function ProfilePage() {
 
         {/* Avatar preview */}
         <div className="flex flex-col items-center mb-8">
-          <Avatar
-            name={name || user?.name || '?'}
-            src={avatarUrl || null}
-            size="lg"
-            className="!w-20 !h-20 !text-2xl mb-3"
-          />
+          <div className="mb-3">
+            <Avatar
+              name={name || user?.name || '?'}
+              src={selectedAvatar}
+              size="lg"
+              className="!w-20 !h-20 !text-3xl"
+              animated
+            />
+          </div>
           <p className="text-lg font-bold text-gray-900 dark:text-zinc-100">{name || user?.name}</p>
           <p className="text-sm text-gray-400 dark:text-zinc-500">{user?.email}</p>
+          {currentPreset && (
+            <p className="text-xs text-gray-400 dark:text-zinc-500 mt-1">{currentPreset.label}</p>
+          )}
         </div>
 
         {/* Form */}
@@ -62,7 +70,7 @@ export default function ProfilePage() {
             <p className="text-sm font-semibold text-gray-700 dark:text-zinc-300">Account info</p>
           </div>
 
-          <div className="px-4 py-4 flex flex-col gap-4">
+          <div className="px-4 py-4 flex flex-col gap-5">
             {/* Name */}
             <div>
               <label className="text-xs font-medium text-gray-500 dark:text-zinc-400 mb-1.5 block">Display name</label>
@@ -86,18 +94,48 @@ export default function ProfilePage() {
               />
             </div>
 
-            {/* Avatar URL */}
+            {/* Avatar picker */}
             <div>
-              <label className="text-xs font-medium text-gray-500 dark:text-zinc-400 mb-1.5 block">
-                Avatar URL <span className="text-gray-400 dark:text-zinc-500 font-normal">(optional)</span>
-              </label>
-              <input
-                type="url"
-                value={avatarUrl}
-                onChange={(e) => setAvatarUrl(e.target.value)}
-                placeholder="https://example.com/avatar.jpg"
-                className="w-full h-10 px-3.5 rounded-xl border border-gray-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-sm text-gray-900 dark:text-zinc-100 placeholder:text-gray-400 dark:placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-              />
+              <label className="text-xs font-medium text-gray-500 dark:text-zinc-400 mb-3 block">Choose your avatar</label>
+              <div className="grid grid-cols-5 gap-3">
+                {AVATAR_PRESETS.map((preset) => {
+                  const isSelected = selectedAvatar === preset.id
+                  return (
+                    <button
+                      key={preset.id}
+                      type="button"
+                      onClick={() => setSelectedAvatar(preset.id)}
+                      className={cn(
+                        'relative flex flex-col items-center gap-1.5 p-2 rounded-2xl border-2 transition-all duration-200',
+                        isSelected
+                          ? 'border-indigo-500 dark:border-indigo-400 bg-indigo-50 dark:bg-indigo-950/30 scale-105'
+                          : 'border-transparent hover:border-gray-200 dark:hover:border-zinc-700 hover:scale-105'
+                      )}
+                      title={preset.label}
+                    >
+                      <div
+                        className={cn('w-11 h-11 rounded-full flex items-center justify-center text-xl shadow-md', isSelected && 'avatar-animated')}
+                        style={{
+                          background: preset.gradient,
+                          ['--avatar-glow' as string]: preset.glow,
+                        }}
+                      >
+                        {preset.emoji}
+                      </div>
+                      <span className="text-[10px] font-medium text-gray-500 dark:text-zinc-400 truncate w-full text-center">
+                        {preset.label}
+                      </span>
+                      {isSelected && (
+                        <span className="absolute -top-1 -right-1 w-4 h-4 bg-indigo-500 rounded-full flex items-center justify-center">
+                          <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                          </svg>
+                        </span>
+                      )}
+                    </button>
+                  )
+                })}
+              </div>
             </div>
           </div>
 
