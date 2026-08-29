@@ -8,6 +8,7 @@ import { Button } from '@/components/common/Button'
 import { useAuthStore } from '@/store/auth'
 import { useLogout, useUpdateProfile } from '@/hooks/useAuth'
 import { AVATAR_PRESETS, getPreset } from '@/lib/avatars'
+import { AVATAR_SVG_MAP } from '@/components/common/AvatarSVGs'
 import { cn } from '@/lib/utils'
 
 export default function ProfilePage() {
@@ -114,13 +115,13 @@ export default function ProfilePage() {
                       title={preset.label}
                     >
                       <div
-                        className={cn('w-11 h-11 rounded-full flex items-center justify-center text-xl shadow-md', isSelected && 'avatar-animated')}
+                        className={cn('w-11 h-11 rounded-full overflow-hidden shadow-md', isSelected && 'avatar-animated')}
                         style={{
                           background: preset.gradient,
                           ['--avatar-glow' as string]: preset.glow,
                         }}
                       >
-                        {preset.emoji}
+                        {(() => { const S = AVATAR_SVG_MAP[preset.id]; return S ? <S /> : null })()}
                       </div>
                       <span className="text-[10px] font-medium text-gray-500 dark:text-zinc-400 truncate w-full text-center">
                         {preset.label}
