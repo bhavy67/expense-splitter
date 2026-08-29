@@ -6,14 +6,14 @@ export function BottomNav() {
   const navigate = useNavigate()
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-200 pb-safe">
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white dark:bg-zinc-900 border-t border-gray-200 dark:border-zinc-800 pb-safe">
       <div className="flex items-center justify-around px-2 h-16">
         <NavLink
           to="/"
           end
           className={({ isActive }) =>
             cn('flex flex-col items-center gap-0.5 px-4 py-1 rounded-xl transition-colors',
-              isActive ? 'text-indigo-600' : 'text-gray-500')
+              isActive ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-500 dark:text-zinc-500')
           }
         >
           <LayoutDashboard className="w-5 h-5" />
@@ -32,7 +32,7 @@ export function BottomNav() {
           to="/profile"
           className={({ isActive }) =>
             cn('flex flex-col items-center gap-0.5 px-4 py-1 rounded-xl transition-colors',
-              isActive ? 'text-indigo-600' : 'text-gray-500')
+              isActive ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-500 dark:text-zinc-500')
           }
         >
           <UserCircle className="w-5 h-5" />

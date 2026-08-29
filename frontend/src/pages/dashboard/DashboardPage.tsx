@@ -19,12 +19,12 @@ const GROUP_ICONS: Record<string, string> = {
 function SummaryCard({ label, amount, variant }: { label: string; amount: number; variant: 'owe' | 'owed' | 'net' }) {
   const palette =
     variant === 'owe'
-      ? { card: 'bg-red-50 border-red-100 text-red-700', accent: 'bg-red-400' }
+      ? { card: 'bg-red-50 dark:bg-red-950/30 border-red-100 dark:border-red-900/30 text-red-700 dark:text-red-400', accent: 'bg-red-400 dark:bg-red-500' }
       : variant === 'owed'
-        ? { card: 'bg-emerald-50 border-emerald-100 text-emerald-700', accent: 'bg-emerald-400' }
+        ? { card: 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-100 dark:border-emerald-900/30 text-emerald-700 dark:text-emerald-400', accent: 'bg-emerald-400 dark:bg-emerald-500' }
         : amount >= 0
-          ? { card: 'bg-indigo-50 border-indigo-100 text-indigo-700', accent: 'bg-indigo-500' }
-          : { card: 'bg-red-50 border-red-100 text-red-700', accent: 'bg-red-400' }
+          ? { card: 'bg-indigo-50 dark:bg-indigo-950/30 border-indigo-100 dark:border-indigo-900/30 text-indigo-700 dark:text-indigo-400', accent: 'bg-indigo-500' }
+          : { card: 'bg-red-50 dark:bg-red-950/30 border-red-100 dark:border-red-900/30 text-red-700 dark:text-red-400', accent: 'bg-red-400 dark:bg-red-500' }
   const Icon = variant === 'owe' ? TrendingDown : variant === 'owed' ? TrendingUp : Minus
 
   return (
@@ -46,41 +46,55 @@ function GroupCard({ group }: { group: GroupSummary }) {
   return (
     <Link
       to={`/groups/${group.id}`}
-      className="block bg-white rounded-2xl border border-gray-200 p-4 hover:border-indigo-300 hover:shadow-md hover:shadow-indigo-100/60 transition-all duration-200 group"
+      className="block bg-white dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-4 hover:border-indigo-300 dark:hover:border-indigo-700 hover:shadow-md hover:shadow-indigo-100/60 dark:hover:shadow-none transition-all duration-200 group"
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0">
-          <div className="w-10 h-10 rounded-xl bg-gray-50 border border-gray-200 flex items-center justify-center text-xl shrink-0">
+          <div className="w-10 h-10 rounded-xl bg-gray-50 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 flex items-center justify-center text-xl shrink-0">
             {GROUP_ICONS[group.type]}
           </div>
           <div className="min-w-0">
-            <h3 className="font-semibold text-gray-900 truncate group-hover:text-indigo-700 transition-colors">
+            <h3 className="font-semibold text-gray-900 dark:text-zinc-100 truncate group-hover:text-indigo-700 dark:group-hover:text-indigo-400 transition-colors">
               {group.name}
             </h3>
-            <p className="text-xs text-gray-400 mt-0.5">
+            <p className="text-xs text-gray-400 dark:text-zinc-500 mt-0.5">
               {group.member_count} member{group.member_count !== 1 ? 's' : ''} ·{' '}
               {formatCurrency(group.total_expenses)} total
             </p>
           </div>
         </div>
 
-        {/* Balance chip */}
         {net !== 0 && (
           <div className={`shrink-0 rounded-xl px-2.5 py-1 text-sm font-semibold ${
             netPositive
-              ? 'bg-emerald-50 text-emerald-700'
-              : 'bg-red-50 text-red-600'
+              ? 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400'
+              : 'bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400'
           }`}>
             {netPositive ? '+' : '−'}{formatCurrency(Math.abs(net))}
           </div>
         )}
         {net === 0 && group.total_expenses > 0 && (
-          <div className="shrink-0 rounded-xl px-2.5 py-1 text-sm font-semibold bg-gray-100 text-gray-500">
+          <div className="shrink-0 rounded-xl px-2.5 py-1 text-sm font-semibold bg-gray-100 dark:bg-zinc-800 text-gray-500 dark:text-zinc-400">
             Settled
           </div>
         )}
       </div>
     </Link>
+  )
+}
+
+function GroupCardSkeleton() {
+  return (
+    <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-4">
+      <div className="flex items-center gap-3">
+        <div className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-zinc-800 animate-pulse shrink-0" />
+        <div className="flex-1 flex flex-col gap-2">
+          <div className="h-4 w-32 bg-gray-100 dark:bg-zinc-800 rounded-lg animate-pulse" />
+          <div className="h-3 w-48 bg-gray-100 dark:bg-zinc-800 rounded-lg animate-pulse" />
+        </div>
+        <div className="h-7 w-16 bg-gray-100 dark:bg-zinc-800 rounded-xl animate-pulse" />
+      </div>
+    </div>
   )
 }
 
@@ -90,7 +104,6 @@ export default function DashboardPage() {
   const user = useAuthStore((s) => s.user)
   const { data: groups, isLoading } = useGroups()
 
-  // Open modal if ?new=1 in URL (from sidebar + button)
   useEffect(() => {
     if (searchParams.get('new') === '1') {
       setShowCreateModal(true)
@@ -118,10 +131,10 @@ export default function DashboardPage() {
         {/* Greeting */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-xl font-bold text-gray-900">
+            <h1 className="text-xl font-bold text-gray-900 dark:text-zinc-100">
               Hey, {user?.name.split(' ')[0]} 👋
             </h1>
-            <p className="text-sm text-gray-500 mt-0.5">Here's your expense summary</p>
+            <p className="text-sm text-gray-500 dark:text-zinc-400 mt-0.5">Here's your expense summary</p>
           </div>
           <Button className="hidden md:flex" onClick={() => setShowCreateModal(true)}>
             <Plus className="w-4 h-4" />
@@ -140,15 +153,13 @@ export default function DashboardPage() {
 
         {/* Groups list */}
         <div>
-          <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">
+          <h2 className="text-sm font-semibold text-gray-500 dark:text-zinc-500 uppercase tracking-wider mb-3">
             Your groups
           </h2>
 
           {isLoading && (
             <div className="flex flex-col gap-3">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="h-20 bg-gray-100 rounded-2xl animate-pulse" />
-              ))}
+              {[1, 2, 3].map((i) => <GroupCardSkeleton key={i} />)}
             </div>
           )}
 
