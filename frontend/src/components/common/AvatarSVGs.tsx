@@ -1,3 +1,5 @@
+import React from 'react'
+
 // Hand-crafted SVG avatar illustrations — one per character
 
 export function WolfSVG() {
@@ -324,7 +326,7 @@ export function DolphinSVG() {
   )
 }
 
-export const AVATAR_SVG_MAP: Record<string, () => JSX.Element> = {
+export const AVATAR_SVG_MAP: Record<string, () => React.ReactElement> = {
   'avatar:0': WolfSVG,
   'avatar:1': FoxSVG,
   'avatar:2': LionSVG,

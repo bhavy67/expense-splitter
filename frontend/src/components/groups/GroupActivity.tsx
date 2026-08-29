@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { Receipt, Edit3, CreditCard } from 'lucide-react'
 import { Avatar } from '@/components/common/Avatar'
 import { EmptyState } from '@/components/common/EmptyState'
@@ -38,7 +39,7 @@ const TYPE_CONFIG = {
   },
 }
 
-function activityLabel(item: ActivityItem, currentUserId: string): React.ReactNode {
+function activityLabel(item: ActivityItem, currentUserId: string): ReactNode {
   const actorName = item.actor?.id === currentUserId ? 'You' : (item.actor?.name ?? 'Someone')
   const bold = (t: string) => <span className="font-semibold text-gray-900 dark:text-zinc-100">{t}</span>
 
@@ -135,7 +136,7 @@ export function GroupActivity({ groupId }: Props) {
       ) : activity.length === 0 ? (
         <div className="px-4 py-8">
           <EmptyState
-            icon={Receipt}
+            icon={<Receipt className="w-5 h-5" />}
             title="No activity yet"
             description="Add your first expense to get started."
           />
