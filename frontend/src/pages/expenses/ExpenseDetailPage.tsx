@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { ArrowLeft, ChevronDown, ChevronUp, Edit2, Trash2, X, Check } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { AppShell } from '@/components/layout/AppShell'
 import { Avatar } from '@/components/common/Avatar'
 import { Button } from '@/components/common/Button'
@@ -38,27 +39,35 @@ function DeleteConfirmModal({ onConfirm, onCancel, loading }: {
   loading: boolean
 }) {
   return (
-    <>
-      <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm" onClick={onCancel} />
+    <AnimatePresence>
+      <motion.div
+        className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm"
+        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+        onClick={onCancel}
+      />
       <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4">
-        <div
-          className="w-full max-w-sm bg-white rounded-2xl shadow-2xl p-6"
+        <motion.div
+          className="w-full max-w-sm bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl dark:shadow-black/50 border border-transparent dark:border-zinc-800 p-6"
+          initial={{ opacity: 0, scale: 0.95, y: 16 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.95, y: 16 }}
+          transition={{ type: 'spring', duration: 0.3, bounce: 0.15 }}
           onClick={(e) => e.stopPropagation()}
         >
-          <div className="w-12 h-12 bg-red-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
+          <div className="w-12 h-12 bg-red-50 dark:bg-red-950/30 rounded-2xl flex items-center justify-center mx-auto mb-4">
             <Trash2 className="w-5 h-5 text-red-500" />
           </div>
-          <h3 className="text-base font-semibold text-gray-900 text-center mb-1">Delete expense?</h3>
-          <p className="text-sm text-gray-500 text-center mb-6">
+          <h3 className="text-base font-semibold text-gray-900 dark:text-zinc-100 text-center mb-1">Delete expense?</h3>
+          <p className="text-sm text-gray-500 dark:text-zinc-400 text-center mb-6">
             This will remove it from the group and recalculate all balances.
           </p>
           <div className="flex gap-3">
             <Button variant="secondary" className="flex-1" onClick={onCancel}>Cancel</Button>
             <Button variant="danger" className="flex-1" loading={loading} onClick={onConfirm}>Delete</Button>
           </div>
-        </div>
+        </motion.div>
       </div>
-    </>
+    </AnimatePresence>
   )
 }
 
@@ -68,10 +77,10 @@ function Skeleton() {
   return (
     <AppShell>
       <div className="max-w-lg mx-auto px-4 py-6 animate-pulse">
-        <div className="h-8 w-24 bg-gray-100 rounded-lg mb-6" />
-        <div className="h-16 bg-gray-100 rounded-2xl mb-4" />
-        <div className="h-32 bg-gray-100 rounded-2xl mb-4" />
-        <div className="h-40 bg-gray-100 rounded-2xl" />
+        <div className="h-8 w-24 bg-gray-100 dark:bg-zinc-800 rounded-lg mb-6" />
+        <div className="h-16 bg-gray-100 dark:bg-zinc-800 rounded-2xl mb-4" />
+        <div className="h-32 bg-gray-100 dark:bg-zinc-800 rounded-2xl mb-4" />
+        <div className="h-40 bg-gray-100 dark:bg-zinc-800 rounded-2xl" />
       </div>
     </AppShell>
   )
@@ -104,7 +113,7 @@ export default function ExpenseDetailPage() {
   if (!expense) return (
     <AppShell>
       <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4">
-        <p className="text-gray-500">Expense not found.</p>
+        <p className="text-gray-500 dark:text-zinc-400">Expense not found.</p>
         <Button variant="secondary" onClick={() => navigate(-1)}>Go back</Button>
       </div>
     </AppShell>
@@ -173,7 +182,7 @@ export default function ExpenseDetailPage() {
         <div className="flex items-center justify-between mb-6">
           <button
             onClick={() => navigate(-1)}
-            className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 transition-colors"
+            className="flex items-center gap-1.5 text-sm text-gray-500 dark:text-zinc-400 hover:text-gray-800 dark:hover:text-zinc-100 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             Back
@@ -183,14 +192,14 @@ export default function ExpenseDetailPage() {
             <div className="flex items-center gap-2">
               <button
                 onClick={startEdit}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-100 transition-colors"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-medium text-gray-600 dark:text-zinc-300 hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors"
               >
                 <Edit2 className="w-3.5 h-3.5" />
                 Edit
               </button>
               <button
                 onClick={() => setShowDelete(true)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-medium text-red-500 hover:bg-red-50 transition-colors"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
               >
                 <Trash2 className="w-3.5 h-3.5" />
                 Delete
@@ -200,7 +209,7 @@ export default function ExpenseDetailPage() {
             <div className="flex items-center gap-2">
               <button
                 onClick={cancelEdit}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-100 transition-colors"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-medium text-gray-500 dark:text-zinc-400 hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors"
               >
                 <X className="w-3.5 h-3.5" />
                 Cancel
@@ -214,22 +223,22 @@ export default function ExpenseDetailPage() {
         </div>
 
         {/* Header card */}
-        <div className="bg-white rounded-2xl border border-gray-200 p-5 mb-4">
+        <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-5 mb-4">
           {editing ? (
             /* ── Edit mode ── */
             <div className="flex flex-col gap-4">
               <div>
-                <label className="text-xs font-medium text-gray-500 mb-1.5 block">Title</label>
+                <label className="text-xs font-medium text-gray-500 dark:text-zinc-400 mb-1.5 block">Title</label>
                 <input
                   type="text"
                   value={editTitle}
                   onChange={(e) => setEditTitle(e.target.value)}
-                  className="w-full h-10 px-3.5 rounded-xl border border-gray-300 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full h-10 px-3.5 rounded-xl border border-gray-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-sm font-semibold text-gray-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
 
               <div>
-                <label className="text-xs font-medium text-gray-500 mb-1.5 block">Category</label>
+                <label className="text-xs font-medium text-gray-500 dark:text-zinc-400 mb-1.5 block">Category</label>
                 <div className="grid grid-cols-3 gap-2">
                   {CATEGORIES.map((cat) => (
                     <button
@@ -240,7 +249,7 @@ export default function ExpenseDetailPage() {
                         'flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium border transition-colors capitalize',
                         editCategory === cat
                           ? 'bg-indigo-600 text-white border-indigo-600'
-                          : 'bg-white text-gray-600 border-gray-200 hover:border-indigo-300'
+                          : 'bg-white dark:bg-zinc-800 text-gray-600 dark:text-zinc-300 border-gray-200 dark:border-zinc-700 hover:border-indigo-300 dark:hover:border-indigo-500'
                       )}
                     >
                       <span>{CATEGORY_ICONS[cat]}</span>
@@ -252,20 +261,20 @@ export default function ExpenseDetailPage() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs font-medium text-gray-500 mb-1.5 block">Date</label>
+                  <label className="text-xs font-medium text-gray-500 dark:text-zinc-400 mb-1.5 block">Date</label>
                   <input
                     type="date"
                     value={editDate}
                     onChange={(e) => setEditDate(e.target.value)}
-                    className="w-full h-10 px-3.5 rounded-xl border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full h-10 px-3.5 rounded-xl border border-gray-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-sm text-gray-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-gray-500 mb-1.5 block">Paid by</label>
+                  <label className="text-xs font-medium text-gray-500 dark:text-zinc-400 mb-1.5 block">Paid by</label>
                   <select
                     value={editPaidBy}
                     onChange={(e) => setEditPaidBy(e.target.value)}
-                    className="w-full h-10 px-3.5 rounded-xl border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full h-10 px-3.5 rounded-xl border border-gray-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-sm text-gray-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   >
                     {members.map((m) => (
                       <option key={m.user.id} value={m.user.id}>{m.user.name}</option>
@@ -274,7 +283,7 @@ export default function ExpenseDetailPage() {
                 </div>
               </div>
 
-              <p className="text-xs text-gray-400 text-center">
+              <p className="text-xs text-gray-400 dark:text-zinc-500 text-center">
                 Splits cannot be changed after creation
               </p>
             </div>
@@ -282,24 +291,24 @@ export default function ExpenseDetailPage() {
             /* ── View mode ── */
             <div>
               <div className="flex items-start gap-3 mb-4">
-                <div className="w-12 h-12 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center text-2xl shrink-0">
+                <div className="w-12 h-12 rounded-xl bg-gray-50 dark:bg-zinc-800 border border-gray-100 dark:border-zinc-700 flex items-center justify-center text-2xl shrink-0">
                   {CATEGORY_ICONS[expense.category]}
                 </div>
                 <div className="min-w-0">
-                  <h1 className="text-xl font-bold text-gray-900 leading-tight">{expense.title}</h1>
+                  <h1 className="text-xl font-bold text-gray-900 dark:text-zinc-100 leading-tight">{expense.title}</h1>
                   {expense.description && (
-                    <p className="text-sm text-gray-500 mt-0.5">{expense.description}</p>
+                    <p className="text-sm text-gray-500 dark:text-zinc-400 mt-0.5">{expense.description}</p>
                   )}
-                  <p className="text-xs text-gray-400 mt-1">{formatDate(expense.expense_date)}</p>
+                  <p className="text-xs text-gray-400 dark:text-zinc-500 mt-1">{formatDate(expense.expense_date)}</p>
                 </div>
               </div>
 
               {/* Amount */}
-              <div className="text-center py-3 border-t border-b border-gray-100 mb-4">
-                <p className="text-3xl font-bold text-gray-900">
+              <div className="text-center py-3 border-t border-b border-gray-100 dark:border-zinc-800 mb-4">
+                <p className="text-3xl font-bold text-gray-900 dark:text-zinc-100">
                   {formatCurrency(expense.total_amount, expense.currency_code)}
                 </p>
-                <p className="text-xs text-gray-400 mt-1 capitalize">
+                <p className="text-xs text-gray-400 dark:text-zinc-500 mt-1 capitalize">
                   {expense.split_type} split · {expense.currency_code}
                 </p>
               </div>
@@ -307,8 +316,8 @@ export default function ExpenseDetailPage() {
               {/* Paid by */}
               <div className="flex items-center gap-2.5">
                 <Avatar name={payer?.name ?? '?'} src={payer?.avatar_url} size="sm" />
-                <span className="text-sm text-gray-600">
-                  <span className="font-semibold text-gray-900">{payerName}</span>
+                <span className="text-sm text-gray-600 dark:text-zinc-300">
+                  <span className="font-semibold text-gray-900 dark:text-zinc-100">{payerName}</span>
                   {' paid for everyone'}
                 </span>
               </div>
@@ -320,13 +329,13 @@ export default function ExpenseDetailPage() {
         {!editing && (myShare > 0 || iPaid) && (
           <div className={cn(
             'rounded-2xl px-5 py-4 mb-4',
-            netPositive ? 'bg-emerald-50' : 'bg-red-50'
+            netPositive ? 'bg-emerald-50 dark:bg-emerald-950/30' : 'bg-red-50 dark:bg-red-950/30'
           )}>
-            <p className="text-xs text-gray-500 mb-0.5">Your share</p>
-            <p className={cn('text-2xl font-bold', netPositive ? 'text-emerald-600' : 'text-red-500')}>
+            <p className="text-xs text-gray-500 dark:text-zinc-400 mb-0.5">Your share</p>
+            <p className={cn('text-2xl font-bold', netPositive ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500 dark:text-red-400')}>
               {netPositive ? '+' : '−'}{formatCurrency(netAmount, expense.currency_code)}
             </p>
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-gray-500 dark:text-zinc-400 mt-1">
               {netPositive
                 ? `You paid ${formatCurrency(expense.total_amount, expense.currency_code)}, your share is ${formatCurrency(myShare, expense.currency_code)}`
                 : `Your share of the total`}
@@ -336,11 +345,11 @@ export default function ExpenseDetailPage() {
 
         {/* Split breakdown */}
         {!editing && (
-          <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden mb-4">
-            <div className="px-4 py-3 border-b border-gray-100">
-              <p className="text-sm font-semibold text-gray-700">Split breakdown</p>
+          <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 overflow-hidden mb-4">
+            <div className="px-4 py-3 border-b border-gray-100 dark:border-zinc-800">
+              <p className="text-sm font-semibold text-gray-700 dark:text-zinc-300">Split breakdown</p>
             </div>
-            <div className="divide-y divide-gray-50">
+            <div className="divide-y divide-gray-50 dark:divide-zinc-800">
               {Object.entries(splitsByUser).map(([userId, amount]) => {
                 const user = memberMap[userId]
                 const isMe = userId === currentUserId
@@ -349,16 +358,16 @@ export default function ExpenseDetailPage() {
                   <div key={userId} className="flex items-center gap-3 px-4 py-3">
                     <Avatar name={user?.name ?? '?'} src={user?.avatar_url} size="sm" />
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-800 truncate">
+                      <p className="text-sm font-medium text-gray-800 dark:text-zinc-200 truncate">
                         {isMe ? 'You' : user?.name ?? '?'}
                         {isPayer && (
-                          <span className="ml-2 text-[10px] font-semibold text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded-full">
+                          <span className="ml-2 text-[10px] font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/40 px-1.5 py-0.5 rounded-full">
                             paid
                           </span>
                         )}
                       </p>
                     </div>
-                    <p className="text-sm font-semibold text-gray-900">
+                    <p className="text-sm font-semibold text-gray-900 dark:text-zinc-100">
                       {formatCurrency(amount, expense.currency_code)}
                     </p>
                   </div>
@@ -368,13 +377,13 @@ export default function ExpenseDetailPage() {
 
             {/* Itemized items preview */}
             {expense.split_type === 'itemized' && expense.items.length > 0 && (
-              <div className="border-t border-gray-100 px-4 py-3 bg-gray-50">
-                <p className="text-xs font-semibold text-gray-500 mb-2">Items</p>
+              <div className="border-t border-gray-100 dark:border-zinc-800 px-4 py-3 bg-gray-50 dark:bg-zinc-800/50">
+                <p className="text-xs font-semibold text-gray-500 dark:text-zinc-400 mb-2">Items</p>
                 <div className="flex flex-col gap-1.5">
                   {expense.items.map((item) => (
                     <div key={item.id} className="flex items-center justify-between">
-                      <p className="text-xs text-gray-600">{item.description}</p>
-                      <p className="text-xs font-medium text-gray-700">
+                      <p className="text-xs text-gray-600 dark:text-zinc-300">{item.description}</p>
+                      <p className="text-xs font-medium text-gray-700 dark:text-zinc-200">
                         {formatCurrency(item.amount, expense.currency_code)}
                       </p>
                     </div>
@@ -387,32 +396,32 @@ export default function ExpenseDetailPage() {
 
         {/* Audit history */}
         {!editing && history.length > 0 && (
-          <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden mb-4">
+          <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 overflow-hidden mb-4">
             <button
               type="button"
               onClick={() => setShowHistory((v) => !v)}
-              className="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-50 transition-colors"
+              className="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-50 dark:hover:bg-zinc-800/50 transition-colors"
             >
-              <p className="text-sm font-semibold text-gray-700">History</p>
+              <p className="text-sm font-semibold text-gray-700 dark:text-zinc-300">History</p>
               {showHistory
-                ? <ChevronUp className="w-4 h-4 text-gray-400" />
-                : <ChevronDown className="w-4 h-4 text-gray-400" />}
+                ? <ChevronUp className="w-4 h-4 text-gray-400 dark:text-zinc-500" />
+                : <ChevronDown className="w-4 h-4 text-gray-400 dark:text-zinc-500" />}
             </button>
             {showHistory && (
-              <div className="border-t border-gray-100 divide-y divide-gray-50">
+              <div className="border-t border-gray-100 dark:border-zinc-800 divide-y divide-gray-50 dark:divide-zinc-800">
                 {history.map((entry) => {
                   const who = memberMap[entry.changed_by]
                   return (
                     <div key={entry.id} className="px-4 py-3 flex items-start gap-3">
                       <Avatar name={who?.name ?? '?'} src={who?.avatar_url} size="sm" />
                       <div className="min-w-0">
-                        <p className="text-sm text-gray-700">
+                        <p className="text-sm text-gray-700 dark:text-zinc-300">
                           <span className="font-medium">{who?.name ?? 'Someone'}</span>
                           {' '}
                           <span className="capitalize">{entry.action}</span>
                           {' this expense'}
                         </p>
-                        <p className="text-xs text-gray-400 mt-0.5">{formatDateTime(entry.created_at)}</p>
+                        <p className="text-xs text-gray-400 dark:text-zinc-500 mt-0.5">{formatDateTime(entry.created_at)}</p>
                       </div>
                     </div>
                   )

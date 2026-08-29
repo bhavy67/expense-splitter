@@ -38,7 +38,7 @@ export default function ProfilePage() {
         {/* Back — desktop only */}
         <button
           onClick={() => navigate(-1)}
-          className="hidden md:flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 transition-colors mb-6"
+          className="hidden md:flex items-center gap-1.5 text-sm text-gray-500 dark:text-zinc-400 hover:text-gray-800 dark:hover:text-zinc-100 transition-colors mb-6"
         >
           <ArrowLeft className="w-4 h-4" />
           Back
@@ -52,51 +52,51 @@ export default function ProfilePage() {
             size="lg"
             className="!w-20 !h-20 !text-2xl mb-3"
           />
-          <p className="text-lg font-bold text-gray-900">{name || user?.name}</p>
-          <p className="text-sm text-gray-400">{user?.email}</p>
+          <p className="text-lg font-bold text-gray-900 dark:text-zinc-100">{name || user?.name}</p>
+          <p className="text-sm text-gray-400 dark:text-zinc-500">{user?.email}</p>
         </div>
 
         {/* Form */}
-        <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden mb-4">
-          <div className="px-4 py-3 border-b border-gray-100">
-            <p className="text-sm font-semibold text-gray-700">Account info</p>
+        <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 overflow-hidden mb-4">
+          <div className="px-4 py-3 border-b border-gray-100 dark:border-zinc-800">
+            <p className="text-sm font-semibold text-gray-700 dark:text-zinc-300">Account info</p>
           </div>
 
           <div className="px-4 py-4 flex flex-col gap-4">
             {/* Name */}
             <div>
-              <label className="text-xs font-medium text-gray-500 mb-1.5 block">Display name</label>
+              <label className="text-xs font-medium text-gray-500 dark:text-zinc-400 mb-1.5 block">Display name</label>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Your name"
-                className="w-full h-10 px-3.5 rounded-xl border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                className="w-full h-10 px-3.5 rounded-xl border border-gray-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-sm text-gray-900 dark:text-zinc-100 placeholder:text-gray-400 dark:placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
               />
             </div>
 
             {/* Email — read-only */}
             <div>
-              <label className="text-xs font-medium text-gray-500 mb-1.5 block">Email</label>
+              <label className="text-xs font-medium text-gray-500 dark:text-zinc-400 mb-1.5 block">Email</label>
               <input
                 type="email"
                 value={user?.email ?? ''}
                 disabled
-                className="w-full h-10 px-3.5 rounded-xl border border-gray-200 text-sm text-gray-400 bg-gray-50 cursor-not-allowed"
+                className="w-full h-10 px-3.5 rounded-xl border border-gray-200 dark:border-zinc-700 text-sm text-gray-400 dark:text-zinc-500 bg-gray-50 dark:bg-zinc-800 cursor-not-allowed"
               />
             </div>
 
             {/* Avatar URL */}
             <div>
-              <label className="text-xs font-medium text-gray-500 mb-1.5 block">
-                Avatar URL <span className="text-gray-400 font-normal">(optional)</span>
+              <label className="text-xs font-medium text-gray-500 dark:text-zinc-400 mb-1.5 block">
+                Avatar URL <span className="text-gray-400 dark:text-zinc-500 font-normal">(optional)</span>
               </label>
               <input
                 type="url"
                 value={avatarUrl}
                 onChange={(e) => setAvatarUrl(e.target.value)}
                 placeholder="https://example.com/avatar.jpg"
-                className="w-full h-10 px-3.5 rounded-xl border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                className="w-full h-10 px-3.5 rounded-xl border border-gray-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-sm text-gray-900 dark:text-zinc-100 placeholder:text-gray-400 dark:placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
               />
             </div>
           </div>
@@ -115,9 +115,9 @@ export default function ProfilePage() {
         </div>
 
         {/* Sign out */}
-        <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
-          <div className="px-4 py-3 border-b border-gray-100">
-            <p className="text-sm font-semibold text-gray-700">Session</p>
+        <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 overflow-hidden">
+          <div className="px-4 py-3 border-b border-gray-100 dark:border-zinc-800">
+            <p className="text-sm font-semibold text-gray-700 dark:text-zinc-300">Session</p>
           </div>
           <div className="px-4 py-4">
             <Button variant="danger" className="w-full" onClick={logout}>

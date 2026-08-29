@@ -221,7 +221,7 @@ export default function AddExpensePage() {
       <AppShell>
         <TopBar title="Add expense" showBack />
         <div className="flex flex-col gap-3 p-4 max-w-lg mx-auto mt-4">
-          {[1, 2, 3].map((i) => <div key={i} className="h-16 bg-gray-100 rounded-2xl animate-pulse" />)}
+          {[1, 2, 3].map((i) => <div key={i} className="h-16 bg-gray-100 dark:bg-zinc-800 rounded-2xl animate-pulse" />)}
         </div>
       </AppShell>
     )
@@ -237,21 +237,21 @@ export default function AddExpensePage() {
         <div className="max-w-lg mx-auto px-4 py-6 pb-32 flex flex-col gap-6">
 
           {/* ── Amount + paid by ─────────────────────────────────────────── */}
-          <div className="bg-white rounded-2xl border border-gray-200 px-5 py-5">
+          <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 px-5 py-5">
             {/* Amount */}
             <div className="flex flex-col items-center mb-5">
-              <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+              <label className="text-xs font-semibold text-gray-400 dark:text-zinc-500 uppercase tracking-wider mb-2">
                 Amount
               </label>
               <div className="flex items-center gap-1">
-                <span className="text-3xl font-bold text-gray-400">₹</span>
+                <span className="text-3xl font-bold text-gray-400 dark:text-zinc-500">₹</span>
                 <input
                   type="number"
                   min="0"
                   step="0.01"
                   placeholder="0.00"
                   {...register('total_amount')}
-                  className="w-48 text-4xl font-bold text-gray-900 text-center bg-transparent border-0 focus:outline-none placeholder:text-gray-200"
+                  className="w-48 text-4xl font-bold text-gray-900 dark:text-zinc-100 text-center bg-transparent border-0 focus:outline-none placeholder:text-gray-200 dark:placeholder:text-zinc-700"
                 />
               </div>
               {errors.total_amount && (
@@ -261,13 +261,13 @@ export default function AddExpensePage() {
 
             {/* Paid by */}
             <div>
-              <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-2">
+              <label className="text-xs font-semibold text-gray-400 dark:text-zinc-500 uppercase tracking-wider block mb-2">
                 Paid by
               </label>
               <div className="relative">
                 <select
                   {...register('paid_by')}
-                  className="w-full h-10 pl-3.5 pr-8 rounded-xl border border-gray-200 bg-white text-sm font-medium text-gray-800 appearance-none focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full h-10 pl-3.5 pr-8 rounded-xl border border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-sm font-medium text-gray-800 dark:text-zinc-200 appearance-none focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 >
                   <option value="">Select who paid</option>
                   {activeMembers.map((m) => (
@@ -276,41 +276,41 @@ export default function AddExpensePage() {
                     </option>
                   ))}
                 </select>
-                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-zinc-500 pointer-events-none" />
               </div>
               {errors.paid_by && <p className="text-xs text-red-500 mt-1">{errors.paid_by.message}</p>}
             </div>
           </div>
 
           {/* ── Details ──────────────────────────────────────────────────── */}
-          <div className="bg-white rounded-2xl border border-gray-200 px-5 py-5 flex flex-col gap-4">
-            <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Details</h3>
+          <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 px-5 py-5 flex flex-col gap-4">
+            <h3 className="text-xs font-semibold text-gray-400 dark:text-zinc-500 uppercase tracking-wider">Details</h3>
 
             {/* Title */}
             <div>
-              <label className="text-sm font-medium text-gray-700 block mb-1.5">What was it for?</label>
+              <label className="text-sm font-medium text-gray-700 dark:text-zinc-300 block mb-1.5">What was it for?</label>
               <input
                 type="text"
                 placeholder="e.g. Dinner at Barbeque Nation"
                 {...register('title')}
-                className="w-full h-10 px-3.5 rounded-xl border border-gray-300 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder:text-gray-300"
+                className="w-full h-10 px-3.5 rounded-xl border border-gray-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-sm text-gray-900 dark:text-zinc-100 placeholder:text-gray-300 dark:placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
               {errors.title && <p className="text-xs text-red-500 mt-1">{errors.title.message}</p>}
             </div>
 
             {/* Date */}
             <div>
-              <label className="text-sm font-medium text-gray-700 block mb-1.5">Date</label>
+              <label className="text-sm font-medium text-gray-700 dark:text-zinc-300 block mb-1.5">Date</label>
               <input
                 type="date"
                 {...register('expense_date')}
-                className="w-full h-10 px-3.5 rounded-xl border border-gray-300 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full h-10 px-3.5 rounded-xl border border-gray-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-sm text-gray-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
             </div>
 
             {/* Category */}
             <div>
-              <label className="text-sm font-medium text-gray-700 block mb-2">Category</label>
+              <label className="text-sm font-medium text-gray-700 dark:text-zinc-300 block mb-2">Category</label>
               <div className="grid grid-cols-3 gap-2">
                 {CATEGORIES.map(({ value, label, icon }) => (
                   <button
@@ -321,7 +321,7 @@ export default function AddExpensePage() {
                       'flex items-center gap-2 px-3 py-2.5 rounded-xl border text-sm font-medium transition-colors',
                       category === value
                         ? 'bg-indigo-600 text-white border-indigo-600'
-                        : 'bg-white text-gray-600 border-gray-200 hover:border-indigo-300'
+                        : 'bg-white dark:bg-zinc-800 text-gray-600 dark:text-zinc-300 border-gray-200 dark:border-zinc-700 hover:border-indigo-300 dark:hover:border-indigo-500'
                     )}
                   >
                     <span className="text-base leading-none">{icon}</span>
@@ -333,11 +333,11 @@ export default function AddExpensePage() {
           </div>
 
           {/* ── Split ────────────────────────────────────────────────────── */}
-          <div className="bg-white rounded-2xl border border-gray-200 px-5 py-5 flex flex-col gap-4">
-            <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Split</h3>
+          <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 px-5 py-5 flex flex-col gap-4">
+            <h3 className="text-xs font-semibold text-gray-400 dark:text-zinc-500 uppercase tracking-wider">Split</h3>
 
             {/* Split type tabs */}
-            <div className="grid grid-cols-4 gap-1 bg-gray-100 rounded-xl p-1">
+            <div className="grid grid-cols-4 gap-1 bg-gray-100 dark:bg-zinc-800 rounded-xl p-1">
               {SPLIT_TABS.map((tab) => (
                 <button
                   key={tab.value}
@@ -346,8 +346,8 @@ export default function AddExpensePage() {
                   className={cn(
                     'py-2 rounded-lg text-xs font-semibold transition-colors',
                     splitType === tab.value
-                      ? 'bg-white text-indigo-700 shadow-sm'
-                      : 'text-gray-500 hover:text-gray-700'
+                      ? 'bg-white dark:bg-zinc-700 text-indigo-700 dark:text-indigo-400 shadow-sm'
+                      : 'text-gray-500 dark:text-zinc-400 hover:text-gray-700 dark:hover:text-zinc-200'
                   )}
                 >
                   {tab.label}
@@ -390,7 +390,7 @@ export default function AddExpensePage() {
         </div>
 
         {/* ── Sticky submit bar ─────────────────────────────────────────── */}
-        <div className="fixed bottom-0 left-0 right-0 md:left-60 z-30 bg-white border-t border-gray-200 px-4 py-3 pb-safe">
+        <div className="fixed bottom-0 left-0 right-0 md:left-60 z-30 bg-white dark:bg-zinc-900 border-t border-gray-200 dark:border-zinc-800 px-4 py-3 pb-safe">
           <div className="max-w-lg mx-auto flex gap-3">
             <Button
               type="button"
