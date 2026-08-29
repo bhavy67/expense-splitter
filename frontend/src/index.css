@@ -1,10 +1,11 @@
 @import "tailwindcss";
 
+/* Class-based dark mode — toggled by adding `.dark` to <html> */
+@variant dark (&:where(.dark, .dark *));
+
 @theme {
-  /* ── SplitItt brand — a fresh jade/spearmint, distinct from generic SaaS
-     indigo. Every `indigo-*` utility in the app resolves to this scale, so
-     the whole product rebrands from these ten lines alone. ── */
-  --color-indigo-50: #effdf6;
+  /* ── SplitItt brand — jade/spearmint scale aliased as indigo ── */
+  --color-indigo-50:  #effdf6;
   --color-indigo-100: #d7f7e7;
   --color-indigo-200: #b0edd1;
   --color-indigo-300: #7edbb3;
@@ -16,17 +17,32 @@
   --color-indigo-900: #08452f;
   --color-indigo-950: #03271b;
 
-  --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-sans: 'Space Grotesk', ui-sans-serif, system-ui, -apple-system, sans-serif;
 }
 
 * {
   box-sizing: border-box;
 }
 
+html {
+  color-scheme: light;
+}
+
+html.dark {
+  color-scheme: dark;
+}
+
 body {
   margin: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: #f9fafb;
+  color: #111827;
+}
+
+.dark body {
+  background-color: #09090b;
+  color: #fafafa;
 }
 
 #root {
@@ -36,4 +52,9 @@ body {
 ::selection {
   background: var(--color-indigo-200);
   color: var(--color-indigo-950);
+}
+
+.dark ::selection {
+  background: var(--color-indigo-800);
+  color: var(--color-indigo-100);
 }
