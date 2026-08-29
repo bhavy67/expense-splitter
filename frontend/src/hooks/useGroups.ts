@@ -150,7 +150,7 @@ export function useGroupActivity(groupId: string) {
         .limit(50)
       if (error) throw error
 
-      const actorIds = [...new Set((activity ?? []).map((a) => a.actor_id).filter(Boolean))]
+      const actorIds = [...new Set((activity ?? []).map((a) => a.actor_id).filter((id): id is string => id != null))]
       const { data: profiles } = actorIds.length
         ? await supabase.from('profiles').select('id, name, avatar_url').in('id', actorIds)
         : { data: [] }
@@ -158,7 +158,7 @@ export function useGroupActivity(groupId: string) {
       const profileMap = Object.fromEntries((profiles ?? []).map((p) => [p.id, p]))
       return (activity ?? []).map((item) => ({
         ...item,
-        actor: profileMap[item.actor_id] ?? null,
+        actor: item.actor_id != null ? (profileMap[item.actor_id] ?? null) : null,
       })) as ActivityItem[]
     },
     enabled: !!groupId,
