@@ -54,7 +54,7 @@ export function GroupAnalytics({ groupId, members, currencyCode }: GroupAnalytic
     return (
       <div className="flex flex-col gap-4 animate-pulse">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="bg-white rounded-2xl border border-gray-200 h-36" />
+          <div key={i} className="bg-white dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 h-36" />
         ))}
       </div>
     )
@@ -71,9 +71,9 @@ export function GroupAnalytics({ groupId, members, currencyCode }: GroupAnalytic
 
   if (categoryEntries.length === 0) {
     return (
-      <div className="bg-white rounded-2xl border border-gray-200 px-6 py-10 text-center">
-        <p className="text-sm font-medium text-gray-500">No expenses yet</p>
-        <p className="text-xs text-gray-400 mt-1">Add expenses to see spending insights</p>
+      <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 px-6 py-10 text-center">
+        <p className="text-sm font-medium text-gray-500 dark:text-zinc-400">No expenses yet</p>
+        <p className="text-xs text-gray-400 dark:text-zinc-500 mt-1">Add expenses to see spending insights</p>
       </div>
     )
   }
@@ -88,9 +88,9 @@ export function GroupAnalytics({ groupId, members, currencyCode }: GroupAnalytic
       </div>
 
       {/* By category */}
-      <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
-        <div className="px-4 py-3 border-b border-gray-100">
-          <p className="text-sm font-semibold text-gray-700">By category</p>
+      <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 overflow-hidden">
+        <div className="px-4 py-3 border-b border-gray-100 dark:border-zinc-800">
+          <p className="text-sm font-semibold text-gray-700 dark:text-zinc-300">By category</p>
         </div>
         <div className="px-4 py-3 flex flex-col gap-3">
           {categoryEntries.map(([cat, amount]) => (
@@ -98,18 +98,18 @@ export function GroupAnalytics({ groupId, members, currencyCode }: GroupAnalytic
               <div className="flex items-center justify-between mb-1">
                 <div className="flex items-center gap-2">
                   <span className="text-sm">{CATEGORY_ICONS[cat] ?? '📦'}</span>
-                  <span className="text-sm font-medium text-gray-700 capitalize">{cat}</span>
+                  <span className="text-sm font-medium text-gray-700 dark:text-zinc-300 capitalize">{cat}</span>
                 </div>
                 <div className="text-right">
-                  <span className="text-sm font-semibold text-gray-900">
+                  <span className="text-sm font-semibold text-gray-900 dark:text-zinc-100">
                     {formatCurrency(amount, currencyCode)}
                   </span>
-                  <span className="text-xs text-gray-400 ml-2">
+                  <span className="text-xs text-gray-400 dark:text-zinc-500 ml-2">
                     {Math.round((amount / totalSpend) * 100)}%
                   </span>
                 </div>
               </div>
-              <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+              <div className="h-2 bg-gray-100 dark:bg-zinc-800 rounded-full overflow-hidden">
                 <div
                   className={cn('h-full rounded-full transition-all duration-500', CATEGORY_COLORS[cat] ?? 'bg-gray-400')}
                   style={{ width: `${(amount / maxCategory) * 100}%` }}
@@ -122,9 +122,9 @@ export function GroupAnalytics({ groupId, members, currencyCode }: GroupAnalytic
 
       {/* By member */}
       {payerEntries.length > 0 && (
-        <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
-          <div className="px-4 py-3 border-b border-gray-100">
-            <p className="text-sm font-semibold text-gray-700">Who paid</p>
+        <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 overflow-hidden">
+          <div className="px-4 py-3 border-b border-gray-100 dark:border-zinc-800">
+            <p className="text-sm font-semibold text-gray-700 dark:text-zinc-300">Who paid</p>
           </div>
           <div className="px-4 py-3 flex flex-col gap-3">
             {payerEntries.map(([userId, amount]) => {
@@ -133,12 +133,12 @@ export function GroupAnalytics({ groupId, members, currencyCode }: GroupAnalytic
               return (
                 <div key={userId}>
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-sm font-medium text-gray-700 truncate">{name}</span>
-                    <span className="text-sm font-semibold text-gray-900 ml-2 shrink-0">
+                    <span className="text-sm font-medium text-gray-700 dark:text-zinc-300 truncate">{name}</span>
+                    <span className="text-sm font-semibold text-gray-900 dark:text-zinc-100 ml-2 shrink-0">
                       {formatCurrency(amount, currencyCode)}
                     </span>
                   </div>
-                  <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                  <div className="h-2 bg-gray-100 dark:bg-zinc-800 rounded-full overflow-hidden">
                     <div
                       className="h-full rounded-full bg-indigo-400 transition-all duration-500"
                       style={{ width: `${(amount / maxPayer) * 100}%` }}
@@ -153,9 +153,9 @@ export function GroupAnalytics({ groupId, members, currencyCode }: GroupAnalytic
 
       {/* Monthly trend */}
       {data.monthly.length > 1 && (
-        <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
-          <div className="px-4 py-3 border-b border-gray-100">
-            <p className="text-sm font-semibold text-gray-700">Monthly trend</p>
+        <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 overflow-hidden">
+          <div className="px-4 py-3 border-b border-gray-100 dark:border-zinc-800">
+            <p className="text-sm font-semibold text-gray-700 dark:text-zinc-300">Monthly trend</p>
           </div>
           <div className="px-4 py-4">
             <div className="flex items-end gap-2 h-24">
@@ -163,12 +163,12 @@ export function GroupAnalytics({ groupId, members, currencyCode }: GroupAnalytic
                 <div key={m.month} className="flex-1 flex flex-col items-center gap-1 min-w-0">
                   <div className="w-full flex items-end justify-center" style={{ height: '72px' }}>
                     <div
-                      className="w-full rounded-t-lg bg-indigo-200 hover:bg-indigo-400 transition-colors cursor-default"
+                      className="w-full rounded-t-lg bg-indigo-200 dark:bg-indigo-800 hover:bg-indigo-400 dark:hover:bg-indigo-600 transition-colors cursor-default"
                       style={{ height: `${Math.max((m.total / maxMonthly) * 100, 4)}%` }}
                       title={formatCurrency(m.total, currencyCode)}
                     />
                   </div>
-                  <p className="text-[10px] text-gray-400 truncate w-full text-center">
+                  <p className="text-[10px] text-gray-400 dark:text-zinc-500 truncate w-full text-center">
                     {formatMonth(m.month)}
                   </p>
                 </div>

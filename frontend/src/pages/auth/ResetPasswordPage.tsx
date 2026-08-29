@@ -23,8 +23,8 @@ type FormValues = z.infer<typeof schema>
 
 function Spinner() {
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50">
-      <div className="w-6 h-6 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+    <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-zinc-950">
+      <div className="w-6 h-6 border-2 border-indigo-600 dark:border-indigo-400 border-t-transparent rounded-full animate-spin" />
     </div>
   )
 }

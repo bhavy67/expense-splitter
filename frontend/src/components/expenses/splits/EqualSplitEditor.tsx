@@ -26,7 +26,7 @@ export function EqualSplitEditor({ members, selectedIds, totalAmount, onChange }
   return (
     <div className="flex flex-col gap-2">
       {perPerson > 0 && (
-        <p className="text-xs text-gray-500 mb-1">
+        <p className="text-xs text-gray-500 dark:text-zinc-400 mb-1">
           {formatCurrency(perPerson)} per person · {selectedIds.length} of {active.length} members
         </p>
       )}
@@ -40,13 +40,13 @@ export function EqualSplitEditor({ members, selectedIds, totalAmount, onChange }
             className={cn(
               'flex items-center gap-3 px-3 py-2.5 rounded-xl border transition-colors text-left',
               selected
-                ? 'border-indigo-300 bg-indigo-50'
-                : 'border-gray-200 bg-white hover:border-gray-300'
+                ? 'border-indigo-300 dark:border-indigo-600 bg-indigo-50 dark:bg-indigo-950/30'
+                : 'border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 hover:border-gray-300 dark:hover:border-zinc-600'
             )}
           >
             <div className={cn(
               'w-4 h-4 rounded border-2 flex items-center justify-center shrink-0 transition-colors',
-              selected ? 'bg-indigo-600 border-indigo-600' : 'border-gray-300'
+              selected ? 'bg-indigo-600 border-indigo-600' : 'border-gray-300 dark:border-zinc-600'
             )}>
               {selected && (
                 <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
@@ -55,11 +55,11 @@ export function EqualSplitEditor({ members, selectedIds, totalAmount, onChange }
               )}
             </div>
             <Avatar name={m.user.name} src={m.user.avatar_url} size="sm" />
-            <span className={cn('flex-1 text-sm font-medium', selected ? 'text-gray-900' : 'text-gray-500')}>
+            <span className={cn('flex-1 text-sm font-medium', selected ? 'text-gray-900 dark:text-zinc-100' : 'text-gray-500 dark:text-zinc-400')}>
               {m.user.name}
             </span>
             {selected && perPerson > 0 && (
-              <span className="text-sm font-semibold text-indigo-700">
+              <span className="text-sm font-semibold text-indigo-700 dark:text-indigo-400">
                 {formatCurrency(perPerson)}
               </span>
             )}

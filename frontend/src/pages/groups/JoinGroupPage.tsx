@@ -28,24 +28,24 @@ export default function JoinGroupPage() {
   }, [user, inviteCode]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 max-w-sm w-full text-center">
-        <div className="w-14 h-14 bg-indigo-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
-          <Users className="w-7 h-7 text-indigo-600" />
+    <div className="min-h-screen bg-gray-50 dark:bg-zinc-950 flex items-center justify-center p-4">
+      <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-sm border border-gray-200 dark:border-zinc-800 p-8 max-w-sm w-full text-center">
+        <div className="w-14 h-14 bg-indigo-50 dark:bg-indigo-950/40 rounded-2xl flex items-center justify-center mx-auto mb-4">
+          <Users className="w-7 h-7 text-indigo-600 dark:text-indigo-400" />
         </div>
 
         {join.isPending && (
           <>
-            <h1 className="text-lg font-semibold text-gray-900 mb-2">Joining group…</h1>
-            <p className="text-sm text-gray-500">Just a moment</p>
-            <div className="w-6 h-6 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mt-5" />
+            <h1 className="text-lg font-semibold text-gray-900 dark:text-zinc-100 mb-2">Joining group…</h1>
+            <p className="text-sm text-gray-500 dark:text-zinc-400">Just a moment</p>
+            <div className="w-6 h-6 border-2 border-indigo-600 dark:border-indigo-400 border-t-transparent rounded-full animate-spin mx-auto mt-5" />
           </>
         )}
 
         {join.isError && (
           <>
-            <h1 className="text-lg font-semibold text-gray-900 mb-2">Couldn't join</h1>
-            <p className="text-sm text-gray-500 mb-6">
+            <h1 className="text-lg font-semibold text-gray-900 dark:text-zinc-100 mb-2">Couldn't join</h1>
+            <p className="text-sm text-gray-500 dark:text-zinc-400 mb-6">
               {(join.error as { response?: { data?: { detail?: string } } })?.response?.data?.detail
                 ?? 'The invite link may be invalid or expired.'}
             </p>

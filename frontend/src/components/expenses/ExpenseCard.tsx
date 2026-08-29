@@ -45,26 +45,26 @@ export function ExpenseCard({ expense, currentUserId, members, onClick }: Expens
   return (
     <button
       onClick={onClick}
-      className="w-full text-left bg-white rounded-2xl border border-gray-200 px-4 py-3.5 hover:border-indigo-300 hover:shadow-sm transition-all duration-150 group"
+      className="w-full text-left bg-white dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 px-4 py-3.5 hover:border-indigo-300 dark:hover:border-indigo-700 hover:shadow-sm transition-all duration-150 group"
     >
       <div className="flex items-center gap-3">
         {/* Category icon */}
-        <div className="w-10 h-10 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center text-lg shrink-0">
+        <div className="w-10 h-10 rounded-xl bg-gray-50 dark:bg-zinc-800 border border-gray-100 dark:border-zinc-700 flex items-center justify-center text-lg shrink-0">
           {CATEGORY_ICONS[expense.category]}
         </div>
 
         {/* Title + meta */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <p className="font-semibold text-gray-900 truncate group-hover:text-indigo-700 transition-colors">
+            <p className="font-semibold text-gray-900 dark:text-zinc-100 truncate group-hover:text-indigo-700 dark:group-hover:text-indigo-400 transition-colors">
               {expense.title}
             </p>
-            <span className="text-[10px] font-medium text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded-full shrink-0">
+            <span className="text-[10px] font-medium text-gray-400 dark:text-zinc-500 bg-gray-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded-full shrink-0">
               {SPLIT_LABELS[expense.split_type]}
             </span>
           </div>
-          <p className="text-xs text-gray-400 mt-0.5">
-            <span className={payerPaid ? 'text-indigo-600 font-medium' : ''}>
+          <p className="text-xs text-gray-400 dark:text-zinc-500 mt-0.5">
+            <span className={payerPaid ? 'text-indigo-600 dark:text-indigo-400 font-medium' : ''}>
               {payerName} paid {formatCurrency(expense.total_amount, expense.currency_code)}
             </span>
             {' · '}
@@ -77,18 +77,18 @@ export function ExpenseCard({ expense, currentUserId, members, onClick }: Expens
           <div className="text-right shrink-0">
             <p className={cn(
               'text-sm font-bold',
-              netPositive ? 'text-emerald-600' : 'text-red-500'
+              netPositive ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500 dark:text-red-400'
             )}>
               {netPositive ? '+' : '−'}{formatCurrency(netAmount, expense.currency_code)}
             </p>
-            <p className="text-[10px] text-gray-400 mt-0.5">{netLabel}</p>
+            <p className="text-[10px] text-gray-400 dark:text-zinc-500 mt-0.5">{netLabel}</p>
           </div>
         ) : (
           <div className="text-right shrink-0">
-            <p className="text-sm font-bold text-gray-400">
+            <p className="text-sm font-bold text-gray-400 dark:text-zinc-500">
               {formatCurrency(expense.total_amount, expense.currency_code)}
             </p>
-            <p className="text-[10px] text-gray-400 mt-0.5">not involved</p>
+            <p className="text-[10px] text-gray-400 dark:text-zinc-500 mt-0.5">not involved</p>
           </div>
         )}
       </div>

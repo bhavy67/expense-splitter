@@ -23,18 +23,18 @@ export function GroupHeader({ group, summary }: GroupHeaderProps) {
 
   return (
     <>
-      <div className="bg-white border-b border-gray-200 px-4 md:px-8 py-5">
+      <div className="bg-white dark:bg-zinc-900 border-b border-gray-200 dark:border-zinc-800 px-4 md:px-8 py-5">
         <div className="max-w-5xl mx-auto">
           {/* Top row */}
           <div className="flex items-start justify-between gap-4">
             <div className="flex items-center gap-4 min-w-0">
-              <div className="w-12 h-12 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-2xl shrink-0">
+              <div className="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-900/50 flex items-center justify-center text-2xl shrink-0">
                 {GROUP_ICONS[group.type]}
               </div>
               <div className="min-w-0">
-                <h1 className="text-xl font-bold text-gray-900 truncate">{group.name}</h1>
+                <h1 className="text-xl font-bold text-gray-900 dark:text-zinc-100 truncate">{group.name}</h1>
                 {group.description && (
-                  <p className="text-sm text-gray-500 truncate mt-0.5">{group.description}</p>
+                  <p className="text-sm text-gray-500 dark:text-zinc-400 truncate mt-0.5">{group.description}</p>
                 )}
               </div>
             </div>
@@ -46,7 +46,7 @@ export function GroupHeader({ group, summary }: GroupHeaderProps) {
               </Button>
               <button
                 onClick={() => navigate(`/groups/${group.id}/settings`)}
-                className="p-2 rounded-xl text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors"
+                className="p-2 rounded-xl text-gray-400 dark:text-zinc-500 hover:text-gray-700 dark:hover:text-zinc-200 hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors"
                 title="Group settings"
               >
                 <Settings className="w-4 h-4" />
@@ -55,7 +55,7 @@ export function GroupHeader({ group, summary }: GroupHeaderProps) {
           </div>
 
           {/* Bottom row: members + stats */}
-          <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
+          <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100 dark:border-zinc-800">
             <button
               className="flex items-center gap-2 hover:opacity-80 transition-opacity"
               onClick={() => setShowInvite(true)}
@@ -67,16 +67,16 @@ export function GroupHeader({ group, summary }: GroupHeaderProps) {
                     name={m.user.name}
                     src={m.user.avatar_url}
                     size="sm"
-                    className="ring-2 ring-white"
+                    className="ring-2 ring-white dark:ring-zinc-900"
                   />
                 ))}
                 {activeMembers.length > 5 && (
-                  <div className="w-7 h-7 rounded-full bg-gray-200 ring-2 ring-white flex items-center justify-center text-xs font-medium text-gray-600">
+                  <div className="w-7 h-7 rounded-full bg-gray-200 dark:bg-zinc-700 ring-2 ring-white dark:ring-zinc-900 flex items-center justify-center text-xs font-medium text-gray-600 dark:text-zinc-300">
                     +{activeMembers.length - 5}
                   </div>
                 )}
               </div>
-              <span className="text-sm text-gray-500">
+              <span className="text-sm text-gray-500 dark:text-zinc-400">
                 <Users className="w-3.5 h-3.5 inline mr-1" />
                 {activeMembers.length} member{activeMembers.length !== 1 ? 's' : ''}
               </span>
@@ -85,23 +85,23 @@ export function GroupHeader({ group, summary }: GroupHeaderProps) {
             {summary && (
               <div className="flex items-center gap-5 text-right">
                 <div>
-                  <p className="text-xs text-gray-400">Total spent</p>
-                  <p className="text-sm font-semibold text-gray-800">
+                  <p className="text-xs text-gray-400 dark:text-zinc-500">Total spent</p>
+                  <p className="text-sm font-semibold text-gray-800 dark:text-zinc-200">
                     {formatCurrency(summary.total_expenses, group.currency_code)}
                   </p>
                 </div>
                 {summary.you_owe > 0 && (
                   <div>
-                    <p className="text-xs text-gray-400">You owe</p>
-                    <p className="text-sm font-semibold text-red-600">
+                    <p className="text-xs text-gray-400 dark:text-zinc-500">You owe</p>
+                    <p className="text-sm font-semibold text-red-600 dark:text-red-400">
                       {formatCurrency(summary.you_owe, group.currency_code)}
                     </p>
                   </div>
                 )}
                 {summary.owed_to_you > 0 && (
                   <div>
-                    <p className="text-xs text-gray-400">Owed to you</p>
-                    <p className="text-sm font-semibold text-emerald-600">
+                    <p className="text-xs text-gray-400 dark:text-zinc-500">Owed to you</p>
+                    <p className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">
                       {formatCurrency(summary.owed_to_you, group.currency_code)}
                     </p>
                   </div>

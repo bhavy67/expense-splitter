@@ -34,9 +34,9 @@ const icons: Record<ToastType, React.ReactNode> = {
 }
 
 const styles: Record<ToastType, string> = {
-  success: 'border-green-200 bg-green-50',
-  error: 'border-red-200 bg-red-50',
-  info: 'border-blue-200 bg-blue-50',
+  success: 'border-green-200 dark:border-green-900/50 bg-green-50 dark:bg-green-950/40',
+  error: 'border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-950/40',
+  info: 'border-blue-200 dark:border-blue-900/50 bg-blue-50 dark:bg-blue-950/40',
 }
 
 function ToastItem({ toast, onRemove }: { toast: Toast; onRemove: () => void }) {
@@ -54,8 +54,8 @@ function ToastItem({ toast, onRemove }: { toast: Toast; onRemove: () => void }) 
       )}
     >
       {icons[toast.type]}
-      <p className="text-sm text-gray-800 flex-1">{toast.message}</p>
-      <button onClick={onRemove} className="text-gray-400 hover:text-gray-600 transition-colors">
+      <p className="text-sm text-gray-800 dark:text-zinc-200 flex-1">{toast.message}</p>
+      <button onClick={onRemove} className="text-gray-400 dark:text-zinc-500 hover:text-gray-600 dark:hover:text-zinc-300 transition-colors">
         <X className="w-3.5 h-3.5" />
       </button>
     </div>

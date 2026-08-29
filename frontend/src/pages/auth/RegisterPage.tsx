@@ -82,10 +82,10 @@ export default function RegisterPage() {
         </Button>
       </form>
 
-      <p className="mt-4 text-center text-xs text-gray-400">
+      <p className="mt-4 text-center text-xs text-gray-400 dark:text-zinc-500">
         By creating an account you agree to our{' '}
-        <span className="text-gray-600">Terms of Service</span> and{' '}
-        <span className="text-gray-600">Privacy Policy</span>.
+        <span className="text-gray-600 dark:text-zinc-300">Terms of Service</span> and{' '}
+        <span className="text-gray-600 dark:text-zinc-300">Privacy Policy</span>.
       </p>
     </AuthLayout>
   )

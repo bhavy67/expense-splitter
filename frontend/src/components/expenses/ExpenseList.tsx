@@ -67,26 +67,26 @@ export function ExpenseList({ groupId, currentUserId, members }: ExpenseListProp
       {/* Filter + search bar */}
       <div className="flex items-center gap-2 mb-4">
         {showSearch ? (
-          <div className="flex-1 flex items-center gap-2 bg-gray-100 rounded-xl px-3 h-9">
-            <Search className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+          <div className="flex-1 flex items-center gap-2 bg-gray-100 dark:bg-zinc-800 rounded-xl px-3 h-9">
+            <Search className="w-3.5 h-3.5 text-gray-400 dark:text-zinc-500 shrink-0" />
             <input
               autoFocus
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search expenses…"
-              className="flex-1 bg-transparent text-sm outline-none text-gray-800 placeholder-gray-400"
+              className="flex-1 bg-transparent text-sm outline-none text-gray-800 dark:text-zinc-200 placeholder-gray-400 dark:placeholder-zinc-500"
             />
             <button
               onClick={() => { setSearch(''); setShowSearch(false) }}
-              className="text-gray-400 hover:text-gray-600 transition-colors"
+              className="text-gray-400 dark:text-zinc-500 hover:text-gray-600 dark:hover:text-zinc-300 transition-colors"
             >
               <X className="w-3.5 h-3.5" />
             </button>
           </div>
         ) : (
           <>
-            <Filter className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+            <Filter className="w-3.5 h-3.5 text-gray-400 dark:text-zinc-500 shrink-0" />
             <div className="flex items-center gap-1 flex-1">
               {FILTER_TABS.map((tab) => (
                 <button
@@ -96,7 +96,7 @@ export function ExpenseList({ groupId, currentUserId, members }: ExpenseListProp
                     'px-3 py-1.5 rounded-xl text-xs font-medium transition-colors',
                     activeFilter === tab.value
                       ? 'bg-indigo-600 text-white'
-                      : 'text-gray-500 hover:bg-gray-100'
+                      : 'text-gray-500 dark:text-zinc-400 hover:bg-gray-100 dark:hover:bg-zinc-800'
                   )}
                 >
                   {tab.label}
@@ -105,7 +105,7 @@ export function ExpenseList({ groupId, currentUserId, members }: ExpenseListProp
             </div>
             <button
               onClick={() => setShowSearch(true)}
-              className="p-1.5 rounded-xl text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors"
+              className="p-1.5 rounded-xl text-gray-400 dark:text-zinc-500 hover:text-gray-700 dark:hover:text-zinc-200 hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors"
             >
               <Search className="w-3.5 h-3.5" />
             </button>
@@ -117,7 +117,7 @@ export function ExpenseList({ groupId, currentUserId, members }: ExpenseListProp
       {isLoading && (
         <div className="flex flex-col gap-3">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-[72px] bg-gray-100 rounded-2xl animate-pulse" />
+            <div key={i} className="h-[72px] bg-gray-100 dark:bg-zinc-800 rounded-2xl animate-pulse" />
           ))}
         </div>
       )}
@@ -169,7 +169,7 @@ export function ExpenseList({ groupId, currentUserId, members }: ExpenseListProp
             </Button>
           )}
           {total > 0 && (
-            <p className="text-xs text-gray-400">
+            <p className="text-xs text-gray-400 dark:text-zinc-500">
               Showing {filtered.length} of {total} expense{total !== 1 ? 's' : ''}
             </p>
           )}
