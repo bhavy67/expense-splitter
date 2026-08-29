@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams, Link } from 'react-router-dom'
 import { AuthLayout } from '@/components/auth/AuthLayout'
 import { Button } from '@/components/common/Button'
 import { Input } from '@/components/common/Input'
@@ -83,6 +83,16 @@ export default function LoginPage() {
           Sign in
         </Button>
       </form>
+
+      <div className="mt-5 pt-5 border-t border-gray-100 dark:border-zinc-800 text-center">
+        <p className="text-xs text-gray-400 dark:text-zinc-500 mb-2">Just need to split a bill quickly?</p>
+        <Link
+          to="/try"
+          className="text-sm font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors"
+        >
+          Try the quick calculator →
+        </Link>
+      </div>
     </AuthLayout>
   )
 }
