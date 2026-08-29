@@ -1,82 +1,21 @@
 export interface AvatarPreset {
   id: string
-  emoji: string
   label: string
-  gradient: string  // CSS gradient
-  glow: string      // glow color for animation
+  gradient: string
+  glow: string
 }
 
 export const AVATAR_PRESETS: AvatarPreset[] = [
-  {
-    id: 'avatar:0',
-    emoji: '🦊',
-    label: 'Fox',
-    gradient: 'linear-gradient(135deg, #f97316, #fb923c, #fbbf24)',
-    glow: 'rgba(249,115,22,0.5)',
-  },
-  {
-    id: 'avatar:1',
-    emoji: '🌊',
-    label: 'Wave',
-    gradient: 'linear-gradient(135deg, #0ea5e9, #38bdf8, #7dd3fc)',
-    glow: 'rgba(14,165,233,0.5)',
-  },
-  {
-    id: 'avatar:2',
-    emoji: '🌸',
-    label: 'Blossom',
-    gradient: 'linear-gradient(135deg, #ec4899, #f472b6, #fbcfe8)',
-    glow: 'rgba(236,72,153,0.5)',
-  },
-  {
-    id: 'avatar:3',
-    emoji: '⚡',
-    label: 'Spark',
-    gradient: 'linear-gradient(135deg, #eab308, #facc15, #fef08a)',
-    glow: 'rgba(234,179,8,0.5)',
-  },
-  {
-    id: 'avatar:4',
-    emoji: '🌿',
-    label: 'Forest',
-    gradient: 'linear-gradient(135deg, #16a34a, #22c55e, #86efac)',
-    glow: 'rgba(22,163,74,0.5)',
-  },
-  {
-    id: 'avatar:5',
-    emoji: '🔮',
-    label: 'Mystic',
-    gradient: 'linear-gradient(135deg, #7c3aed, #a78bfa, #c4b5fd)',
-    glow: 'rgba(124,58,237,0.5)',
-  },
-  {
-    id: 'avatar:6',
-    emoji: '🔥',
-    label: 'Flame',
-    gradient: 'linear-gradient(135deg, #dc2626, #f97316, #fbbf24)',
-    glow: 'rgba(220,38,38,0.5)',
-  },
-  {
-    id: 'avatar:7',
-    emoji: '❄️',
-    label: 'Frost',
-    gradient: 'linear-gradient(135deg, #06b6d4, #67e8f9, #a5f3fc)',
-    glow: 'rgba(6,182,212,0.5)',
-  },
-  {
-    id: 'avatar:8',
-    emoji: '🌙',
-    label: 'Lunar',
-    gradient: 'linear-gradient(135deg, #4338ca, #6366f1, #a5b4fc)',
-    glow: 'rgba(67,56,202,0.5)',
-  },
-  {
-    id: 'avatar:9',
-    emoji: '⭐',
-    label: 'Cosmic',
-    gradient: 'linear-gradient(135deg, #b45309, #d97706, #fcd34d)',
-    glow: 'rgba(180,83,9,0.5)',
-  },
+  { id: 'avatar:0', label: 'Wolf',      gradient: 'linear-gradient(135deg, #334155, #0f172a)', glow: 'rgba(245,158,11,0.5)' },
+  { id: 'avatar:1', label: 'Fox',       gradient: 'linear-gradient(135deg, #c2410c, #7c2d12)', glow: 'rgba(251,146,60,0.5)' },
+  { id: 'avatar:2', label: 'Lion',      gradient: 'linear-gradient(135deg, #d97706, #7c2d12)', glow: 'rgba(251,191,36,0.5)' },
+  { id: 'avatar:3', label: 'Dragon',    gradient: 'linear-gradient(135deg, #047857, #022c22)', glow: 'rgba(251,191,36,0.4)' },
+  { id: 'avatar:4', label: 'Butterfly', gradient: 'linear-gradient(135deg, #7c3aed, #4c1d95)', glow: 'rgba(240,171,252,0.5)' },
+  { id: 'avatar:5', label: 'Bee',       gradient: 'linear-gradient(135deg, #b45309, #78350f)', glow: 'rgba(250,204,21,0.5)' },
+  { id: 'avatar:6', label: 'Octopus',   gradient: 'linear-gradient(135deg, #0e7490, #083344)', glow: 'rgba(232,121,249,0.5)' },
+  { id: 'avatar:7', label: 'Hawk',      gradient: 'linear-gradient(135deg, #1d4ed8, #1e3a8a)', glow: 'rgba(251,191,36,0.5)' },
+  { id: 'avatar:8', label: 'Moth',      gradient: 'linear-gradient(135deg, #1e1b4b, #09090b)', glow: 'rgba(165,180,252,0.5)' },
+  { id: 'avatar:9', label: 'Dolphin',   gradient: 'linear-gradient(135deg, #0891b2, #164e63)', glow: 'rgba(125,211,252,0.5)' },
 ]
 
 export function getPreset(avatarUrl: string | null | undefined): AvatarPreset | null {
