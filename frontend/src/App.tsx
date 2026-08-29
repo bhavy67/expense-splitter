@@ -12,6 +12,7 @@ import RegisterPage from '@/pages/auth/RegisterPage'
 import ForgotPasswordPage from '@/pages/auth/ForgotPasswordPage'
 import ResetPasswordPage from '@/pages/auth/ResetPasswordPage'
 
+const TryPage = lazy(() => import('@/pages/try/TryPage'))
 const DashboardPage = lazy(() => import('@/pages/dashboard/DashboardPage'))
 const GroupPage = lazy(() => import('@/pages/groups/GroupPage'))
 const AddExpensePage = lazy(() => import('@/pages/expenses/AddExpensePage'))
@@ -47,6 +48,9 @@ export default function App() {
             <Route path="/auth/register" element={<RegisterPage />} />
             <Route path="/auth/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/auth/reset-password" element={<ResetPasswordPage />} />
+
+            {/* Public tools */}
+            <Route path="/try" element={<TryPage />} />
 
             {/* Invite */}
             <Route path="/join/:inviteCode" element={<JoinGroupPage />} />
