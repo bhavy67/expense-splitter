@@ -5,6 +5,7 @@ import { AppShell } from '@/components/layout/AppShell'
 import { TopBar } from '@/components/layout/TopBar'
 import { GroupHeader } from '@/components/groups/GroupHeader'
 import { GroupAnalytics } from '@/components/groups/GroupAnalytics'
+import { GroupActivity } from '@/components/groups/GroupActivity'
 import { ExpenseList } from '@/components/expenses/ExpenseList'
 import { SettlementPanel } from '@/components/settlements/SettlementPanel'
 import { Button } from '@/components/common/Button'
@@ -15,12 +16,13 @@ import { useGroupWebSocket } from '@/hooks/useWebSocket'
 import { useAuthStore } from '@/store/auth'
 import { cn } from '@/lib/utils'
 
-type Tab = 'expenses' | 'settlements' | 'analytics'
+type Tab = 'expenses' | 'settlements' | 'analytics' | 'activity'
 
 const TABS: { value: Tab; label: string }[] = [
   { value: 'expenses',    label: 'Expenses' },
   { value: 'settlements', label: 'Settlements' },
   { value: 'analytics',  label: 'Insights' },
+  { value: 'activity',   label: 'Activity' },
 ]
 
 function GroupSkeleton() {
@@ -84,13 +86,13 @@ export default function GroupPage() {
 
         <div className="max-w-5xl mx-auto px-4 py-6">
           {/* Mobile tabs */}
-          <div className="flex gap-1 mb-5 md:hidden">
+          <div className="flex gap-1 mb-5 md:hidden overflow-x-auto scrollbar-none pb-0.5">
             {TABS.map((tab) => (
               <button
                 key={tab.value}
                 onClick={() => setActiveTab(tab.value)}
                 className={cn(
-                  'flex-1 py-2 rounded-xl text-sm font-medium transition-colors relative',
+                  'shrink-0 px-4 py-2 rounded-xl text-sm font-medium transition-colors relative',
                   activeTab === tab.value
                     ? 'bg-indigo-600 text-white'
                     : 'text-gray-500 dark:text-zinc-400 bg-gray-100 dark:bg-zinc-800 hover:bg-gray-200 dark:hover:bg-zinc-700'
@@ -137,6 +139,13 @@ export default function GroupPage() {
               Spending insights
             </h2>
             <GroupAnalytics groupId={groupId!} members={group.members} currencyCode={group.currency_code} />
+          </div>
+
+          <div className={cn('md:mt-6', activeTab !== 'activity' && 'hidden md:block')}>
+            <h2 className="hidden md:block text-sm font-semibold text-gray-500 dark:text-zinc-500 uppercase tracking-wider mb-4">
+              Activity
+            </h2>
+            <GroupActivity groupId={groupId!} />
           </div>
         </div>
       </PageTransition>

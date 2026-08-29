@@ -115,3 +115,23 @@ export interface ApiError {
     status: number
   }
 }
+
+export interface ExpenseComment {
+  id: string
+  expense_id: string
+  user_id: string
+  content: string
+  created_at: string
+  user: Pick<User, 'id' | 'name' | 'avatar_url'>
+}
+
+export interface ActivityItem {
+  activity_type: 'expense_created' | 'expense_edited' | 'payment_recorded'
+  group_id: string
+  entity_id: string
+  entity_title: string | null
+  total_amount: number | null
+  actor_id: string
+  occurred_at: string
+  actor: Pick<User, 'id' | 'name' | 'avatar_url'> | null
+}

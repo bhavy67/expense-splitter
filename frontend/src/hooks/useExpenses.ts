@@ -1,7 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase, callEdgeFunction } from '@/lib/supabase'
 import { toast } from '@/components/common/Toast'
-import type { Expense, PaginatedResponse } from '@/types'
+import { useAuthStore } from '@/store/auth'
+import type { Expense, ExpenseComment, PaginatedResponse } from '@/types'
 import type { Database } from '@/lib/database.types'
 
 const EXPENSE_SELECT =
@@ -114,6 +115,40 @@ export function useDeleteExpense(groupId: string) {
       toast.success('Expense deleted')
     },
     onError: (err) => toast.error(getErrorMessage(err, 'Failed to delete expense')),
+  })
+}
+
+export function useComments(expenseId: string) {
+  return useQuery({
+    queryKey: ['comments', expenseId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('expense_comments')
+        .select('*, user:profiles!user_id(id, name, avatar_url)')
+        .eq('expense_id', expenseId)
+        .order('created_at', { ascending: true })
+      if (error) throw error
+      return data as unknown as ExpenseComment[]
+    },
+    enabled: !!expenseId,
+  })
+}
+
+export function useAddComment(expenseId: string) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (content: string) => {
+      const userId = useAuthStore.getState().user?.id
+      if (!userId) throw new Error('Not signed in')
+      const { error } = await supabase
+        .from('expense_comments')
+        .insert({ expense_id: expenseId, user_id: userId, content })
+      if (error) throw error
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['comments', expenseId] })
+    },
+    onError: (err) => toast.error(getErrorMessage(err, 'Failed to post comment')),
   })
 }
 
