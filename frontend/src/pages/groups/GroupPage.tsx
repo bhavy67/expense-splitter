@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { useState, lazy, Suspense } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { Settings, Plus, Users, Receipt, Scale, UserPlus } from 'lucide-react'
+import { Settings, Plus, Users, Receipt, Scale, UserPlus, BarChart2 } from 'lucide-react'
 import { AppShell } from '@/components/layout/AppShell'
 import { TopBar } from '@/components/layout/TopBar'
 import { Button } from '@/components/common/Button'
@@ -8,11 +8,13 @@ import { PageTransition } from '@/components/common/PageTransition'
 import { ExpenseCard } from '@/components/expenses/ExpenseCard'
 import { BalancesTab } from '@/components/groups/BalancesTab'
 import { useGroup, useExpenses, usePayments } from '@/hooks/useStore'
+
+const AnalyticsTab = lazy(() => import('@/components/groups/AnalyticsTab'))
 import { formatCurrency } from '@/lib/currency'
 import { getTotalExpenses } from '@/lib/calculations'
 import { cn } from '@/lib/utils'
 
-type Tab = 'expenses' | 'balances'
+type Tab = 'expenses' | 'balances' | 'stats'
 
 export default function GroupPage() {
   const { groupId } = useParams<{ groupId: string }>()
@@ -126,6 +128,7 @@ export default function GroupPage() {
             {([
               { id: 'expenses', label: 'Expenses', icon: Receipt },
               { id: 'balances', label: 'Balances',  icon: Scale },
+              { id: 'stats',    label: 'Stats',     icon: BarChart2 },
             ] as { id: Tab; label: string; icon: React.ElementType }[]).map(({ id, label, icon: Icon }) => (
               <button
                 key={id}
@@ -176,6 +179,17 @@ export default function GroupPage() {
           {/* Tab: Balances */}
           {tab === 'balances' && (
             <BalancesTab group={group} expenses={expenses} payments={payments} />
+          )}
+
+          {/* Tab: Stats — lazy-loaded so Recharts doesn't bloat the GroupPage chunk */}
+          {tab === 'stats' && (
+            <Suspense fallback={
+              <div className="flex items-center justify-center py-16">
+                <div className="w-5 h-5 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+              </div>
+            }>
+              <AnalyticsTab group={group} expenses={expenses} />
+            </Suspense>
           )}
         </div>
       </PageTransition>
