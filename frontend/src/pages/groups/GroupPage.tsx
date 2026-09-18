@@ -6,7 +6,8 @@ import { TopBar } from '@/components/layout/TopBar'
 import { Button } from '@/components/common/Button'
 import { PageTransition } from '@/components/common/PageTransition'
 import { ExpenseCard } from '@/components/expenses/ExpenseCard'
-import { useGroup, useExpenses } from '@/hooks/useStore'
+import { BalancesTab } from '@/components/groups/BalancesTab'
+import { useGroup, useExpenses, usePayments } from '@/hooks/useStore'
 import { formatCurrency } from '@/lib/currency'
 import { getTotalExpenses } from '@/lib/calculations'
 import { cn } from '@/lib/utils'
@@ -18,6 +19,7 @@ export default function GroupPage() {
   const navigate = useNavigate()
   const group = useGroup(groupId!)
   const expenses = useExpenses(groupId!)
+  const payments = usePayments(groupId!)
   const [tab, setTab] = useState<Tab>('expenses')
 
   if (!group) {
@@ -173,19 +175,7 @@ export default function GroupPage() {
 
           {/* Tab: Balances */}
           {tab === 'balances' && (
-            <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 text-center">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 flex items-center justify-center mx-auto mb-3 text-2xl">
-                ⚖️
-              </div>
-              <p className="text-sm font-semibold text-gray-700 dark:text-zinc-300 mb-1">
-                {expenses.length === 0 ? 'No expenses yet' : 'Balances & settlements'}
-              </p>
-              <p className="text-xs text-gray-400 dark:text-zinc-500">
-                {expenses.length === 0
-                  ? 'Add expenses first to see who owes what'
-                  : 'Debt simplification and settlement tracking is coming in Phase 4'}
-              </p>
-            </div>
+            <BalancesTab group={group} expenses={expenses} payments={payments} />
           )}
         </div>
       </PageTransition>
