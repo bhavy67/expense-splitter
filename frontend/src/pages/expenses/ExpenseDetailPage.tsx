@@ -4,6 +4,7 @@ import { Edit2, Trash2, ChevronDown, ChevronUp } from 'lucide-react'
 import { AppShell } from '@/components/layout/AppShell'
 import { TopBar } from '@/components/layout/TopBar'
 import { Button } from '@/components/common/Button'
+import { ConfirmModal } from '@/components/common/ConfirmModal'
 import { PageTransition } from '@/components/common/PageTransition'
 import { useGroup } from '@/hooks/useStore'
 import { getExpense, deleteExpense } from '@/lib/storage'
@@ -42,6 +43,7 @@ export default function ExpenseDetailPage() {
   const navigate = useNavigate()
   const group = useGroup(groupId!)
   const [showReceipt, setShowReceipt] = useState(false)
+  const [confirmDelete, setConfirmDelete] = useState(false)
 
   if (!group) {
     return (
@@ -70,7 +72,6 @@ export default function ExpenseDetailPage() {
   const memberMap = Object.fromEntries(group.members.map((m) => [m.id, m]))
 
   function handleDelete() {
-    if (!confirm(`Delete "${expense!.title}"? This cannot be undone.`)) return
     deleteExpense(groupId!, expenseId!)
     toast.success('Expense deleted')
     navigate(`/g/${groupId}`, { replace: true })
@@ -91,7 +92,7 @@ export default function ExpenseDetailPage() {
               <Edit2 className="w-4 h-4" />
             </button>
             <button
-              onClick={handleDelete}
+              onClick={() => setConfirmDelete(true)}
               className="p-1.5 rounded-xl text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
               title="Delete expense"
             >
@@ -260,7 +261,7 @@ export default function ExpenseDetailPage() {
             <Button
               variant="danger"
               className="flex-1"
-              onClick={handleDelete}
+              onClick={() => setConfirmDelete(true)}
             >
               <Trash2 className="w-4 h-4" />
               Delete
@@ -269,6 +270,17 @@ export default function ExpenseDetailPage() {
 
         </div>
       </PageTransition>
+
+      {confirmDelete && (
+        <ConfirmModal
+          title={`Delete "${expense.title}"?`}
+          description="All split data will be lost and balances will be recalculated. This cannot be undone."
+          confirmLabel="Delete expense"
+          danger
+          onConfirm={handleDelete}
+          onCancel={() => setConfirmDelete(false)}
+        />
+      )}
     </AppShell>
   )
 }

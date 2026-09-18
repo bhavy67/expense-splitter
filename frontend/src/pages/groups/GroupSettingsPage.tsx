@@ -1,16 +1,18 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { ArrowLeft, Trash2, Plus, Check, X, Pencil, Download, Upload } from 'lucide-react'
+import { ArrowLeft, Trash2, Plus, Check, X, Pencil, Download } from 'lucide-react'
 import { AppShell } from '@/components/layout/AppShell'
 import { TopBar } from '@/components/layout/TopBar'
 import { Button } from '@/components/common/Button'
+import { ConfirmModal } from '@/components/common/ConfirmModal'
 import { PageTransition } from '@/components/common/PageTransition'
 import { useGroup } from '@/hooks/useStore'
-import { saveGroup, deleteGroup, generateId, exportGroupData, importGroupData } from '@/lib/storage'
-import type { GroupExport } from '@/lib/storage'
+import { saveGroup, deleteGroup, generateId, exportGroupData } from '@/lib/storage'
 import { toast } from '@/components/common/Toast'
 import { cn } from '@/lib/utils'
 import type { GroupType, Member } from '@/types'
+
+type ConfirmConfig = { title: string; description?: string; confirmLabel: string; danger?: boolean; onConfirm: () => void }
 
 const MEMBER_COLORS = [
   '#6366f1', '#8b5cf6', '#ec4899', '#f97316',
@@ -94,7 +96,7 @@ export default function GroupSettingsPage() {
   const { groupId } = useParams<{ groupId: string }>()
   const navigate = useNavigate()
   const group = useGroup(groupId!)
-  const importRef = useRef<HTMLInputElement>(null)
+  const [confirmConfig, setConfirmConfig] = useState<ConfirmConfig | null>(null)
 
   // Group info state
   const [name, setName] = useState(group?.name ?? '')
@@ -182,9 +184,18 @@ export default function GroupSettingsPage() {
   }
 
   function removeMember(memberId: string) {
-    if (!confirm('Remove this member?')) return
-    persistMembers(members.filter((m) => m.id !== memberId))
-    toast.success('Member removed')
+    const member = members.find((m) => m.id === memberId)
+    setConfirmConfig({
+      title: `Remove ${member?.name ?? 'member'}?`,
+      description: 'They will be removed from this group. Past expenses they are part of will not be affected.',
+      confirmLabel: 'Remove',
+      danger: true,
+      onConfirm: () => {
+        persistMembers(members.filter((m) => m.id !== memberId))
+        toast.success('Member removed')
+        setConfirmConfig(null)
+      },
+    })
   }
 
   function addMember() {
@@ -198,7 +209,7 @@ export default function GroupSettingsPage() {
     toast.success(`${trimmed} added`)
   }
 
-  // ── Export / Import ──────────────────────────────────────────────────────────
+  // ── Export ───────────────────────────────────────────────────────────────────
 
   function handleExport() {
     const data = exportGroupData(group!.id)
@@ -213,35 +224,20 @@ export default function GroupSettingsPage() {
     toast.success('Group exported')
   }
 
-  function handleImportFile(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    if (!file) return
-    const reader = new FileReader()
-    reader.onload = (ev) => {
-      try {
-        const raw = ev.target?.result as string
-        const data = JSON.parse(raw) as GroupExport
-        if (data.version !== 1 || !data.group || !Array.isArray(data.expenses)) {
-          toast.error('Invalid file format'); return
-        }
-        const imported = importGroupData(data)
-        toast.success(`Imported "${imported.name}"`)
-        navigate(`/g/${imported.id}`)
-      } catch {
-        toast.error('Could not read file')
-      }
-    }
-    reader.readAsText(file)
-    e.target.value = ''
-  }
-
   // ── Delete ───────────────────────────────────────────────────────────────────
 
   function handleDelete() {
-    if (!confirm(`Delete "${group!.name}"? All expenses and settlements will be lost. This cannot be undone.`)) return
-    deleteGroup(group!.id)
-    toast.success('Group deleted')
-    navigate('/', { replace: true })
+    setConfirmConfig({
+      title: `Delete "${group!.name}"?`,
+      description: 'All expenses and settlements will be permanently lost. This cannot be undone.',
+      confirmLabel: 'Delete group',
+      danger: true,
+      onConfirm: () => {
+        deleteGroup(group!.id)
+        toast.success('Group deleted')
+        navigate('/', { replace: true })
+      },
+    })
   }
 
   return (
@@ -434,32 +430,15 @@ export default function GroupSettingsPage() {
             </div>
           </SectionCard>
 
-          {/* ── Export / Import ─────────────────────────────────────────────── */}
-          <SectionCard title="Backup & restore">
+          {/* ── Export ─────────────────────────────────────────────────────── */}
+          <SectionCard title="Backup">
             <p className="text-xs text-gray-500 dark:text-zinc-400 mb-4">
-              Export this group (with all expenses) to a JSON file. Import a previously exported group as a copy.
+              Export this group (with all expenses) to a JSON file.
             </p>
-            <div className="flex gap-2 flex-wrap">
-              <Button variant="secondary" size="sm" onClick={handleExport}>
-                <Download className="w-3.5 h-3.5" />
-                Export group
-              </Button>
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={() => importRef.current?.click()}
-              >
-                <Upload className="w-3.5 h-3.5" />
-                Import group
-              </Button>
-              <input
-                ref={importRef}
-                type="file"
-                accept=".json"
-                className="hidden"
-                onChange={handleImportFile}
-              />
-            </div>
+            <Button variant="secondary" size="sm" onClick={handleExport}>
+              <Download className="w-3.5 h-3.5" />
+              Export group
+            </Button>
           </SectionCard>
 
           {/* ── Danger zone ─────────────────────────────────────────────────── */}
@@ -475,6 +454,13 @@ export default function GroupSettingsPage() {
           </SectionCard>
         </div>
       </PageTransition>
+
+      {confirmConfig && (
+        <ConfirmModal
+          {...confirmConfig}
+          onCancel={() => setConfirmConfig(null)}
+        />
+      )}
     </AppShell>
   )
 }
