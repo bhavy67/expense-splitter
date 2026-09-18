@@ -1,10 +1,11 @@
 import { useState } from 'react'
-import { ChevronDown, ChevronUp, ArrowRight, CheckCircle2, PlusCircle } from 'lucide-react'
+import { ChevronDown, ChevronUp, ArrowRight, CheckCircle2, PlusCircle, Zap } from 'lucide-react'
 import { Button } from '@/components/common/Button'
 import { RecordPaymentModal } from './RecordPaymentModal'
-import { deletePayment } from '@/lib/storage'
+import { deletePayment, savePayment, generateId } from '@/lib/storage'
 import { calculateBalances, simplifyDebts } from '@/lib/calculations'
 import { formatCurrency } from '@/lib/currency'
+import { toast } from '@/components/common/Toast'
 import { cn } from '@/lib/utils'
 import type { Group, Expense, Payment } from '@/types'
 
@@ -27,6 +28,23 @@ interface PaymentTarget {
 export function BalancesTab({ group, expenses, payments }: Props) {
   const [showHistory, setShowHistory] = useState(false)
   const [paymentTarget, setPaymentTarget] = useState<PaymentTarget | null>(null)
+
+  function handleSettleAll() {
+    if (!confirm(`Record ${debts.length} payment${debts.length > 1 ? 's' : ''} to clear all debts at once?`)) return
+    const now = new Date()
+    for (const debt of debts) {
+      savePayment({
+        id: generateId(),
+        groupId: group.id,
+        fromMemberId: debt.from,
+        toMemberId: debt.to,
+        amount: debt.amount,
+        date: now.toISOString().split('T')[0],
+        createdAt: now.toISOString(),
+      })
+    }
+    toast.success(`${debts.length} payment${debts.length > 1 ? 's' : ''} recorded — all settled!`)
+  }
 
   const memberMap = Object.fromEntries(group.members.map((m) => [m.id, m]))
   const balances = calculateBalances(expenses, payments, group.members)
@@ -73,13 +91,24 @@ export function BalancesTab({ group, expenses, payments }: Props) {
           <p className="text-xs font-semibold text-gray-500 dark:text-zinc-400 uppercase tracking-wide">
             Who pays who
           </p>
-          <button
-            onClick={() => setPaymentTarget({ fromId: group.members[0]?.id, toId: group.members[1]?.id })}
-            className="flex items-center gap-1 text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-medium transition-colors"
-          >
-            <PlusCircle className="w-3 h-3" />
-            Record
-          </button>
+          <div className="flex items-center gap-2">
+            {!isSettled && debts.length > 1 && (
+              <button
+                onClick={handleSettleAll}
+                className="flex items-center gap-1 text-xs text-amber-600 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300 font-medium transition-colors"
+              >
+                <Zap className="w-3 h-3" />
+                Settle all
+              </button>
+            )}
+            <button
+              onClick={() => setPaymentTarget({ fromId: group.members[0]?.id, toId: group.members[1]?.id })}
+              className="flex items-center gap-1 text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-medium transition-colors"
+            >
+              <PlusCircle className="w-3 h-3" />
+              Record
+            </button>
+          </div>
         </div>
 
         {isSettled ? (

@@ -1,17 +1,20 @@
 import { useState, useRef } from 'react'
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
-import { Plus, X, Camera, RefreshCw } from 'lucide-react'
+import { Plus, X, Camera, RefreshCw, BookMarked } from 'lucide-react'
 import { AppShell } from '@/components/layout/AppShell'
 import { TopBar } from '@/components/layout/TopBar'
 import { Button } from '@/components/common/Button'
 import { PageTransition } from '@/components/common/PageTransition'
 import { useGroup } from '@/hooks/useStore'
 import { saveExpense, getExpense, generateId } from '@/lib/storage'
+import { getTemplates, saveTemplate, deleteTemplate } from '@/lib/templates'
 import { buildEqualSplits } from '@/lib/calculations'
 import { formatCurrency } from '@/lib/currency'
 import { toast } from '@/components/common/Toast'
 import { cn } from '@/lib/utils'
 import type { Expense, SplitType, ExpenseCategory, SplitEntry, ExpenseItem } from '@/types'
+
+const CURRENCIES = ['INR', 'USD', 'EUR', 'GBP', 'AED', 'CAD', 'AUD', 'SGD', 'JPY', 'THB', 'MYR', 'IDR']
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -58,13 +61,26 @@ export default function AddExpensePage() {
   // ── Form state ──────────────────────────────────────────────────────────────
 
   const [title, setTitle]     = useState(existing?.title ?? '')
-  const [amount, setAmount]   = useState(existing?.amount.toString() ?? '')
+  const [amount, setAmount]   = useState(() => {
+    if (!existing) return ''
+    if (existing.exchangeRate && existing.currency !== (group?.currency ?? '')) {
+      return (existing.amount / existing.exchangeRate).toFixed(2)
+    }
+    return existing.amount.toString()
+  })
   const [date, setDate]       = useState(existing?.date ?? new Date().toISOString().split('T')[0])
   const [category, setCategory] = useState<ExpenseCategory>(existing?.category ?? 'other')
   const [notes, setNotes]     = useState(existing?.notes ?? '')
   const [paidBy, setPaidBy]   = useState(existing?.paidBy ?? group?.members[0]?.id ?? '')
   const [splitType, setSplitType] = useState<SplitType>(existing?.splitType ?? 'equal')
   const [receiptImage, setReceiptImage] = useState<string | undefined>(existing?.receiptImage)
+  // multi-currency
+  const [expenseCurrency, setExpenseCurrency] = useState(existing?.currency ?? group?.currency ?? 'INR')
+  const [exchangeRate, setExchangeRate]       = useState(existing?.exchangeRate?.toString() ?? '1')
+  // templates
+  const [templates, setTemplates]             = useState(() => getTemplates())
+  const [savingTemplate, setSavingTemplate]   = useState(false)
+  const [templateName, setTemplateName]       = useState('')
 
   // per-split-type state
   const [equalIncluded, setEqualIncluded] = useState<Set<string>>(
@@ -126,8 +142,9 @@ export default function AddExpensePage() {
 
   // ── Derived / computed ──────────────────────────────────────────────────────
 
-  const amt = parseFloat(amount) || 0
-  const currency = group.currency
+  const currency = group.currency                                           // group base currency
+  const rate     = expenseCurrency !== currency ? (parseFloat(exchangeRate) || 1) : 1
+  const amt      = (parseFloat(amount) || 0) * rate                        // always in group currency
 
   const itemizedTotal = formItems.reduce((s, it) => s + (parseFloat(it.amount) || 0), 0)
 
@@ -138,6 +155,31 @@ export default function AddExpensePage() {
   const shareTotalCount = group.members.reduce((s, m) => s + (shareVals[m.id] ?? 0), 0)
 
   // ── Handlers ────────────────────────────────────────────────────────────────
+
+  function applyTemplate(id: string) {
+    const t = templates.find((x) => x.id === id)
+    if (!t) return
+    setTitle(t.title)
+    setCategory(t.category)
+    setSplitType(t.splitType)
+    setNotes(t.notes ?? '')
+    toast.info(`Loaded "${t.name}"`)
+  }
+
+  function handleSaveTemplate() {
+    const name = templateName.trim()
+    if (!name) { toast.error('Enter a template name'); return }
+    saveTemplate({ name, title: title.trim() || 'Expense', category, splitType, notes: notes.trim() || undefined })
+    setTemplates(getTemplates())
+    setSavingTemplate(false)
+    setTemplateName('')
+    toast.success(`Template "${name}" saved`)
+  }
+
+  function handleDeleteTemplate(id: string) {
+    deleteTemplate(id)
+    setTemplates(getTemplates())
+  }
 
   function handlePhotoChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -264,7 +306,8 @@ export default function AddExpensePage() {
       groupId: groupId!,
       title: trimmedTitle,
       amount: finalAmount,
-      currency,
+      currency: expenseCurrency,
+      exchangeRate: expenseCurrency !== currency ? rate : undefined,
       category,
       paidBy,
       splitType,
@@ -291,17 +334,53 @@ export default function AddExpensePage() {
       <PageTransition>
         <form onSubmit={handleSubmit} className="max-w-2xl mx-auto px-4 py-6 pb-28 flex flex-col gap-5">
 
+          {/* ── Templates strip ──────────────────────────────────────────── */}
+          {templates.length > 0 && !existing && (
+            <div>
+              <p className="text-xs font-semibold text-gray-400 dark:text-zinc-500 uppercase tracking-wider mb-2 px-1">Templates</p>
+              <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
+                {templates.map((t) => (
+                  <div key={t.id} className="flex items-center gap-1 shrink-0 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-xl overflow-hidden">
+                    <button
+                      type="button"
+                      onClick={() => applyTemplate(t.id)}
+                      className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-gray-700 dark:text-zinc-300 hover:text-indigo-700 dark:hover:text-indigo-400 transition-colors"
+                    >
+                      <BookMarked className="w-3 h-3 text-indigo-500 dark:text-indigo-400 shrink-0" />
+                      {t.name}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteTemplate(t.id)}
+                      className="px-2 py-2 text-gray-300 dark:text-zinc-600 hover:text-red-400 dark:hover:text-red-400 transition-colors"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* ── Amount ──────────────────────────────────────────────────── */}
           <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-5 text-center">
             <p className="text-xs font-medium text-gray-400 dark:text-zinc-500 uppercase tracking-wider mb-2">Total amount</p>
             <div className="flex items-center justify-center gap-2">
-              <span className="text-2xl text-gray-400 dark:text-zinc-500 font-light">{currency}</span>
+              {/* Currency selector */}
+              <select
+                value={expenseCurrency}
+                disabled={splitType === 'itemized'}
+                onChange={e => { setExpenseCurrency(e.target.value); setExchangeRate('1') }}
+                className="text-2xl text-gray-400 dark:text-zinc-500 font-light bg-transparent border-none outline-none cursor-pointer disabled:cursor-default"
+              >
+                {CURRENCIES.map(c => <option key={c} value={c}>{c}</option>)}
+              </select>
               <input
                 type="number"
                 min="0"
                 step="0.01"
                 placeholder="0.00"
-                value={splitType === 'itemized' ? itemizedTotal.toFixed(2) : amount}
+                value={splitType === 'itemized' ? (itemizedTotal / rate).toFixed(2) : amount}
                 onChange={e => setAmount(e.target.value)}
                 readOnly={splitType === 'itemized'}
                 className={cn(
@@ -310,6 +389,26 @@ export default function AddExpensePage() {
                 )}
               />
             </div>
+            {/* Exchange rate row */}
+            {expenseCurrency !== currency && splitType !== 'itemized' && (
+              <div className="flex items-center justify-center gap-2 mt-3 pt-3 border-t border-gray-100 dark:border-zinc-800">
+                <span className="text-xs text-gray-400 dark:text-zinc-500">1 {expenseCurrency} =</span>
+                <input
+                  type="number"
+                  min="0.000001"
+                  step="any"
+                  value={exchangeRate}
+                  onChange={e => setExchangeRate(e.target.value)}
+                  className="w-20 text-sm font-semibold text-center text-gray-900 dark:text-zinc-100 bg-gray-50 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-lg h-7 px-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                />
+                <span className="text-xs text-gray-400 dark:text-zinc-500">{currency}</span>
+                {amt > 0 && (
+                  <span className="text-xs font-semibold text-indigo-600 dark:text-indigo-400">
+                    = {formatCurrency(amt, currency)}
+                  </span>
+                )}
+              </div>
+            )}
             {splitType === 'itemized' && (
               <p className="text-xs text-gray-400 dark:text-zinc-500 mt-1">Calculated from items below</p>
             )}
@@ -659,7 +758,7 @@ export default function AddExpensePage() {
             </div>
           </div>
 
-          {/* ── Notes ────────────────────────────────────────────────────── */}
+          {/* ── Notes + Save template ────────────────────────────────────── */}
           <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-4">
             <p className="text-xs font-semibold text-gray-400 dark:text-zinc-500 uppercase tracking-wider mb-2">Notes (optional)</p>
             <textarea
@@ -669,6 +768,35 @@ export default function AddExpensePage() {
               placeholder="Add a note..."
               className="w-full text-sm text-gray-700 dark:text-zinc-300 bg-transparent border-none outline-none resize-none placeholder-gray-300 dark:placeholder-zinc-600"
             />
+            {!existing && (
+              <>
+                <div className="h-px bg-gray-100 dark:bg-zinc-800 mt-3 mb-3" />
+                {savingTemplate ? (
+                  <div className="flex items-center gap-2">
+                    <BookMarked className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
+                    <input
+                      autoFocus
+                      value={templateName}
+                      onChange={e => setTemplateName(e.target.value)}
+                      onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleSaveTemplate() } if (e.key === 'Escape') setSavingTemplate(false) }}
+                      placeholder="Template name..."
+                      className="flex-1 text-sm text-gray-700 dark:text-zinc-300 placeholder-gray-300 dark:placeholder-zinc-600 bg-transparent border-none outline-none"
+                    />
+                    <button type="button" onClick={handleSaveTemplate} className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 transition-colors">Save</button>
+                    <button type="button" onClick={() => setSavingTemplate(false)} className="text-xs text-gray-400 hover:text-gray-600 transition-colors">Cancel</button>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => { setTemplateName(title || ''); setSavingTemplate(true) }}
+                    className="flex items-center gap-1.5 text-xs text-gray-400 dark:text-zinc-500 hover:text-indigo-600 dark:hover:text-indigo-400 font-medium transition-colors"
+                  >
+                    <BookMarked className="w-3 h-3" />
+                    Save as template
+                  </button>
+                )}
+              </>
+            )}
           </div>
 
           {/* ── Receipt ──────────────────────────────────────────────────── */}

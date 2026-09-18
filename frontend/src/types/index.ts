@@ -40,8 +40,9 @@ export interface Expense {
   id: string
   groupId: string
   title: string
-  amount: number
-  currency: string
+  amount: number          // always in group currency (used for all calculations)
+  currency: string        // display currency of the original amount entered
+  exchangeRate?: number   // 1 display-currency = exchangeRate group-currency (undefined when same)
   category: ExpenseCategory
   paidBy: string
   splitType: SplitType
@@ -53,6 +54,16 @@ export interface Expense {
   tags?: string[]
   createdAt: string
   updatedAt: string
+}
+
+export interface ExpenseTemplate {
+  id: string
+  name: string
+  title: string
+  category: ExpenseCategory
+  splitType: SplitType
+  notes?: string
+  createdAt: string
 }
 
 export interface Payment {
