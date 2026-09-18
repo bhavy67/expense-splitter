@@ -5,6 +5,7 @@ import { AppShell } from '@/components/layout/AppShell'
 import { TopBar } from '@/components/layout/TopBar'
 import { Button } from '@/components/common/Button'
 import { PageTransition } from '@/components/common/PageTransition'
+import { ExpenseCard } from '@/components/expenses/ExpenseCard'
 import { useGroup, useExpenses } from '@/hooks/useStore'
 import { formatCurrency } from '@/lib/currency'
 import { getTotalExpenses } from '@/lib/calculations'
@@ -142,19 +143,32 @@ export default function GroupPage() {
 
           {/* Tab: Expenses */}
           {tab === 'expenses' && (
-            <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 text-center">
-              <div className="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-950/30 flex items-center justify-center mx-auto mb-3 text-2xl">
-                💸
+            expenses.length === 0 ? (
+              <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 text-center">
+                <div className="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-950/30 flex items-center justify-center mx-auto mb-3 text-2xl">
+                  💸
+                </div>
+                <p className="text-sm font-semibold text-gray-700 dark:text-zinc-300 mb-1">No expenses yet</p>
+                <p className="text-xs text-gray-400 dark:text-zinc-500 mb-4">
+                  Add your first expense to start splitting
+                </p>
+                <Button size="sm" onClick={() => navigate(`/g/${groupId}/expenses/new`)}>
+                  <Plus className="w-3.5 h-3.5" />
+                  Add expense
+                </Button>
               </div>
-              <p className="text-sm font-semibold text-gray-700 dark:text-zinc-300 mb-1">No expenses yet</p>
-              <p className="text-xs text-gray-400 dark:text-zinc-500 mb-4">
-                Expense creation with all split types is coming in Phase 3
-              </p>
-              <Button size="sm" onClick={() => navigate(`/g/${groupId}/expenses/new`)}>
-                <Plus className="w-3.5 h-3.5" />
-                Add expense
-              </Button>
-            </div>
+            ) : (
+              <div className="flex flex-col gap-2">
+                {expenses.map((expense) => (
+                  <ExpenseCard
+                    key={expense.id}
+                    expense={expense}
+                    members={group.members}
+                    groupId={groupId!}
+                  />
+                ))}
+              </div>
+            )
           )}
 
           {/* Tab: Balances */}
