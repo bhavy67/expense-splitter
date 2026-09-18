@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
-import { Plus } from 'lucide-react'
+import { useState, useEffect, useRef } from 'react'
+import { Link, useSearchParams, useNavigate } from 'react-router-dom'
+import { Plus, Upload } from 'lucide-react'
 import { motion, type Variants } from 'framer-motion'
 import { AppShell } from '@/components/layout/AppShell'
 import { TopBar } from '@/components/layout/TopBar'
@@ -9,9 +9,11 @@ import { Button } from '@/components/common/Button'
 import { EmptyState } from '@/components/common/EmptyState'
 import { PageTransition } from '@/components/common/PageTransition'
 import { useGroups } from '@/hooks/useStore'
-import { getExpenses } from '@/lib/storage'
+import { getExpenses, importGroupData } from '@/lib/storage'
+import type { GroupExport } from '@/lib/storage'
 import { getTotalExpenses } from '@/lib/calculations'
 import { formatCurrency } from '@/lib/currency'
+import { toast } from '@/components/common/Toast'
 import type { Group } from '@/types'
 
 const GROUP_ICONS: Record<string, string> = {
@@ -85,6 +87,8 @@ export default function DashboardPage() {
   const [searchParams, setSearchParams] = useSearchParams()
   const [showCreate, setShowCreate] = useState(searchParams.get('new') === '1')
   const groups = useGroups()
+  const navigate = useNavigate()
+  const importRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     if (searchParams.get('new') === '1') {
@@ -93,15 +97,45 @@ export default function DashboardPage() {
     }
   }, [searchParams, setSearchParams])
 
+  function handleImportFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = (ev) => {
+      try {
+        const data = JSON.parse(ev.target?.result as string) as GroupExport
+        if (data.version !== 1 || !data.group || !Array.isArray(data.expenses)) {
+          toast.error('Invalid file format'); return
+        }
+        const imported = importGroupData(data)
+        toast.success(`Imported "${imported.name}"`)
+        navigate(`/g/${imported.id}`)
+      } catch {
+        toast.error('Could not read file')
+      }
+    }
+    reader.readAsText(file)
+    e.target.value = ''
+  }
+
   return (
     <AppShell>
       <TopBar
         title="My Groups"
         actions={
-          <Button size="sm" onClick={() => setShowCreate(true)}>
-            <Plus className="w-3.5 h-3.5" />
-            New
-          </Button>
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={() => importRef.current?.click()}
+              className="p-1.5 rounded-xl text-gray-500 dark:text-zinc-400 hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors"
+              title="Import group"
+            >
+              <Upload className="w-4 h-4" />
+            </button>
+            <Button size="sm" onClick={() => setShowCreate(true)}>
+              <Plus className="w-3.5 h-3.5" />
+              New
+            </Button>
+          </div>
         }
       />
 
@@ -116,10 +150,16 @@ export default function DashboardPage() {
                   : `${groups.length} group${groups.length !== 1 ? 's' : ''}`}
               </p>
             </div>
-            <Button className="hidden md:flex" onClick={() => setShowCreate(true)}>
-              <Plus className="w-4 h-4" />
-              New group
-            </Button>
+            <div className="hidden md:flex items-center gap-2">
+              <Button variant="secondary" onClick={() => importRef.current?.click()}>
+                <Upload className="w-4 h-4" />
+                Import
+              </Button>
+              <Button onClick={() => setShowCreate(true)}>
+                <Plus className="w-4 h-4" />
+                New group
+              </Button>
+            </div>
           </div>
 
           {groups.length === 0 ? (
@@ -134,10 +174,18 @@ export default function DashboardPage() {
               title="No groups yet"
               description="No accounts needed — just create a group, add names, and start splitting."
               action={
-                <Button onClick={() => setShowCreate(true)}>
-                  <Plus className="w-4 h-4" />
-                  Create first group
-                </Button>
+                <div className="flex flex-col items-center gap-2">
+                  <Button onClick={() => setShowCreate(true)}>
+                    <Plus className="w-4 h-4" />
+                    Create first group
+                  </Button>
+                  <button
+                    onClick={() => importRef.current?.click()}
+                    className="text-xs text-gray-400 dark:text-zinc-500 hover:text-indigo-600 dark:hover:text-indigo-400 font-medium transition-colors"
+                  >
+                    or import from file
+                  </button>
+                </div>
               }
             />
           ) : (
@@ -154,6 +202,14 @@ export default function DashboardPage() {
       </PageTransition>
 
       <CreateGroupModal open={showCreate} onClose={() => setShowCreate(false)} />
+
+      <input
+        ref={importRef}
+        type="file"
+        accept=".json"
+        className="hidden"
+        onChange={handleImportFile}
+      />
     </AppShell>
   )
 }
