@@ -20,10 +20,12 @@ interface Props {
   expense: Expense
   members: Member[]
   groupId: string
+  groupCurrency?: string
 }
 
-export function ExpenseCard({ expense, members, groupId }: Props) {
+export function ExpenseCard({ expense, members, groupId, groupCurrency }: Props) {
   const payer = members.find((m) => m.id === expense.paidBy)
+  const isForeignCurrency = groupCurrency && expense.currency !== groupCurrency
 
   return (
     <Link
@@ -52,11 +54,17 @@ export function ExpenseCard({ expense, members, groupId }: Props) {
 
       <div className="shrink-0 text-right">
         <p className="text-sm font-bold text-gray-900 dark:text-zinc-100">
-          {formatCurrency(expense.amount, expense.currency)}
+          {formatCurrency(expense.amount, groupCurrency ?? expense.currency)}
         </p>
-        <p className="text-[10px] text-gray-400 dark:text-zinc-500 mt-0.5">
-          {SPLIT_LABELS[expense.splitType] ?? expense.splitType}
-        </p>
+        {isForeignCurrency && expense.exchangeRate ? (
+          <p className="text-[10px] text-indigo-500 dark:text-indigo-400 mt-0.5">
+            {(expense.amount / expense.exchangeRate).toFixed(2)} {expense.currency}
+          </p>
+        ) : (
+          <p className="text-[10px] text-gray-400 dark:text-zinc-500 mt-0.5">
+            {SPLIT_LABELS[expense.splitType] ?? expense.splitType}
+          </p>
+        )}
       </div>
     </Link>
   )

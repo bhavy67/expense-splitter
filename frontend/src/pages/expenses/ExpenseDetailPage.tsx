@@ -128,6 +128,15 @@ export default function ExpenseDetailPage() {
               </div>
             </div>
 
+            {/* Exchange rate badge */}
+            {expense.exchangeRate && expense.currency !== group.currency && (
+              <div className="flex items-center gap-2 mt-3 px-2 py-1.5 bg-indigo-50 dark:bg-indigo-950/30 rounded-xl self-start">
+                <span className="text-xs text-indigo-600 dark:text-indigo-400 font-medium">
+                  {(expense.amount / expense.exchangeRate).toFixed(2)} {expense.currency} × {expense.exchangeRate} = {group.currency}
+                </span>
+              </div>
+            )}
+
             {/* Paid by */}
             {payer && (
               <div className="flex items-center gap-2 mt-4 pt-4 border-t border-gray-100 dark:border-zinc-800">

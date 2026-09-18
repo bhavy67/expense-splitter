@@ -170,6 +170,7 @@ export default function GroupPage() {
                     expense={expense}
                     members={group.members}
                     groupId={groupId!}
+                    groupCurrency={group.currency}
                   />
                 ))}
               </div>
