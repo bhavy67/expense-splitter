@@ -95,3 +95,74 @@ export function deletePayment(groupId: string, id: string): void {
   all[groupId] = (all[groupId] ?? []).filter((p) => p.id !== id)
   write('payments', all)
 }
+
+// ─── Export / Import ─────────────────────────────────────────────────────────
+
+export interface GroupExport {
+  version: 1
+  exportedAt: string
+  group: Group
+  expenses: Expense[]
+  payments: Payment[]
+}
+
+export function exportGroupData(groupId: string): GroupExport | null {
+  const group = getGroup(groupId)
+  if (!group) return null
+  return {
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    group,
+    expenses: getExpenses(groupId),
+    payments: getPayments(groupId),
+  }
+}
+
+export function importGroupData(data: GroupExport): Group {
+  const idMap: Record<string, string> = {}
+  const newGroupId = generateId()
+  idMap[data.group.id] = newGroupId
+
+  const newMembers = data.group.members.map((m) => {
+    const newId = generateId()
+    idMap[m.id] = newId
+    return { ...m, id: newId }
+  })
+
+  const newGroup: Group = {
+    ...data.group,
+    id: newGroupId,
+    members: newMembers,
+    name: `${data.group.name} (imported)`,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  }
+  saveGroup(newGroup)
+
+  for (const expense of data.expenses) {
+    saveExpense({
+      ...expense,
+      id: generateId(),
+      groupId: newGroupId,
+      paidBy: idMap[expense.paidBy] ?? expense.paidBy,
+      splits: expense.splits.map((s) => ({ ...s, memberId: idMap[s.memberId] ?? s.memberId })),
+      items: expense.items?.map((item) => ({
+        ...item,
+        id: generateId(),
+        splits: item.splits.map((s) => ({ ...s, memberId: idMap[s.memberId] ?? s.memberId })),
+      })),
+    })
+  }
+
+  for (const payment of data.payments) {
+    savePayment({
+      ...payment,
+      id: generateId(),
+      groupId: newGroupId,
+      fromMemberId: idMap[payment.fromMemberId] ?? payment.fromMemberId,
+      toMemberId: idMap[payment.toMemberId] ?? payment.toMemberId,
+    })
+  }
+
+  return newGroup
+}
