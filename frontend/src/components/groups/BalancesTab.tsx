@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { ChevronDown, ChevronUp, ArrowRight, CheckCircle2, PlusCircle, Zap } from 'lucide-react'
 import { Button } from '@/components/common/Button'
+import { ConfirmModal } from '@/components/common/ConfirmModal'
 import { RecordPaymentModal } from './RecordPaymentModal'
 import { deletePayment, savePayment, generateId } from '@/lib/storage'
 import { calculateBalances, simplifyDebts } from '@/lib/calculations'
@@ -8,6 +9,8 @@ import { formatCurrency } from '@/lib/currency'
 import { toast } from '@/components/common/Toast'
 import { cn } from '@/lib/utils'
 import type { Group, Expense, Payment } from '@/types'
+
+type ConfirmConfig = { title: string; description?: string; confirmLabel: string; danger?: boolean; onConfirm: () => void }
 
 interface Props {
   group: Group
@@ -28,9 +31,9 @@ interface PaymentTarget {
 export function BalancesTab({ group, expenses, payments }: Props) {
   const [showHistory, setShowHistory] = useState(false)
   const [paymentTarget, setPaymentTarget] = useState<PaymentTarget | null>(null)
+  const [confirmConfig, setConfirmConfig] = useState<ConfirmConfig | null>(null)
 
-  function handleSettleAll() {
-    if (!confirm(`Record ${debts.length} payment${debts.length > 1 ? 's' : ''} to clear all debts at once?`)) return
+  function doSettleAll() {
     const now = new Date()
     for (const debt of debts) {
       savePayment({
@@ -44,6 +47,7 @@ export function BalancesTab({ group, expenses, payments }: Props) {
       })
     }
     toast.success(`${debts.length} payment${debts.length > 1 ? 's' : ''} recorded — all settled!`)
+    setConfirmConfig(null)
   }
 
   const memberMap = Object.fromEntries(group.members.map((m) => [m.id, m]))
@@ -94,7 +98,12 @@ export function BalancesTab({ group, expenses, payments }: Props) {
           <div className="flex items-center gap-2">
             {!isSettled && debts.length > 1 && (
               <button
-                onClick={handleSettleAll}
+                onClick={() => setConfirmConfig({
+                  title: 'Settle all debts?',
+                  description: `This will record ${debts.length} payment${debts.length > 1 ? 's' : ''} to clear all outstanding balances at once.`,
+                  confirmLabel: 'Settle all',
+                  onConfirm: doSettleAll,
+                })}
                 className="flex items-center gap-1 text-xs text-amber-600 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300 font-medium transition-colors"
               >
                 <Zap className="w-3 h-3" />
@@ -266,9 +275,13 @@ export function BalancesTab({ group, expenses, payments }: Props) {
                       {formatCurrency(p.amount, group.currency)}
                     </span>
                     <button
-                      onClick={() => {
-                        if (confirm('Delete this payment record?')) deletePayment(group.id, p.id)
-                      }}
+                      onClick={() => setConfirmConfig({
+                        title: 'Delete payment?',
+                        description: 'This payment record will be removed. Balances will be recalculated.',
+                        confirmLabel: 'Delete',
+                        danger: true,
+                        onConfirm: () => { deletePayment(group.id, p.id); setConfirmConfig(null) },
+                      })}
                       className="p-1 rounded-lg text-gray-300 dark:text-zinc-600 hover:text-red-400 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors"
                       title="Delete"
                     >
@@ -294,7 +307,6 @@ export function BalancesTab({ group, expenses, payments }: Props) {
         Record a payment
       </Button>
 
-      {/* Modal */}
       {paymentTarget !== null && (
         <RecordPaymentModal
           open
@@ -305,6 +317,13 @@ export function BalancesTab({ group, expenses, payments }: Props) {
           defaultFrom={paymentTarget.fromId}
           defaultTo={paymentTarget.toId}
           defaultAmount={paymentTarget.amount}
+        />
+      )}
+
+      {confirmConfig && (
+        <ConfirmModal
+          {...confirmConfig}
+          onCancel={() => setConfirmConfig(null)}
         />
       )}
     </div>
