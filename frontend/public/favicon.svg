@@ -1,11 +1,5 @@
 <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <clipPath id="clip">
-      <rect x="2" y="2" width="28" height="28" rx="8" />
-    </clipPath>
-  </defs>
-  <g clip-path="url(#clip)">
-    <rect x="2" y="2" width="28" height="28" fill="#0a5739" />
-    <path d="M2 9 L23 30 L2 30 Z" fill="#48c28d" stroke="white" stroke-width="1" />
-  </g>
+  <rect width="32" height="32" fill="#0a0a0a"/>
+  <text x="2" y="27" font-family="Arial, 'Helvetica Neue', sans-serif" font-weight="900" font-size="25" fill="#b9f542">₹</text>
+  <line x1="29" y1="3" x2="3" y2="25" stroke="#fafaf7" stroke-width="3" stroke-linecap="round"/>
 </svg>

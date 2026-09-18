@@ -21,24 +21,25 @@ export function LogoMark({ size = 32, className }: LogoMarkProps) {
 
       {/* ₹ Rupee symbol in electric lime — the expense */}
       <text
-        x="3"
-        y="26"
+        x="2"
+        y="27"
         fontFamily="'DM Sans', 'Arial', sans-serif"
         fontWeight="900"
-        fontSize="23"
+        fontSize="25"
         fill="#b9f542"
       >
         ₹
       </text>
 
-      {/* Bold diagonal slash — the split — cream white for max contrast */}
+      {/* Bold diagonal slash — the split. Line computed to pass through
+          the visual center of the ₹ glyph (~x10, y17) at DM Sans 900 */}
       <line
-        x1="27"
-        y1="5"
-        x2="9"
-        y2="27"
+        x1="29"
+        y1="3"
+        x2="3"
+        y2="25"
         stroke="#fafaf7"
-        strokeWidth="2.8"
+        strokeWidth="3"
         strokeLinecap="round"
       />
     </svg>

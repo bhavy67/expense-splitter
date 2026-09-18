@@ -1,16 +1,8 @@
 <svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- Full bleed background for maskable -->
-  <rect width="512" height="512" fill="#0a5739"/>
-  <!-- Rounded card — inset for safe zone -->
-  <rect x="64" y="64" width="384" height="384" rx="80" fill="#128a5c"/>
-  <!-- Diagonal stripe -->
-  <clipPath id="card">
-    <rect x="64" y="64" width="384" height="384" rx="80"/>
-  </clipPath>
-  <g clip-path="url(#card)">
-    <path d="M64 210 L302 448 L64 448 Z" fill="#48c28d"/>
-    <path d="M64 210 L302 448 L64 448 Z" fill="white" opacity="0.08"/>
-  </g>
-  <!-- "S" lettermark -->
-  <text x="256" y="320" font-family="system-ui, -apple-system, sans-serif" font-size="180" font-weight="700" fill="white" text-anchor="middle" opacity="0.95">S</text>
+  <!-- Full-bleed background for maskable safe-zone -->
+  <rect width="512" height="512" fill="#0a0a0a"/>
+  <!-- ₹ Rupee in electric lime (scaled 16× from 32×32 source) -->
+  <text x="32" y="432" font-family="Arial, 'Helvetica Neue', sans-serif" font-weight="900" font-size="400" fill="#b9f542">₹</text>
+  <!-- Diagonal slash through the visual center of ₹ -->
+  <line x1="464" y1="48" x2="48" y2="400" stroke="#fafaf7" stroke-width="48" stroke-linecap="round"/>
 </svg>
