@@ -4,20 +4,47 @@
 @variant dark (&:where(.dark, .dark *));
 
 @theme {
-  /* ── SplitItt brand — jade/spearmint scale aliased as indigo ── */
-  --color-indigo-50:  #effdf6;
-  --color-indigo-100: #d7f7e7;
-  --color-indigo-200: #b0edd1;
-  --color-indigo-300: #7edbb3;
-  --color-indigo-400: #48c28d;
-  --color-indigo-500: #22a672;
-  --color-indigo-600: #128a5c;
-  --color-indigo-700: #0b6e49;
-  --color-indigo-800: #0a5739;
-  --color-indigo-900: #08452f;
-  --color-indigo-950: #03271b;
+  /* ── SplitItt Neo-Brutalist — electric lime brand (aliased as indigo) ── */
+  --color-indigo-50:  #f7ffe6;
+  --color-indigo-100: #edffcc;
+  --color-indigo-200: #d9ff99;
+  --color-indigo-300: #c3f566;
+  --color-indigo-400: #b9f542;
+  --color-indigo-500: #a3db2e;
+  --color-indigo-600: #88bc20;
+  --color-indigo-700: #6b9418;
+  --color-indigo-800: #4d6b10;
+  --color-indigo-900: #2e4009;
+  --color-indigo-950: #172004;
 
-  --font-sans: 'Space Grotesk', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  /* ── Fonts ─────────────────────────────────────────────────────────── */
+  --font-sans: 'DM Sans', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: 'DM Mono', ui-monospace, 'Courier New', monospace;
+
+  /* ── Border radius — compressed for neo-brutalist feel ─────────────── */
+  --radius-sm:  2px;
+  --radius:     4px;
+  --radius-md:  4px;
+  --radius-lg:  4px;
+  --radius-xl:  4px;
+  --radius-2xl: 6px;
+  --radius-3xl: 8px;
+
+  /* ── Shadows — solid offset, no blur ───────────────────────────────── */
+  --shadow-sm:  2px 2px 0 #0a0a0a;
+  --shadow:     3px 3px 0 #0a0a0a;
+  --shadow-md:  4px 4px 0 #0a0a0a;
+  --shadow-lg:  5px 5px 0 #0a0a0a;
+  --shadow-xl:  6px 6px 0 #0a0a0a;
+}
+
+/* Dark mode shadows use lime offset */
+.dark {
+  --shadow-sm:  2px 2px 0 #b9f542;
+  --shadow:     3px 3px 0 #b9f542;
+  --shadow-md:  4px 4px 0 #b9f542;
+  --shadow-lg:  5px 5px 0 #b9f542;
+  --shadow-xl:  6px 6px 0 #b9f542;
 }
 
 * {
@@ -36,13 +63,13 @@ body {
   margin: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #f9fafb;
-  color: #111827;
+  background-color: #fafaf7;
+  color: #0a0a0a;
 }
 
 .dark body {
-  background-color: #09090b;
-  color: #fafafa;
+  background-color: #0d0d0d;
+  color: #f0ede5;
 }
 
 #root {
@@ -70,7 +97,7 @@ summary {
 
 @keyframes toast-slide-down {
   from { opacity: 0; transform: translateY(-16px) scale(0.96); }
-  to   { opacity: 1; transform: translateY(0)    scale(1); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 .avatar-animated {
@@ -78,11 +105,11 @@ summary {
 }
 
 ::selection {
-  background: var(--color-indigo-200);
-  color: var(--color-indigo-950);
+  background: #b9f542;
+  color: #0a0a0a;
 }
 
 .dark ::selection {
-  background: var(--color-indigo-800);
-  color: var(--color-indigo-100);
+  background: #b9f542;
+  color: #0a0a0a;
 }

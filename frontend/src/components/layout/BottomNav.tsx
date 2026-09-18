@@ -8,35 +8,35 @@ export function BottomNav() {
   const { theme, toggle } = useThemeStore()
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white dark:bg-zinc-900 border-t border-gray-200 dark:border-zinc-800 pb-safe">
-      <div className="flex items-center justify-around px-2 h-16">
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#0a0a0a] dark:bg-[#0d0d0d] border-t-2 border-[#b9f542] pb-safe">
+      <div className="flex items-center justify-around px-4 h-16">
         <NavLink
           to="/"
           end
           className={({ isActive }) =>
             cn(
-              'flex flex-col items-center gap-0.5 px-4 py-1 rounded-xl transition-colors',
-              isActive ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-500 dark:text-zinc-500'
+              'flex flex-col items-center gap-0.5 px-4 py-1 transition-colors',
+              isActive ? 'text-[#b9f542]' : 'text-[#f0ede5]/40 hover:text-[#f0ede5]'
             )
           }
         >
           <LayoutDashboard className="w-5 h-5" />
-          <span className="text-[10px] font-medium">Home</span>
+          <span className="text-[9px] font-bold uppercase tracking-[0.1em]">Home</span>
         </NavLink>
 
         <button
           onClick={() => navigate('/?new=1')}
-          className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-indigo-700 flex items-center justify-center shadow-lg shadow-indigo-900/25 -mt-4 transition-transform active:scale-95"
+          className="w-12 h-12 rounded bg-[#b9f542] flex items-center justify-center border-2 border-[#f0ede5] shadow-[3px_3px_0_#b9f542] -mt-5 transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
         >
-          <Plus className="w-5 h-5 text-white" />
+          <Plus className="w-6 h-6 text-[#0a0a0a]" strokeWidth={3} />
         </button>
 
         <button
           onClick={toggle}
-          className="flex flex-col items-center gap-0.5 px-4 py-1 rounded-xl transition-colors text-gray-500 dark:text-zinc-500 hover:text-gray-700 dark:hover:text-zinc-300"
+          className="flex flex-col items-center gap-0.5 px-4 py-1 text-[#f0ede5]/40 hover:text-[#f0ede5] transition-colors"
         >
           {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-          <span className="text-[10px] font-medium">Theme</span>
+          <span className="text-[9px] font-bold uppercase tracking-[0.1em]">Theme</span>
         </button>
       </div>
     </nav>
