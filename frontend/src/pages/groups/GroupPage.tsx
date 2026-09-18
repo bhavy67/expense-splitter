@@ -45,14 +45,14 @@ export default function GroupPage() {
           <div className="flex items-center gap-1">
             <button
               onClick={() => navigate(`/g/${groupId}/expenses/new`)}
-              className="p-1.5 rounded-xl text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 transition-colors"
+              className="p-1.5 rounded text-[#b9f542] hover:bg-white/10 transition-colors"
               title="Add expense"
             >
               <Plus className="w-5 h-5" />
             </button>
             <button
               onClick={() => navigate(`/g/${groupId}/settings`)}
-              className="p-1.5 rounded-xl text-gray-600 dark:text-zinc-400 hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors"
+              className="p-1.5 rounded text-[#f0ede5]/60 hover:text-[#f0ede5] hover:bg-white/10 transition-colors"
               title="Settings"
             >
               <Settings className="w-5 h-5" />
@@ -66,8 +66,8 @@ export default function GroupPage() {
           {/* Desktop header */}
           <div className="hidden md:flex items-center justify-between mb-5">
             <div>
-              <h1 className="text-xl font-bold text-gray-900 dark:text-zinc-100">{group.name}</h1>
-              <p className="text-sm text-gray-500 dark:text-zinc-400 mt-0.5">
+              <h1 className="text-xl font-black uppercase tracking-[0.04em] text-[#0a0a0a] dark:text-[#f0ede5]">{group.name}</h1>
+              <p className="text-[11px] font-mono text-[#4a4940] dark:text-[#a09880] mt-0.5 uppercase tracking-wider">
                 {group.members.length} member{group.members.length !== 1 ? 's' : ''}
                 {total > 0 && ` · ${formatCurrency(total, group.currency)} total`}
                 {' · '}{group.currency}
@@ -86,20 +86,20 @@ export default function GroupPage() {
           </div>
 
           {/* Members strip */}
-          <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-4 mb-4">
+          <div className="bg-white dark:bg-[#1e1e1a] rounded border-2 border-[#0a0a0a] dark:border-[#f0ede5] p-4 mb-4">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
-                <Users className="w-4 h-4 text-gray-400 dark:text-zinc-500" />
-                <span className="text-sm font-semibold text-gray-700 dark:text-zinc-300">
+                <Users className="w-4 h-4 text-[#4a4940] dark:text-[#a09880]" />
+                <span className="text-[10px] font-mono font-bold uppercase tracking-[0.12em] text-[#4a4940] dark:text-[#a09880]">
                   Members
                 </span>
-                <span className="text-xs text-gray-400 dark:text-zinc-500 bg-gray-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded-full">
+                <span className="text-[9px] font-mono bg-[#f0ede5] dark:bg-[#1a1a17] border border-[#0a0a0a] dark:border-[#f0ede5]/30 px-1.5 py-0.5 rounded">
                   {group.members.length}
                 </span>
               </div>
               <button
                 onClick={() => navigate(`/g/${groupId}/settings`)}
-                className="flex items-center gap-1 text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-medium transition-colors"
+                className="flex items-center gap-1 text-[11px] font-bold uppercase tracking-wider text-[#88bc20] hover:text-[#6b9418] transition-colors"
               >
                 <UserPlus className="w-3 h-3" />
                 Manage
@@ -109,7 +109,7 @@ export default function GroupPage() {
               {group.members.map((m) => (
                 <div
                   key={m.id}
-                  className="flex items-center gap-2 bg-gray-50 dark:bg-zinc-800 rounded-xl px-3 py-1.5"
+                  className="flex items-center gap-1.5 bg-[#f0ede5] dark:bg-[#1a1a17] border border-[#0a0a0a] dark:border-[#f0ede5]/20 rounded px-2.5 py-1.5"
                 >
                   <div
                     className="w-5 h-5 rounded-full flex items-center justify-center text-white text-[9px] font-bold shrink-0"
@@ -117,14 +117,14 @@ export default function GroupPage() {
                   >
                     {m.name[0]?.toUpperCase()}
                   </div>
-                  <span className="text-sm text-gray-800 dark:text-zinc-200">{m.name}</span>
+                  <span className="text-[12px] font-medium text-[#0a0a0a] dark:text-[#f0ede5]">{m.name}</span>
                 </div>
               ))}
             </div>
           </div>
 
           {/* Tabs */}
-          <div className="flex gap-1 bg-gray-100 dark:bg-zinc-800 p-1 rounded-xl mb-4">
+          <div className="flex border-b-2 border-[#0a0a0a] dark:border-[#f0ede5] mb-4">
             {([
               { id: 'expenses', label: 'Expenses', icon: Receipt },
               { id: 'balances', label: 'Balances',  icon: Scale },
@@ -134,10 +134,10 @@ export default function GroupPage() {
                 key={id}
                 onClick={() => setTab(id)}
                 className={cn(
-                  'flex-1 flex items-center justify-center gap-1.5 h-9 rounded-lg text-sm font-medium transition-all',
+                  'flex-1 flex items-center justify-center gap-1.5 py-2.5 text-[11px] font-bold uppercase tracking-[0.1em] transition-all',
                   tab === id
-                    ? 'bg-white dark:bg-zinc-900 text-gray-900 dark:text-zinc-100 shadow-sm'
-                    : 'text-gray-500 dark:text-zinc-400 hover:text-gray-700 dark:hover:text-zinc-200'
+                    ? 'text-[#0a0a0a] dark:text-[#f0ede5] border-b-[3px] border-[#b9f542] -mb-[2px]'
+                    : 'text-[#4a4940] dark:text-[#a09880] hover:text-[#0a0a0a] dark:hover:text-[#f0ede5]'
                 )}
               >
                 <Icon className="w-3.5 h-3.5" />
@@ -149,12 +149,12 @@ export default function GroupPage() {
           {/* Tab: Expenses */}
           {tab === 'expenses' && (
             expenses.length === 0 ? (
-              <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 text-center">
-                <div className="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-950/30 flex items-center justify-center mx-auto mb-3 text-2xl">
+              <div className="bg-white dark:bg-[#1e1e1a] rounded border-2 border-[#0a0a0a] dark:border-[#f0ede5] p-8 text-center">
+                <div className="w-12 h-12 rounded bg-[#f0ede5] dark:bg-[#1a1a17] border-2 border-[#0a0a0a] dark:border-[#f0ede5]/50 flex items-center justify-center mx-auto mb-3 text-2xl shadow-[2px_2px_0_#0a0a0a] dark:shadow-[2px_2px_0_#b9f542]">
                   💸
                 </div>
-                <p className="text-sm font-semibold text-gray-700 dark:text-zinc-300 mb-1">No expenses yet</p>
-                <p className="text-xs text-gray-400 dark:text-zinc-500 mb-4">
+                <p className="text-[12px] font-black uppercase tracking-[0.06em] text-[#0a0a0a] dark:text-[#f0ede5] mb-1">No expenses yet</p>
+                <p className="text-[10px] font-mono text-[#4a4940] dark:text-[#a09880] mb-4">
                   Add your first expense to start splitting
                 </p>
                 <Button size="sm" onClick={() => navigate(`/g/${groupId}/expenses/new`)}>
@@ -186,7 +186,7 @@ export default function GroupPage() {
           {tab === 'stats' && (
             <Suspense fallback={
               <div className="flex items-center justify-center py-16">
-                <div className="w-5 h-5 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+                <div className="w-5 h-5 border-2 border-[#b9f542] border-t-transparent rounded-full animate-spin" />
               </div>
             }>
               <AnalyticsTab group={group} expenses={expenses} />
@@ -198,9 +198,9 @@ export default function GroupPage() {
       {/* Mobile FAB */}
       <button
         onClick={() => navigate(`/g/${groupId}/expenses/new`)}
-        className="md:hidden fixed bottom-20 right-4 w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-indigo-700 flex items-center justify-center shadow-lg shadow-indigo-900/30 transition-transform active:scale-95 z-30"
+        className="md:hidden fixed bottom-20 right-4 w-14 h-14 rounded bg-[#b9f542] flex items-center justify-center border-2 border-[#0a0a0a] shadow-[3px_3px_0_#0a0a0a] transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-none z-30"
       >
-        <Plus className="w-6 h-6 text-white" />
+        <Plus className="w-6 h-6 text-[#0a0a0a]" />
       </button>
     </AppShell>
   )

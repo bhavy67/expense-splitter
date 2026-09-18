@@ -133,7 +133,7 @@ export default function AddExpensePage() {
   if (!group) {
     return (
       <AppShell>
-        <div className="flex items-center justify-center min-h-screen text-gray-500 dark:text-zinc-500">
+        <div className="flex items-center justify-center min-h-screen text-[11px] font-mono text-[#4a4940] dark:text-[#a09880]">
           Group not found
         </div>
       </AppShell>
@@ -337,24 +337,24 @@ export default function AddExpensePage() {
           {/* ── Templates strip ──────────────────────────────────────────── */}
           {templates.length > 0 && !existing && (
             <div>
-              <p className="text-xs font-semibold text-gray-400 dark:text-zinc-500 uppercase tracking-wider mb-2 px-1">Templates</p>
+              <p className="text-[10px] font-mono font-bold uppercase tracking-[0.12em] text-[#4a4940] dark:text-[#a09880] mb-2 px-1">Templates</p>
               <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
                 {templates.map((t) => (
-                  <div key={t.id} className="flex items-center gap-1 shrink-0 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-xl overflow-hidden">
+                  <div key={t.id} className="flex items-center gap-0 shrink-0 rounded border-2 border-[#0a0a0a] dark:border-[#f0ede5]/50 bg-white dark:bg-[#1e1e1a] shadow-[2px_2px_0_#0a0a0a] dark:shadow-[2px_2px_0_#b9f542] overflow-hidden">
                     <button
                       type="button"
                       onClick={() => applyTemplate(t.id)}
-                      className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-gray-700 dark:text-zinc-300 hover:text-indigo-700 dark:hover:text-indigo-400 transition-colors"
+                      className="flex items-center gap-2 px-3 py-1.5 text-[11px] font-mono font-bold uppercase tracking-wider text-[#0a0a0a] dark:text-[#f0ede5] whitespace-nowrap hover:bg-[#b9f542]/20 transition-colors"
                     >
-                      <BookMarked className="w-3 h-3 text-indigo-500 dark:text-indigo-400 shrink-0" />
+                      <BookMarked className="w-3 h-3 shrink-0" />
                       {t.name}
                     </button>
                     <button
                       type="button"
                       onClick={() => handleDeleteTemplate(t.id)}
-                      className="px-2 py-2 text-gray-300 dark:text-zinc-600 hover:text-red-400 dark:hover:text-red-400 transition-colors"
+                      className="w-3.5 h-3.5 rounded-full bg-[#ff5c3d] text-white flex items-center justify-center text-[8px] hover:opacity-80 mr-2 shrink-0"
                     >
-                      <X className="w-3 h-3" />
+                      ×
                     </button>
                   </div>
                 ))}
@@ -363,78 +363,92 @@ export default function AddExpensePage() {
           )}
 
           {/* ── Amount ──────────────────────────────────────────────────── */}
-          <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-5 text-center">
-            <p className="text-xs font-medium text-gray-400 dark:text-zinc-500 uppercase tracking-wider mb-2">Total amount</p>
-            <div className="flex items-center justify-center gap-2">
-              {/* Currency selector */}
-              <select
-                value={expenseCurrency}
-                disabled={splitType === 'itemized'}
-                onChange={e => { setExpenseCurrency(e.target.value); setExchangeRate('1') }}
-                className="text-2xl text-gray-400 dark:text-zinc-500 font-light bg-transparent border-none outline-none cursor-pointer disabled:cursor-default"
-              >
-                {CURRENCIES.map(c => <option key={c} value={c}>{c}</option>)}
-              </select>
-              <input
-                type="number"
-                min="0"
-                step="0.01"
-                placeholder="0.00"
-                value={splitType === 'itemized' ? (itemizedTotal / rate).toFixed(2) : amount}
-                onChange={e => setAmount(e.target.value)}
-                readOnly={splitType === 'itemized'}
-                className={cn(
-                  'text-4xl font-bold text-gray-900 dark:text-zinc-100 text-center bg-transparent border-none outline-none w-40',
-                  splitType === 'itemized' && 'text-gray-500 dark:text-zinc-400'
-                )}
-              />
+          <div className="bg-white dark:bg-[#1e1e1a] rounded border-2 border-[#0a0a0a] dark:border-[#f0ede5] overflow-hidden">
+            <div className="bg-[#0a0a0a] dark:bg-[#1a1a17] px-4 py-2.5">
+              <p className="text-[10px] font-mono font-bold uppercase tracking-[0.12em] text-[#f0ede5]">Total amount</p>
             </div>
-            {/* Exchange rate row */}
-            {expenseCurrency !== currency && splitType !== 'itemized' && (
-              <div className="flex items-center justify-center gap-2 mt-3 pt-3 border-t border-gray-100 dark:border-zinc-800">
-                <span className="text-xs text-gray-400 dark:text-zinc-500">1 {expenseCurrency} =</span>
+            <div className="p-5 text-center">
+              <div className="flex items-center justify-center gap-2">
+                {/* Currency selector */}
+                <select
+                  value={expenseCurrency}
+                  disabled={splitType === 'itemized'}
+                  onChange={e => { setExpenseCurrency(e.target.value); setExchangeRate('1') }}
+                  className="text-2xl text-[#4a4940] dark:text-[#a09880] font-light bg-transparent border-none outline-none cursor-pointer disabled:cursor-default"
+                >
+                  {CURRENCIES.map(c => <option key={c} value={c}>{c}</option>)}
+                </select>
                 <input
                   type="number"
-                  min="0.000001"
-                  step="any"
-                  value={exchangeRate}
-                  onChange={e => setExchangeRate(e.target.value)}
-                  className="w-20 text-sm font-semibold text-center text-gray-900 dark:text-zinc-100 bg-gray-50 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-lg h-7 px-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  min="0"
+                  step="0.01"
+                  placeholder="0.00"
+                  value={splitType === 'itemized' ? (itemizedTotal / rate).toFixed(2) : amount}
+                  onChange={e => setAmount(e.target.value)}
+                  readOnly={splitType === 'itemized'}
+                  className={cn(
+                    'text-4xl font-bold font-mono text-[#0a0a0a] dark:text-[#f0ede5] text-center bg-transparent border-none outline-none w-40',
+                    splitType === 'itemized' && 'text-[#4a4940] dark:text-[#a09880]'
+                  )}
                 />
-                <span className="text-xs text-gray-400 dark:text-zinc-500">{currency}</span>
-                {amt > 0 && (
-                  <span className="text-xs font-semibold text-indigo-600 dark:text-indigo-400">
-                    = {formatCurrency(amt, currency)}
-                  </span>
-                )}
               </div>
-            )}
-            {splitType === 'itemized' && (
-              <p className="text-xs text-gray-400 dark:text-zinc-500 mt-1">Calculated from items below</p>
-            )}
+              {/* Exchange rate row */}
+              {expenseCurrency !== currency && splitType !== 'itemized' && (
+                <div className="flex items-center justify-center gap-2 mt-3 pt-3 border-t border-[#0a0a0a]/10 dark:border-[#f0ede5]/10">
+                  <span className="text-[11px] font-mono text-[#0a0a0a] dark:text-[#f0ede5]">1 {expenseCurrency} =</span>
+                  <input
+                    type="number"
+                    min="0.000001"
+                    step="any"
+                    value={exchangeRate}
+                    onChange={e => setExchangeRate(e.target.value)}
+                    className="h-7 w-20 px-2 rounded border-2 border-[#0a0a0a] dark:border-[#f0ede5]/50 bg-white dark:bg-[#1e1e1a] text-[12px] font-mono focus:outline-none focus:border-[#b9f542] text-[#0a0a0a] dark:text-[#f0ede5] text-center"
+                  />
+                  <span className="text-[11px] font-mono text-[#0a0a0a] dark:text-[#f0ede5]">{currency}</span>
+                  {amt > 0 && (
+                    <span className="text-[11px] font-mono font-bold text-[#b9f542]">
+                      = {formatCurrency(amt, currency)}
+                    </span>
+                  )}
+                </div>
+              )}
+              {splitType === 'itemized' && (
+                <p className="text-[11px] font-mono text-[#4a4940] dark:text-[#a09880] mt-1">Calculated from items below</p>
+              )}
+            </div>
           </div>
 
           {/* ── Title & Date ─────────────────────────────────────────────── */}
-          <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-4 flex flex-col gap-3">
-            <input
-              autoFocus={!existing}
-              value={title}
-              onChange={e => setTitle(e.target.value)}
-              placeholder="What was this for?"
-              className="w-full text-base font-medium text-gray-900 dark:text-zinc-100 placeholder-gray-300 dark:placeholder-zinc-600 bg-transparent border-none outline-none"
-            />
-            <div className="h-px bg-gray-100 dark:bg-zinc-800" />
-            <input
-              type="date"
-              value={date}
-              onChange={e => setDate(e.target.value)}
-              className="text-sm text-gray-600 dark:text-zinc-400 bg-transparent border-none outline-none cursor-pointer"
-            />
+          <div className="bg-white dark:bg-[#1e1e1a] rounded border-2 border-[#0a0a0a] dark:border-[#f0ede5] overflow-hidden">
+            <div className="bg-[#0a0a0a] dark:bg-[#1a1a17] px-4 py-2.5">
+              <p className="text-[10px] font-mono font-bold uppercase tracking-[0.12em] text-[#f0ede5]">Details</p>
+            </div>
+            <div className="p-4 flex flex-col gap-3">
+              <div>
+                <label className="block text-[10px] font-mono font-bold uppercase tracking-[0.12em] text-[#4a4940] dark:text-[#a09880] mb-1.5">Title</label>
+                <input
+                  autoFocus={!existing}
+                  value={title}
+                  onChange={e => setTitle(e.target.value)}
+                  placeholder="What was this for?"
+                  className="w-full h-10 px-3 rounded border-2 border-[#0a0a0a] dark:border-[#f0ede5]/50 bg-white dark:bg-[#1a1a17] text-[#0a0a0a] dark:text-[#f0ede5] text-[13px] font-medium focus:outline-none focus:border-[#b9f542] focus:shadow-[2px_2px_0_#b9f542] transition-all placeholder:text-[#4a4940]/40 dark:placeholder:text-[#a09880]/40"
+                />
+              </div>
+              <div>
+                <label className="block text-[10px] font-mono font-bold uppercase tracking-[0.12em] text-[#4a4940] dark:text-[#a09880] mb-1.5">Date</label>
+                <input
+                  type="date"
+                  value={date}
+                  onChange={e => setDate(e.target.value)}
+                  className="w-full h-10 px-3 rounded border-2 border-[#0a0a0a] dark:border-[#f0ede5]/50 bg-white dark:bg-[#1a1a17] text-[#0a0a0a] dark:text-[#f0ede5] text-[13px] font-medium focus:outline-none focus:border-[#b9f542] focus:shadow-[2px_2px_0_#b9f542] transition-all cursor-pointer"
+                />
+              </div>
+            </div>
           </div>
 
           {/* ── Category ─────────────────────────────────────────────────── */}
           <div>
-            <p className="text-xs font-semibold text-gray-400 dark:text-zinc-500 uppercase tracking-wider mb-2 px-1">Category</p>
+            <p className="text-[10px] font-mono font-bold uppercase tracking-[0.12em] text-[#4a4940] dark:text-[#a09880] mb-2 px-1">Category</p>
             <div className="grid grid-cols-4 gap-2">
               {CATEGORIES.map(cat => (
                 <button
@@ -442,16 +456,14 @@ export default function AddExpensePage() {
                   type="button"
                   onClick={() => setCategory(cat.value)}
                   className={cn(
-                    'flex flex-col items-center gap-1 py-3 rounded-xl border text-center transition-all',
+                    'flex flex-col items-center gap-1 p-2 rounded border-2 text-center',
                     category === cat.value
-                      ? 'bg-indigo-50 dark:bg-indigo-950/50 border-indigo-300 dark:border-indigo-700'
-                      : 'bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 hover:border-gray-300 dark:hover:border-zinc-600'
+                      ? 'border-[#0a0a0a] bg-[#b9f542] text-[#0a0a0a] text-[11px] font-mono uppercase tracking-wider font-bold shadow-[2px_2px_0_#0a0a0a] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all'
+                      : 'border-[#0a0a0a]/20 dark:border-[#f0ede5]/20 text-[11px] font-mono uppercase tracking-wider text-[#4a4940] dark:text-[#a09880] transition-all hover:border-[#0a0a0a] dark:hover:border-[#f0ede5]'
                   )}
                 >
                   <span className="text-xl leading-none">{cat.emoji}</span>
-                  <span className={cn('text-[10px] font-medium', category === cat.value ? 'text-indigo-700 dark:text-indigo-400' : 'text-gray-500 dark:text-zinc-400')}>
-                    {cat.label}
-                  </span>
+                  <span>{cat.label}</span>
                 </button>
               ))}
             </div>
@@ -459,7 +471,7 @@ export default function AddExpensePage() {
 
           {/* ── Paid by ──────────────────────────────────────────────────── */}
           <div>
-            <p className="text-xs font-semibold text-gray-400 dark:text-zinc-500 uppercase tracking-wider mb-2 px-1">Paid by</p>
+            <p className="text-[10px] font-mono font-bold uppercase tracking-[0.12em] text-[#4a4940] dark:text-[#a09880] mb-2 px-1">Paid by</p>
             <div className="flex flex-wrap gap-2">
               {group.members.map(m => (
                 <button
@@ -467,10 +479,10 @@ export default function AddExpensePage() {
                   type="button"
                   onClick={() => setPaidBy(m.id)}
                   className={cn(
-                    'flex items-center gap-2 px-3 py-2 rounded-xl border text-sm font-medium transition-all',
+                    'flex items-center gap-2 px-3 py-2 rounded border-2 text-[11px] font-mono font-bold uppercase tracking-wider transition-all',
                     paidBy === m.id
-                      ? 'border-transparent text-white shadow-sm'
-                      : 'bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-600 dark:text-zinc-400 hover:border-gray-300 dark:hover:border-zinc-600'
+                      ? 'border-[#0a0a0a] text-[#0a0a0a] shadow-[2px_2px_0_#0a0a0a] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none'
+                      : 'border-[#0a0a0a]/20 dark:border-[#f0ede5]/20 text-[#4a4940] dark:text-[#a09880] bg-white dark:bg-[#1e1e1a] hover:border-[#0a0a0a] dark:hover:border-[#f0ede5]'
                   )}
                   style={paidBy === m.id ? { background: m.color } : undefined}
                 >
@@ -488,10 +500,10 @@ export default function AddExpensePage() {
 
           {/* ── Split ────────────────────────────────────────────────────── */}
           <div>
-            <p className="text-xs font-semibold text-gray-400 dark:text-zinc-500 uppercase tracking-wider mb-2 px-1">Split</p>
+            <p className="text-[10px] font-mono font-bold uppercase tracking-[0.12em] text-[#4a4940] dark:text-[#a09880] mb-2 px-1">Split</p>
 
             {/* Split type tabs */}
-            <div className="flex gap-1 bg-gray-100 dark:bg-zinc-800 p-1 rounded-xl mb-3">
+            <div className="flex gap-2 mb-3">
               {SPLIT_TABS.map(tab => (
                 <button
                   key={tab.value}
@@ -499,10 +511,10 @@ export default function AddExpensePage() {
                   onClick={() => setSplitType(tab.value)}
                   title={tab.hint}
                   className={cn(
-                    'flex-1 h-8 rounded-lg text-xs font-semibold transition-all',
+                    'flex-1 h-8 rounded border-2 text-[11px] font-mono font-bold uppercase tracking-wider transition-all',
                     splitType === tab.value
-                      ? 'bg-white dark:bg-zinc-900 text-gray-900 dark:text-zinc-100 shadow-sm'
-                      : 'text-gray-500 dark:text-zinc-400 hover:text-gray-700 dark:hover:text-zinc-200'
+                      ? 'border-[#0a0a0a] bg-[#b9f542] text-[#0a0a0a] shadow-[2px_2px_0_#0a0a0a] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none'
+                      : 'border-[#0a0a0a]/20 dark:border-[#f0ede5]/20 text-[#4a4940] dark:text-[#a09880] hover:border-[#0a0a0a] dark:hover:border-[#f0ede5]'
                   )}
                 >
                   {tab.label}
@@ -510,12 +522,14 @@ export default function AddExpensePage() {
               ))}
             </div>
 
-            <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-4">
-
+            <div className="bg-white dark:bg-[#1e1e1a] rounded border-2 border-[#0a0a0a] dark:border-[#f0ede5] overflow-hidden">
+              <div className="bg-[#0a0a0a] dark:bg-[#1a1a17] px-4 py-2.5">
+                <p className="text-[10px] font-mono font-bold uppercase tracking-[0.12em] text-[#f0ede5]">{SPLIT_TABS.find(t => t.value === splitType)?.hint}</p>
+              </div>
               {/* Equal */}
               {splitType === 'equal' && (
-                <div className="flex flex-col gap-2">
-                  <p className="text-xs text-gray-400 dark:text-zinc-500 mb-1">Click to include/exclude members</p>
+                <div className="flex flex-col">
+                  <p className="text-[10px] font-mono text-[#4a4940] dark:text-[#a09880] px-4 py-2 border-b border-[#0a0a0a]/10 dark:border-[#f0ede5]/10">Click to include / exclude members</p>
                   {group.members.map(m => {
                     const on = equalIncluded.has(m.id)
                     const share = equalIncluded.size > 0 ? Math.round(amt / equalIncluded.size * 100) / 100 : 0
@@ -530,23 +544,23 @@ export default function AddExpensePage() {
                           setEqualIncluded(next)
                         }}
                         className={cn(
-                          'flex items-center gap-3 px-3 py-2.5 rounded-xl border transition-all text-left',
+                          'flex items-center gap-3 px-4 py-3 border-b border-[#0a0a0a]/10 dark:border-[#f0ede5]/10 last:border-0 transition-all text-left w-full',
                           on
-                            ? 'border-indigo-200 dark:border-indigo-800 bg-indigo-50 dark:bg-indigo-950/30'
-                            : 'border-gray-200 dark:border-zinc-700 bg-gray-50 dark:bg-zinc-800/50 opacity-50'
+                            ? 'bg-[#b9f542]/10'
+                            : 'opacity-50'
                         )}
                       >
                         <div className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0" style={{ background: m.color }}>
                           {m.name[0]?.toUpperCase()}
                         </div>
-                        <span className="flex-1 text-sm font-medium text-gray-800 dark:text-zinc-200">{m.name}</span>
+                        <span className="flex-1 text-[13px] font-medium text-[#0a0a0a] dark:text-[#f0ede5]">{m.name}</span>
                         {on && amt > 0 && (
-                          <span className="text-sm font-semibold text-indigo-700 dark:text-indigo-400">
+                          <span className="text-[13px] font-mono font-medium text-[#0a0a0a] dark:text-[#f0ede5] shrink-0">
                             {formatCurrency(share, currency)}
                           </span>
                         )}
-                        <div className={cn('w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 transition-colors', on ? 'bg-indigo-600 border-indigo-600' : 'border-gray-300 dark:border-zinc-600')}>
-                          {on && <svg className="w-3 h-3 text-white" viewBox="0 0 12 9" fill="none"><path d="M1 4.5L4.5 8L11 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                        <div className={cn('w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 transition-colors', on ? 'bg-[#b9f542] border-[#0a0a0a]' : 'border-[#0a0a0a]/30 dark:border-[#f0ede5]/30')}>
+                          {on && <svg className="w-3 h-3 text-[#0a0a0a]" viewBox="0 0 12 9" fill="none"><path d="M1 4.5L4.5 8L11 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>}
                         </div>
                       </button>
                     )
@@ -556,22 +570,21 @@ export default function AddExpensePage() {
 
               {/* Shares */}
               {splitType === 'shares' && (
-                <div className="flex flex-col gap-3">
-                  <p className="text-xs text-gray-400 dark:text-zinc-500 mb-1">Adjust shares — amounts scale proportionally</p>
+                <div className="flex flex-col">
                   {group.members.map(m => {
                     const v = shareVals[m.id] ?? 0
                     const computed = shareTotalCount > 0 ? Math.round((v / shareTotalCount) * amt * 100) / 100 : 0
                     return (
-                      <div key={m.id} className="flex items-center gap-3">
+                      <div key={m.id} className="flex items-center gap-3 px-4 py-3 border-b border-[#0a0a0a]/10 dark:border-[#f0ede5]/10 last:border-0">
                         <div className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0" style={{ background: m.color }}>
                           {m.name[0]?.toUpperCase()}
                         </div>
-                        <span className="flex-1 text-sm font-medium text-gray-800 dark:text-zinc-200 truncate">{m.name}</span>
+                        <span className="flex-1 text-[13px] font-medium text-[#0a0a0a] dark:text-[#f0ede5] truncate">{m.name}</span>
                         <div className="flex items-center gap-1.5">
                           <button
                             type="button"
                             onClick={() => setShareVals(p => ({ ...p, [m.id]: Math.max(0, (p[m.id] ?? 0) - 1) }))}
-                            className="w-7 h-7 rounded-lg bg-gray-100 dark:bg-zinc-800 flex items-center justify-center text-gray-600 dark:text-zinc-400 hover:bg-gray-200 dark:hover:bg-zinc-700 transition-colors"
+                            className="w-7 h-7 rounded border-2 border-[#0a0a0a] dark:border-[#f0ede5]/50 bg-[#f0ede5] dark:bg-[#1a1a17] flex items-center justify-center text-[#0a0a0a] dark:text-[#f0ede5] hover:bg-[#b9f542] hover:border-[#0a0a0a] transition-colors"
                           >
                             <svg className="w-3 h-3" viewBox="0 0 12 2" fill="currentColor"><rect y="0.5" width="12" height="1" rx="0.5"/></svg>
                           </button>
@@ -580,18 +593,18 @@ export default function AddExpensePage() {
                             min="0"
                             value={v}
                             onChange={e => setShareVals(p => ({ ...p, [m.id]: Math.max(0, parseInt(e.target.value) || 0) }))}
-                            className="w-10 text-center text-sm font-semibold text-gray-900 dark:text-zinc-100 bg-gray-50 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-lg h-7 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            className="h-8 w-24 px-2 rounded border-2 border-[#0a0a0a] dark:border-[#f0ede5]/50 bg-white dark:bg-[#1a1a17] text-[13px] font-mono text-[#0a0a0a] dark:text-[#f0ede5] focus:outline-none focus:border-[#b9f542] text-center"
                           />
                           <button
                             type="button"
                             onClick={() => setShareVals(p => ({ ...p, [m.id]: (p[m.id] ?? 0) + 1 }))}
-                            className="w-7 h-7 rounded-lg bg-gray-100 dark:bg-zinc-800 flex items-center justify-center text-gray-600 dark:text-zinc-400 hover:bg-gray-200 dark:hover:bg-zinc-700 transition-colors"
+                            className="w-7 h-7 rounded border-2 border-[#0a0a0a] dark:border-[#f0ede5]/50 bg-[#f0ede5] dark:bg-[#1a1a17] flex items-center justify-center text-[#0a0a0a] dark:text-[#f0ede5] hover:bg-[#b9f542] hover:border-[#0a0a0a] transition-colors"
                           >
                             <svg className="w-3 h-3" viewBox="0 0 12 12" fill="currentColor"><path d="M5.5 0.5h1v11h-1V0.5zM0.5 5.5h11v1H0.5v-1z"/></svg>
                           </button>
                         </div>
                         {amt > 0 && v > 0 && (
-                          <span className="text-sm font-semibold text-gray-600 dark:text-zinc-400 w-24 text-right shrink-0">
+                          <span className="text-[13px] font-mono font-medium text-[#0a0a0a] dark:text-[#f0ede5] shrink-0 w-24 text-right">
                             {formatCurrency(computed, currency)}
                           </span>
                         )}
@@ -599,23 +612,23 @@ export default function AddExpensePage() {
                     )
                   })}
                   {shareTotalCount > 0 && (
-                    <p className="text-xs text-gray-400 dark:text-zinc-500 text-right mt-1">{shareTotalCount} total shares</p>
+                    <p className="text-[10px] font-mono text-[#4a4940] dark:text-[#a09880] text-right px-4 py-2">{shareTotalCount} total shares</p>
                   )}
                 </div>
               )}
 
               {/* Percentage */}
               {splitType === 'percentage' && (
-                <div className="flex flex-col gap-3">
+                <div className="flex flex-col">
                   {group.members.map(m => {
                     const pct = pctVals[m.id] ?? 0
                     const computed = Math.round(pct / 100 * amt * 100) / 100
                     return (
-                      <div key={m.id} className="flex items-center gap-3">
+                      <div key={m.id} className="flex items-center gap-3 px-4 py-3 border-b border-[#0a0a0a]/10 dark:border-[#f0ede5]/10 last:border-0">
                         <div className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0" style={{ background: m.color }}>
                           {m.name[0]?.toUpperCase()}
                         </div>
-                        <span className="flex-1 text-sm font-medium text-gray-800 dark:text-zinc-200 truncate">{m.name}</span>
+                        <span className="flex-1 text-[13px] font-medium text-[#0a0a0a] dark:text-[#f0ede5] truncate">{m.name}</span>
                         <div className="flex items-center gap-1">
                           <input
                             type="number"
@@ -624,19 +637,19 @@ export default function AddExpensePage() {
                             step="0.1"
                             value={pct}
                             onChange={e => setPctVals(p => ({ ...p, [m.id]: parseFloat(e.target.value) || 0 }))}
-                            className="w-16 text-right text-sm font-semibold text-gray-900 dark:text-zinc-100 bg-gray-50 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-lg h-8 px-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            className="h-8 w-24 px-2 rounded border-2 border-[#0a0a0a] dark:border-[#f0ede5]/50 bg-white dark:bg-[#1a1a17] text-[13px] font-mono text-[#0a0a0a] dark:text-[#f0ede5] focus:outline-none focus:border-[#b9f542] text-right"
                           />
-                          <span className="text-sm text-gray-500 dark:text-zinc-400">%</span>
+                          <span className="text-[13px] font-mono text-[#4a4940] dark:text-[#a09880]">%</span>
                         </div>
                         {amt > 0 && (
-                          <span className="text-sm font-semibold text-gray-600 dark:text-zinc-400 w-24 text-right shrink-0">
+                          <span className="text-[13px] font-mono font-medium text-[#0a0a0a] dark:text-[#f0ede5] w-24 text-right shrink-0">
                             {formatCurrency(computed, currency)}
                           </span>
                         )}
                       </div>
                     )
                   })}
-                  <div className={cn('flex items-center justify-end gap-2 mt-1 pt-2 border-t border-gray-100 dark:border-zinc-800 text-sm font-semibold', Math.abs(pctTotal - 100) < 0.5 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400')}>
+                  <div className={cn('flex items-center justify-end gap-2 px-4 py-2 border-t border-[#0a0a0a]/10 dark:border-[#f0ede5]/10 text-[11px] font-mono font-bold', Math.abs(pctTotal - 100) < 0.5 ? 'text-[#b9f542]' : 'text-[#ff5c3d]')}>
                     <span>{pctTotal.toFixed(1)}% of 100%</span>
                     {Math.abs(pctTotal - 100) < 0.5 && <svg className="w-4 h-4" viewBox="0 0 16 16" fill="none"><path d="M3 8l4 4 6-7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>}
                   </div>
@@ -645,26 +658,25 @@ export default function AddExpensePage() {
 
               {/* Exact */}
               {splitType === 'exact' && (
-                <div className="flex flex-col gap-3">
-                  <div className="flex items-center justify-between">
-                    <p className="text-xs text-gray-400 dark:text-zinc-500">Enter exact amounts per person</p>
+                <div className="flex flex-col">
+                  <div className="flex items-center justify-between px-4 py-2 border-b border-[#0a0a0a]/10 dark:border-[#f0ede5]/10">
                     <button
                       type="button"
                       onClick={distributeExactEqually}
-                      className="flex items-center gap-1 text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 font-medium"
+                      className="flex items-center gap-1 text-[10px] font-mono font-bold uppercase tracking-wider text-[#88bc20] hover:text-[#6b9418] transition-colors"
                     >
                       <RefreshCw className="w-3 h-3" />
                       Distribute equally
                     </button>
                   </div>
                   {group.members.map(m => (
-                    <div key={m.id} className="flex items-center gap-3">
+                    <div key={m.id} className="flex items-center gap-3 px-4 py-3 border-b border-[#0a0a0a]/10 dark:border-[#f0ede5]/10 last:border-0">
                       <div className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0" style={{ background: m.color }}>
                         {m.name[0]?.toUpperCase()}
                       </div>
-                      <span className="flex-1 text-sm font-medium text-gray-800 dark:text-zinc-200 truncate">{m.name}</span>
+                      <span className="flex-1 text-[13px] font-medium text-[#0a0a0a] dark:text-[#f0ede5] truncate">{m.name}</span>
                       <div className="flex items-center gap-1">
-                        <span className="text-sm text-gray-500 dark:text-zinc-400">{currency}</span>
+                        <span className="text-[11px] font-mono text-[#4a4940] dark:text-[#a09880]">{currency}</span>
                         <input
                           type="number"
                           min="0"
@@ -672,12 +684,12 @@ export default function AddExpensePage() {
                           placeholder="0.00"
                           value={exactVals[m.id] ?? ''}
                           onChange={e => setExactVals(p => ({ ...p, [m.id]: e.target.value }))}
-                          className="w-24 text-right text-sm font-semibold text-gray-900 dark:text-zinc-100 bg-gray-50 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-lg h-8 px-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                          className="h-8 w-24 px-2 rounded border-2 border-[#0a0a0a] dark:border-[#f0ede5]/50 bg-white dark:bg-[#1a1a17] text-[13px] font-mono text-[#0a0a0a] dark:text-[#f0ede5] focus:outline-none focus:border-[#b9f542] text-right"
                         />
                       </div>
                     </div>
                   ))}
-                  <div className={cn('flex items-center justify-end gap-2 mt-1 pt-2 border-t border-gray-100 dark:border-zinc-800 text-sm font-semibold', Math.abs(exactRemain) < 0.01 ? 'text-emerald-600 dark:text-emerald-400' : 'text-orange-500 dark:text-orange-400')}>
+                  <div className={cn('flex items-center justify-end gap-2 px-4 py-2 border-t border-[#0a0a0a]/10 dark:border-[#f0ede5]/10 text-[11px] font-mono font-bold', Math.abs(exactRemain) < 0.01 ? 'text-[#b9f542]' : 'text-[#ff5c3d]')}>
                     {Math.abs(exactRemain) < 0.01
                       ? <><svg className="w-4 h-4" viewBox="0 0 16 16" fill="none"><path d="M3 8l4 4 6-7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg><span>Balanced</span></>
                       : <span>{exactRemain > 0 ? `${formatCurrency(exactRemain, currency)} remaining` : `${formatCurrency(-exactRemain, currency)} over`}</span>
@@ -688,36 +700,33 @@ export default function AddExpensePage() {
 
               {/* Itemized */}
               {splitType === 'itemized' && (
-                <div className="flex flex-col gap-3">
-                  <p className="text-xs text-gray-400 dark:text-zinc-500">Add items and assign them to members</p>
+                <div className="flex flex-col">
                   {formItems.map((item, idx) => (
-                    <div key={item.id} className="border border-gray-200 dark:border-zinc-700 rounded-xl p-3 flex flex-col gap-2">
-                      <div className="flex items-center gap-2">
+                    <div key={item.id} className="flex items-center gap-2 py-3 px-4 border-b border-[#0a0a0a]/10 dark:border-[#f0ede5]/10 last:border-0 flex-wrap">
+                      <input
+                        placeholder={`Item ${idx + 1}`}
+                        value={item.name}
+                        onChange={e => setFormItems(p => p.map(it => it.id === item.id ? { ...it, name: e.target.value } : it))}
+                        className="flex-1 min-w-[120px] h-8 px-2 rounded border-2 border-[#0a0a0a] dark:border-[#f0ede5]/50 bg-white dark:bg-[#1a1a17] text-[13px] font-medium text-[#0a0a0a] dark:text-[#f0ede5] focus:outline-none focus:border-[#b9f542] placeholder:text-[#4a4940]/40 dark:placeholder:text-[#a09880]/40"
+                      />
+                      <div className="flex items-center gap-1">
+                        <span className="text-[11px] font-mono text-[#4a4940] dark:text-[#a09880]">{currency}</span>
                         <input
-                          placeholder={`Item ${idx + 1}`}
-                          value={item.name}
-                          onChange={e => setFormItems(p => p.map(it => it.id === item.id ? { ...it, name: e.target.value } : it))}
-                          className="flex-1 text-sm font-medium text-gray-900 dark:text-zinc-100 bg-transparent border-none outline-none placeholder-gray-300 dark:placeholder-zinc-600"
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          placeholder="0.00"
+                          value={item.amount}
+                          onChange={e => setFormItems(p => p.map(it => it.id === item.id ? { ...it, amount: e.target.value } : it))}
+                          className="h-8 w-24 px-2 rounded border-2 border-[#0a0a0a] dark:border-[#f0ede5]/50 bg-white dark:bg-[#1a1a17] text-[13px] font-mono text-[#0a0a0a] dark:text-[#f0ede5] focus:outline-none focus:border-[#b9f542] text-right"
                         />
-                        <div className="flex items-center gap-1">
-                          <span className="text-xs text-gray-400">{currency}</span>
-                          <input
-                            type="number"
-                            min="0"
-                            step="0.01"
-                            placeholder="0.00"
-                            value={item.amount}
-                            onChange={e => setFormItems(p => p.map(it => it.id === item.id ? { ...it, amount: e.target.value } : it))}
-                            className="w-20 text-right text-sm font-semibold text-gray-900 dark:text-zinc-100 bg-gray-50 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-lg h-7 px-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                          />
-                        </div>
-                        {formItems.length > 1 && (
-                          <button type="button" onClick={() => removeItem(item.id)} className="p-1 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors">
-                            <X className="w-4 h-4" />
-                          </button>
-                        )}
                       </div>
-                      <div className="flex flex-wrap gap-1.5">
+                      {formItems.length > 1 && (
+                        <button type="button" onClick={() => removeItem(item.id)} className="p-1 rounded text-[#ff5c3d] hover:bg-[#ff5c3d]/10 transition-colors border border-[#ff5c3d]/30">
+                          <X className="w-4 h-4" />
+                        </button>
+                      )}
+                      <div className="flex flex-wrap gap-1.5 w-full">
                         {group.members.map(m => {
                           const on = item.memberIds.includes(m.id)
                           return (
@@ -726,10 +735,10 @@ export default function AddExpensePage() {
                               type="button"
                               onClick={() => toggleItemMember(item.id, m.id)}
                               className={cn(
-                                'flex items-center gap-1.5 px-2 py-1 rounded-lg text-xs font-medium border transition-all',
+                                'flex items-center gap-1.5 px-2 py-1 rounded border-2 text-[11px] font-mono font-bold uppercase tracking-wider transition-all',
                                 on
-                                  ? 'border-transparent text-white'
-                                  : 'border-gray-200 dark:border-zinc-700 text-gray-500 dark:text-zinc-400 bg-gray-50 dark:bg-zinc-800'
+                                  ? 'border-[#0a0a0a] text-[#0a0a0a] shadow-[2px_2px_0_#0a0a0a] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none'
+                                  : 'border-[#0a0a0a]/20 dark:border-[#f0ede5]/20 text-[#4a4940] dark:text-[#a09880]'
                               )}
                               style={on ? { background: m.color } : undefined}
                             >
@@ -740,56 +749,61 @@ export default function AddExpensePage() {
                       </div>
                     </div>
                   ))}
-                  <button
-                    type="button"
-                    onClick={addItem}
-                    className="flex items-center gap-2 text-sm text-indigo-600 dark:text-indigo-400 font-medium self-start px-1"
-                  >
-                    <Plus className="w-3.5 h-3.5" />
-                    Add item
-                  </button>
-                  {itemizedTotal > 0 && (
-                    <div className="flex items-center justify-end gap-2 pt-2 border-t border-gray-100 dark:border-zinc-800 text-sm font-semibold text-gray-700 dark:text-zinc-300">
-                      Total: {formatCurrency(itemizedTotal, currency)}
-                    </div>
-                  )}
+                  <div className="px-4 py-3 flex items-center justify-between border-t border-[#0a0a0a]/10 dark:border-[#f0ede5]/10">
+                    <button
+                      type="button"
+                      onClick={addItem}
+                      className="flex items-center gap-1.5 text-[11px] font-mono font-bold uppercase tracking-wider text-[#88bc20] hover:text-[#6b9418] transition-colors"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      Add item
+                    </button>
+                    {itemizedTotal > 0 && (
+                      <span className="text-[13px] font-mono font-medium text-[#0a0a0a] dark:text-[#f0ede5]">
+                        Total: {formatCurrency(itemizedTotal, currency)}
+                      </span>
+                    )}
+                  </div>
                 </div>
               )}
             </div>
           </div>
 
           {/* ── Notes + Save template ────────────────────────────────────── */}
-          <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-4">
-            <p className="text-xs font-semibold text-gray-400 dark:text-zinc-500 uppercase tracking-wider mb-2">Notes (optional)</p>
+          <div className="bg-white dark:bg-[#1e1e1a] rounded border-2 border-[#0a0a0a] dark:border-[#f0ede5] overflow-hidden">
+            <div className="bg-[#0a0a0a] dark:bg-[#1a1a17] px-4 py-2.5">
+              <p className="text-[10px] font-mono font-bold uppercase tracking-[0.12em] text-[#f0ede5]">Notes (optional)</p>
+            </div>
+            <div className="p-4">
             <textarea
               value={notes}
               onChange={e => setNotes(e.target.value)}
               rows={2}
               placeholder="Add a note..."
-              className="w-full text-sm text-gray-700 dark:text-zinc-300 bg-transparent border-none outline-none resize-none placeholder-gray-300 dark:placeholder-zinc-600"
+              className="w-full py-2 px-3 rounded border-2 border-[#0a0a0a] dark:border-[#f0ede5]/50 bg-white dark:bg-[#1a1a17] text-[#0a0a0a] dark:text-[#f0ede5] text-[13px] font-medium focus:outline-none focus:border-[#b9f542] focus:shadow-[2px_2px_0_#b9f542] transition-all resize-none placeholder:text-[#4a4940]/40 dark:placeholder:text-[#a09880]/40"
             />
             {!existing && (
               <>
-                <div className="h-px bg-gray-100 dark:bg-zinc-800 mt-3 mb-3" />
+                <div className="h-px border-t border-[#0a0a0a]/10 dark:border-[#f0ede5]/10 mt-3 mb-3" />
                 {savingTemplate ? (
-                  <div className="flex items-center gap-2">
-                    <BookMarked className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
+                  <div className="flex items-center gap-2 mt-3">
+                    <BookMarked className="w-3.5 h-3.5 text-[#4a4940] dark:text-[#a09880] shrink-0" />
                     <input
                       autoFocus
                       value={templateName}
                       onChange={e => setTemplateName(e.target.value)}
                       onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleSaveTemplate() } if (e.key === 'Escape') setSavingTemplate(false) }}
                       placeholder="Template name..."
-                      className="flex-1 text-sm text-gray-700 dark:text-zinc-300 placeholder-gray-300 dark:placeholder-zinc-600 bg-transparent border-none outline-none"
+                      className="flex-1 h-8 px-2.5 rounded border-2 border-[#0a0a0a] dark:border-[#f0ede5]/50 bg-white dark:bg-[#1a1a17] text-[12px] font-mono focus:outline-none focus:border-[#b9f542] text-[#0a0a0a] dark:text-[#f0ede5] placeholder:text-[#4a4940]/40 dark:placeholder:text-[#a09880]/40"
                     />
-                    <button type="button" onClick={handleSaveTemplate} className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 transition-colors">Save</button>
-                    <button type="button" onClick={() => setSavingTemplate(false)} className="text-xs text-gray-400 hover:text-gray-600 transition-colors">Cancel</button>
+                    <button type="button" onClick={handleSaveTemplate} className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#88bc20] hover:text-[#6b9418] transition-colors">Save</button>
+                    <button type="button" onClick={() => setSavingTemplate(false)} className="text-[10px] font-mono uppercase tracking-wider text-[#4a4940] dark:text-[#a09880] hover:text-[#0a0a0a] dark:hover:text-[#f0ede5] transition-colors">Cancel</button>
                   </div>
                 ) : (
                   <button
                     type="button"
                     onClick={() => { setTemplateName(title || ''); setSavingTemplate(true) }}
-                    className="flex items-center gap-1.5 text-xs text-gray-400 dark:text-zinc-500 hover:text-indigo-600 dark:hover:text-indigo-400 font-medium transition-colors"
+                    className="flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-wider text-[#4a4940] dark:text-[#a09880] hover:text-[#0a0a0a] dark:hover:text-[#f0ede5] transition-colors"
                   >
                     <BookMarked className="w-3 h-3" />
                     Save as template
@@ -797,19 +811,23 @@ export default function AddExpensePage() {
                 )}
               </>
             )}
+            </div>
           </div>
 
           {/* ── Receipt ──────────────────────────────────────────────────── */}
-          <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-4">
-            <p className="text-xs font-semibold text-gray-400 dark:text-zinc-500 uppercase tracking-wider mb-3">Receipt (optional)</p>
+          <div className="bg-white dark:bg-[#1e1e1a] rounded border-2 border-[#0a0a0a] dark:border-[#f0ede5] overflow-hidden">
+            <div className="bg-[#0a0a0a] dark:bg-[#1a1a17] px-4 py-2.5">
+              <p className="text-[10px] font-mono font-bold uppercase tracking-[0.12em] text-[#f0ede5]">Receipt (optional)</p>
+            </div>
+            <div className="p-4">
             {receiptImage ? (
               <div className="flex items-start gap-3">
                 <div className="relative">
-                  <img src={receiptImage} alt="Receipt" className="w-20 h-20 object-cover rounded-xl border border-gray-200 dark:border-zinc-700" />
+                  <img src={receiptImage} alt="Receipt" className="w-20 h-20 object-cover rounded border-2 border-[#0a0a0a] dark:border-[#f0ede5]/30 overflow-hidden" />
                   <button
                     type="button"
                     onClick={() => setReceiptImage(undefined)}
-                    className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center shadow"
+                    className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-[#ff5c3d] text-white flex items-center justify-center shadow hover:opacity-80 transition-opacity"
                   >
                     <X className="w-3 h-3" />
                   </button>
@@ -817,7 +835,7 @@ export default function AddExpensePage() {
                 <button
                   type="button"
                   onClick={() => photoRef.current?.click()}
-                  className="text-xs text-indigo-600 dark:text-indigo-400 font-medium"
+                  className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#88bc20] hover:text-[#6b9418] transition-colors"
                 >
                   Change photo
                 </button>
@@ -826,12 +844,13 @@ export default function AddExpensePage() {
               <button
                 type="button"
                 onClick={() => photoRef.current?.click()}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl border-2 border-dashed border-gray-200 dark:border-zinc-700 text-sm text-gray-400 dark:text-zinc-500 hover:border-indigo-300 dark:hover:border-indigo-700 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors w-full justify-center"
+                className="flex items-center gap-2 px-4 py-4 rounded border-2 border-dashed border-[#0a0a0a]/30 dark:border-[#f0ede5]/30 text-[11px] font-mono font-bold uppercase tracking-wider text-[#4a4940] dark:text-[#a09880] hover:border-[#0a0a0a] dark:hover:border-[#f0ede5] hover:text-[#0a0a0a] dark:hover:text-[#f0ede5] transition-colors w-full justify-center"
               >
                 <Camera className="w-4 h-4" />
                 Attach receipt photo
               </button>
             )}
+            </div>
             <input ref={photoRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoChange} />
           </div>
 
@@ -839,7 +858,7 @@ export default function AddExpensePage() {
       </PageTransition>
 
       {/* Sticky submit */}
-      <div className="fixed bottom-0 left-0 right-0 md:left-60 z-40 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-sm border-t border-gray-200 dark:border-zinc-800 px-4 py-3 pb-safe">
+      <div className="fixed bottom-0 left-0 right-0 md:left-60 z-40 bg-[#f0ede5]/95 dark:bg-[#1a1a17]/95 backdrop-blur-sm border-t-2 border-[#0a0a0a] dark:border-[#f0ede5] px-4 py-3 pb-safe">
         <div className="max-w-2xl mx-auto flex gap-3">
           <Button
             type="button"

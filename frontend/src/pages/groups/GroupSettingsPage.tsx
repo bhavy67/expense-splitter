@@ -42,8 +42,8 @@ const CURRENCIES = [
 
 function SectionCard({ title, children, className }: { title?: string; children: React.ReactNode; className?: string }) {
   return (
-    <div className={cn('bg-white dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-4', className)}>
-      {title && <p className="text-sm font-semibold text-gray-700 dark:text-zinc-300 mb-4">{title}</p>}
+    <div className={cn('bg-white dark:bg-[#1e1e1a] rounded border-2 border-[#0a0a0a] dark:border-[#f0ede5] p-4', className)}>
+      {title && <p className="text-[11px] font-mono font-bold uppercase tracking-[0.12em] text-[#4a4940] dark:text-[#a09880] mb-4">{title}</p>}
       {children}
     </div>
   )
@@ -68,12 +68,12 @@ function ColorPicker({ color, onChange }: { color: string; onChange: (c: string)
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="w-7 h-7 rounded-full ring-2 ring-white dark:ring-zinc-900 ring-offset-1 ring-offset-white dark:ring-offset-zinc-900 transition-transform hover:scale-110 shrink-0"
+        className="w-7 h-7 rounded-full ring-2 ring-white dark:ring-[#1e1e1a] ring-offset-1 ring-offset-white dark:ring-offset-[#1e1e1a] transition-transform hover:scale-110 shrink-0"
         style={{ background: color }}
         title="Change color"
       />
       {open && (
-        <div className="absolute left-0 top-9 z-20 bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-xl shadow-xl p-2 grid grid-cols-5 gap-1.5">
+        <div className="absolute left-0 top-9 z-20 bg-white dark:bg-[#1e1e1a] border-2 border-[#0a0a0a] dark:border-[#f0ede5] rounded shadow-[3px_3px_0_#0a0a0a] dark:shadow-[3px_3px_0_#b9f542] p-2 grid grid-cols-5 gap-1.5">
           {MEMBER_COLORS.map((c) => (
             <button
               key={c}
@@ -249,28 +249,28 @@ export default function GroupSettingsPage() {
           {/* Desktop back */}
           <button
             onClick={() => navigate(`/g/${groupId}`)}
-            className="hidden md:flex items-center gap-2 text-sm text-gray-500 dark:text-zinc-400 hover:text-gray-700 dark:hover:text-zinc-200 transition-colors self-start"
+            className="hidden md:flex items-center gap-2 text-[11px] font-mono uppercase tracking-wider text-[#4a4940] dark:text-[#a09880] hover:text-[#0a0a0a] dark:hover:text-[#f0ede5] transition-colors self-start"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to {group.name}
           </button>
 
-          <h1 className="text-xl font-bold text-gray-900 dark:text-zinc-100">Group settings</h1>
+          <h1 className="text-xl font-black uppercase tracking-[0.04em] text-[#0a0a0a] dark:text-[#f0ede5]">Group settings</h1>
 
           {/* ── Group info ─────────────────────────────────────────────────── */}
           <SectionCard title="Group info">
             <div className="flex flex-col gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-zinc-300 mb-1.5">Name</label>
+                <label className="block font-mono text-[10px] uppercase tracking-[0.12em] text-[#4a4940] dark:text-[#a09880] mb-1.5">Name</label>
                 <input
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full h-10 px-3 rounded-xl border border-gray-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-gray-900 dark:text-zinc-100 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full h-10 px-3 rounded border-2 border-[#0a0a0a] dark:border-[#f0ede5]/50 bg-white dark:bg-[#1a1a17] text-[#0a0a0a] dark:text-[#f0ede5] text-[13px] font-medium focus:outline-none focus:border-[#b9f542] focus:shadow-[2px_2px_0_#b9f542] transition-all"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-zinc-300 mb-1.5">Type</label>
+                <label className="block font-mono text-[10px] uppercase tracking-[0.12em] text-[#4a4940] dark:text-[#a09880] mb-1.5">Type</label>
                 <div className="flex gap-2 flex-wrap">
                   {GROUP_TYPES.map((t) => (
                     <button
@@ -278,10 +278,9 @@ export default function GroupSettingsPage() {
                       type="button"
                       onClick={() => setType(t.value)}
                       className={cn(
-                        'flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm border transition-colors',
                         type === t.value
-                          ? 'bg-indigo-50 dark:bg-indigo-950/50 border-indigo-300 dark:border-indigo-700 text-indigo-700 dark:text-indigo-400 font-medium'
-                          : 'border-gray-200 dark:border-zinc-700 text-gray-600 dark:text-zinc-400 hover:border-gray-300 dark:hover:border-zinc-600'
+                          ? 'flex items-center gap-1.5 px-3 py-1.5 rounded border-2 border-[#0a0a0a] bg-[#b9f542] text-[#0a0a0a] text-[12px] font-bold uppercase tracking-wider transition-all shadow-[2px_2px_0_#0a0a0a] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none'
+                          : 'flex items-center gap-1.5 px-3 py-1.5 rounded border-2 border-[#0a0a0a] dark:border-[#f0ede5]/30 text-[#4a4940] dark:text-[#a09880] text-[12px] font-medium uppercase tracking-wider transition-colors hover:border-[#0a0a0a] dark:hover:border-[#f0ede5]'
                       )}
                     >
                       <span>{t.icon}</span>
@@ -292,11 +291,11 @@ export default function GroupSettingsPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-zinc-300 mb-1.5">Currency</label>
+                <label className="block font-mono text-[10px] uppercase tracking-[0.12em] text-[#4a4940] dark:text-[#a09880] mb-1.5">Currency</label>
                 <select
                   value={currency}
                   onChange={(e) => setCurrency(e.target.value)}
-                  className="w-full h-10 px-3 rounded-xl border border-gray-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-gray-900 dark:text-zinc-100 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full h-10 px-3 rounded border-2 border-[#0a0a0a] dark:border-[#f0ede5]/50 bg-white dark:bg-[#1a1a17] text-[#0a0a0a] dark:text-[#f0ede5] text-[13px] font-medium focus:outline-none focus:border-[#b9f542] focus:shadow-[2px_2px_0_#b9f542] transition-all"
                 >
                   {CURRENCIES.map((c) => (
                     <option key={c.code} value={c.code}>{c.symbol} {c.name}</option>
@@ -305,15 +304,15 @@ export default function GroupSettingsPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-zinc-300 mb-1.5">
-                  Description <span className="font-normal text-gray-400 dark:text-zinc-500">(optional)</span>
+                <label className="block font-mono text-[10px] uppercase tracking-[0.12em] text-[#4a4940] dark:text-[#a09880] mb-1.5">
+                  Description <span className="font-normal">(optional)</span>
                 </label>
                 <textarea
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   rows={2}
                   placeholder="What's this group for?"
-                  className="w-full px-3 py-2 rounded-xl border border-gray-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-gray-900 dark:text-zinc-100 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-3 py-2 rounded border-2 border-[#0a0a0a] dark:border-[#f0ede5]/50 bg-white dark:bg-[#1a1a17] text-[#0a0a0a] dark:text-[#f0ede5] text-[13px] font-medium resize-none focus:outline-none focus:border-[#b9f542] focus:shadow-[2px_2px_0_#b9f542] transition-all"
                 />
               </div>
 
@@ -344,7 +343,7 @@ export default function GroupSettingsPage() {
               {members.map((m) => (
                 <div
                   key={m.id}
-                  className="flex items-center gap-3 py-2 px-1 rounded-xl hover:bg-gray-50 dark:hover:bg-zinc-800/50 group/row transition-colors"
+                  className="flex items-center gap-3 py-2 px-1 rounded hover:bg-[#f0ede5] dark:hover:bg-[#1a1a17] group/row transition-colors"
                 >
                   <ColorPicker color={m.color} onChange={(c) => changeColor(m.id, c)} />
 
@@ -355,29 +354,29 @@ export default function GroupSettingsPage() {
                         value={editingName}
                         onChange={(e) => setEditingName(e.target.value)}
                         onKeyDown={(e) => { if (e.key === 'Enter') commitEdit(); if (e.key === 'Escape') cancelEdit() }}
-                        className="flex-1 h-8 px-2.5 rounded-lg border border-indigo-400 dark:border-indigo-600 bg-white dark:bg-zinc-800 text-sm text-gray-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        className="flex-1 h-8 px-2.5 rounded border-2 border-[#b9f542] bg-white dark:bg-[#1e1e1a] text-[13px] text-[#0a0a0a] dark:text-[#f0ede5] focus:outline-none shadow-[2px_2px_0_#b9f542]"
                       />
-                      <button onClick={commitEdit} className="p-1 rounded-lg text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 transition-colors">
+                      <button onClick={commitEdit} className="p-1 rounded text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 transition-colors">
                         <Check className="w-4 h-4" />
                       </button>
-                      <button onClick={cancelEdit} className="p-1 rounded-lg text-gray-400 hover:bg-gray-100 dark:hover:bg-zinc-700 transition-colors">
+                      <button onClick={cancelEdit} className="p-1 rounded text-[#4a4940] dark:text-[#a09880] hover:bg-[#f0ede5] dark:hover:bg-[#1a1a17] transition-colors">
                         <X className="w-4 h-4" />
                       </button>
                     </div>
                   ) : (
                     <>
-                      <span className="flex-1 text-sm font-medium text-gray-800 dark:text-zinc-200 truncate">{m.name}</span>
+                      <span className="flex-1 text-[13px] font-medium text-[#0a0a0a] dark:text-[#f0ede5] truncate">{m.name}</span>
                       <div className="flex items-center gap-1 opacity-0 group-hover/row:opacity-100 transition-opacity">
                         <button
                           onClick={() => startEdit(m)}
-                          className="p-1.5 rounded-lg text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/30 transition-colors"
+                          className="p-1.5 rounded text-[#4a4940] dark:text-[#a09880] hover:text-[#0a0a0a] dark:hover:text-[#f0ede5] hover:bg-[#f0ede5] dark:hover:bg-[#1a1a17] transition-colors"
                           title="Rename"
                         >
                           <Pencil className="w-3.5 h-3.5" />
                         </button>
                         <button
                           onClick={() => removeMember(m.id)}
-                          className="p-1.5 rounded-lg text-gray-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+                          className="p-1.5 rounded text-[#4a4940] dark:text-[#a09880] hover:text-[#ff5c3d] hover:bg-[#ff5c3d]/10 transition-colors"
                           title="Remove"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
@@ -403,17 +402,17 @@ export default function GroupSettingsPage() {
                       if (e.key === 'Escape') { setNewMemberName(''); setShowAddInput(false) }
                     }}
                     placeholder="Member name"
-                    className="flex-1 h-8 px-2.5 rounded-lg border border-indigo-400 dark:border-indigo-600 bg-white dark:bg-zinc-800 text-sm text-gray-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="flex-1 h-8 px-2.5 rounded border-2 border-[#b9f542] bg-white dark:bg-[#1e1e1a] text-[13px] text-[#0a0a0a] dark:text-[#f0ede5] focus:outline-none shadow-[2px_2px_0_#b9f542]"
                   />
                   <button
                     onClick={() => { addMember(); setShowAddInput(false) }}
-                    className="p-1 rounded-lg text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 transition-colors"
+                    className="p-1 rounded text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 transition-colors"
                   >
                     <Check className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => { setNewMemberName(''); setShowAddInput(false) }}
-                    className="p-1 rounded-lg text-gray-400 hover:bg-gray-100 dark:hover:bg-zinc-700 transition-colors"
+                    className="p-1 rounded text-[#4a4940] dark:text-[#a09880] hover:bg-[#f0ede5] dark:hover:bg-[#1a1a17] transition-colors"
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -421,7 +420,7 @@ export default function GroupSettingsPage() {
               ) : (
                 <button
                   onClick={() => setShowAddInput(true)}
-                  className="flex items-center gap-2 text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-medium px-1 py-2 transition-colors mt-1 self-start"
+                  className="flex items-center gap-2 text-[12px] font-bold uppercase tracking-wider text-[#88bc20] hover:text-[#6b9418] px-1 py-2 transition-colors mt-1 self-start"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   Add member
@@ -432,7 +431,7 @@ export default function GroupSettingsPage() {
 
           {/* ── Export ─────────────────────────────────────────────────────── */}
           <SectionCard title="Backup">
-            <p className="text-xs text-gray-500 dark:text-zinc-400 mb-4">
+            <p className="text-[11px] font-mono text-[#4a4940] dark:text-[#a09880] mb-4">
               Export this group (with all expenses) to a JSON file.
             </p>
             <Button variant="secondary" size="sm" onClick={handleExport}>
@@ -442,9 +441,9 @@ export default function GroupSettingsPage() {
           </SectionCard>
 
           {/* ── Danger zone ─────────────────────────────────────────────────── */}
-          <SectionCard className="border-red-100 dark:border-red-900/30">
-            <p className="text-sm font-semibold text-red-600 dark:text-red-400 mb-1">Danger zone</p>
-            <p className="text-xs text-gray-500 dark:text-zinc-500 mb-3">
+          <SectionCard className="border-[#ff5c3d]/40">
+            <p className="text-[11px] font-mono font-bold uppercase tracking-[0.12em] text-[#ff5c3d] mb-1">Danger zone</p>
+            <p className="text-xs text-[#4a4940] dark:text-[#a09880] mb-3">
               Permanently deletes this group and all its expenses. This cannot be undone.
             </p>
             <Button variant="danger" size="sm" onClick={handleDelete}>

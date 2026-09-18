@@ -26,24 +26,21 @@ export const toast = {
   info:    (message: string) => emit('info', message),
 }
 
-const config: Record<ToastType, { icon: React.ReactNode; bg: string; border: string; iconColor: string }> = {
+const config: Record<ToastType, { icon: React.ReactNode; accent: string; iconColor: string }> = {
   success: {
-    icon: <CheckCircle2 className="w-5 h-5 shrink-0" />,
-    bg: 'bg-white dark:bg-zinc-900',
-    border: 'border-l-4 border-emerald-500',
-    iconColor: 'text-emerald-500',
+    icon: <CheckCircle2 className="w-4 h-4 shrink-0" />,
+    accent: 'border-l-4 border-[#b9f542]',
+    iconColor: 'text-[#b9f542]',
   },
   error: {
-    icon: <AlertCircle className="w-5 h-5 shrink-0" />,
-    bg: 'bg-white dark:bg-zinc-900',
-    border: 'border-l-4 border-red-500',
-    iconColor: 'text-red-500',
+    icon: <AlertCircle className="w-4 h-4 shrink-0" />,
+    accent: 'border-l-4 border-[#ff5c3d]',
+    iconColor: 'text-[#ff5c3d]',
   },
   info: {
-    icon: <Info className="w-5 h-5 shrink-0" />,
-    bg: 'bg-white dark:bg-zinc-900',
-    border: 'border-l-4 border-blue-500',
-    iconColor: 'text-blue-500',
+    icon: <Info className="w-4 h-4 shrink-0" />,
+    accent: 'border-l-4 border-[#f59e0b]',
+    iconColor: 'text-[#f59e0b]',
   },
 }
 
@@ -58,18 +55,18 @@ function ToastItem({ toast: t, onRemove }: { toast: Toast; onRemove: () => void 
   return (
     <div
       className={cn(
-        'flex items-start gap-3 rounded-xl shadow-xl px-4 py-3.5 w-full border border-gray-100 dark:border-zinc-800',
-        c.bg, c.border
+        'flex items-center gap-3 rounded bg-[#0a0a0a] dark:bg-[#1e1e1a] border-2 border-[#0a0a0a] dark:border-[#f0ede5] shadow-[3px_3px_0_#b9f542] px-4 py-3 w-full',
+        c.accent
       )}
-      style={{ animation: 'toast-slide-down 0.25s ease-out both' }}
+      style={{ animation: 'toast-slide-down 0.2s ease-out both' }}
     >
       <span className={c.iconColor}>{c.icon}</span>
-      <p className="text-sm font-medium text-gray-800 dark:text-zinc-100 flex-1 leading-snug pt-0.5">{t.message}</p>
+      <p className="text-[12px] font-bold uppercase tracking-[0.06em] text-[#f0ede5] flex-1 leading-snug">{t.message}</p>
       <button
         onClick={onRemove}
-        className="text-gray-400 dark:text-zinc-500 hover:text-gray-600 dark:hover:text-zinc-300 transition-colors mt-0.5 shrink-0"
+        className="text-[#f0ede5]/40 hover:text-[#f0ede5] transition-colors shrink-0"
       >
-        <X className="w-4 h-4" />
+        <X className="w-3.5 h-3.5" />
       </button>
     </div>
   )

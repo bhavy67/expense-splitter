@@ -16,11 +16,29 @@ export function LogoMark({ size = 32, className }: LogoMarkProps) {
       className={cn('shrink-0', className)}
       aria-hidden="true"
     >
-      <rect x="1" y="1" width="30" height="30" rx="8" fill="#128a5c" />
-      <path
-        d="M10.5 24.5 L21.5 7.5"
-        stroke="white"
-        strokeWidth="3.5"
+      {/* Black square base */}
+      <rect width="32" height="32" fill="#0a0a0a" />
+
+      {/* ₹ Rupee symbol in electric lime — the expense */}
+      <text
+        x="3"
+        y="26"
+        fontFamily="'DM Sans', 'Arial', sans-serif"
+        fontWeight="900"
+        fontSize="23"
+        fill="#b9f542"
+      >
+        ₹
+      </text>
+
+      {/* Bold diagonal slash — the split — cream white for max contrast */}
+      <line
+        x1="27"
+        y1="5"
+        x2="9"
+        y2="27"
+        stroke="#fafaf7"
+        strokeWidth="2.8"
         strokeLinecap="round"
       />
     </svg>
@@ -34,19 +52,19 @@ interface LogoProps extends LogoMarkProps {
 
 export function Logo({ size = 28, className, wordmarkClassName, light }: LogoProps) {
   return (
-    <span className={cn('inline-flex items-center gap-2', className)}>
+    <span className={cn('inline-flex items-center gap-2.5', className)}>
       <LogoMark size={size} />
       <span
         className={cn(
-          'font-extrabold tracking-tight leading-none',
+          'font-black uppercase tracking-[0.04em] leading-none',
           light
-            ? 'text-white'
-            : 'text-gray-900 dark:text-zinc-100',
+            ? 'text-[#f0ede5]'
+            : 'text-[#0a0a0a] dark:text-[#f0ede5]',
           wordmarkClassName
         )}
-        style={{ fontSize: size * 0.62 }}
+        style={{ fontSize: size * 0.6 }}
       >
-        Split<span className={light ? 'text-indigo-200' : 'text-indigo-600 dark:text-indigo-400'}>Itt</span>
+        Split<span className="text-[#b9f542]">Itt</span>
       </span>
     </span>
   )

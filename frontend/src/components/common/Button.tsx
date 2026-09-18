@@ -12,19 +12,19 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variants: Record<Variant, string> = {
   primary:
-    'bg-gradient-to-b from-indigo-500 to-indigo-600 text-white hover:from-indigo-600 hover:to-indigo-700 active:from-indigo-700 active:to-indigo-800 disabled:from-indigo-300 disabled:to-indigo-300 shadow-sm shadow-indigo-900/15',
+    'bg-[#b9f542] text-[#0a0a0a] border-2 border-[#0a0a0a] shadow-[3px_3px_0_#0a0a0a] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none active:translate-x-[2px] active:translate-y-[2px] active:shadow-none disabled:opacity-50 disabled:translate-x-0 disabled:translate-y-0 disabled:shadow-[3px_3px_0_#0a0a0a]',
   secondary:
-    'bg-white dark:bg-zinc-800 text-gray-700 dark:text-zinc-200 border border-gray-300 dark:border-zinc-700 hover:bg-gray-50 dark:hover:bg-zinc-700 active:bg-gray-100 dark:active:bg-zinc-600 disabled:opacity-50 shadow-sm',
+    'bg-white dark:bg-[#1e1e1a] text-[#0a0a0a] dark:text-[#f0ede5] border-2 border-[#0a0a0a] dark:border-[#f0ede5] shadow-[3px_3px_0_#0a0a0a] dark:shadow-[3px_3px_0_#b9f542] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none active:translate-x-[2px] active:translate-y-[2px] active:shadow-none disabled:opacity-50',
   ghost:
-    'text-gray-600 dark:text-zinc-400 hover:bg-gray-100 dark:hover:bg-zinc-800 hover:text-gray-900 dark:hover:text-zinc-100 active:bg-gray-200 dark:active:bg-zinc-700 disabled:opacity-50',
+    'bg-transparent text-[#0a0a0a] dark:text-[#f0ede5] border-2 border-transparent hover:border-[#0a0a0a] dark:hover:border-[#f0ede5] hover:bg-[#f0ede5] dark:hover:bg-[#1a1a17] disabled:opacity-50',
   danger:
-    'bg-red-600 text-white hover:bg-red-700 active:bg-red-800 disabled:opacity-50 shadow-sm',
+    'bg-[#ff5c3d] text-white border-2 border-[#0a0a0a] shadow-[3px_3px_0_#0a0a0a] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none active:translate-x-[2px] active:translate-y-[2px] active:shadow-none disabled:opacity-50',
 }
 
 const sizes: Record<Size, string> = {
-  sm: 'h-8 px-3 text-sm rounded-lg gap-1.5',
-  md: 'h-10 px-4 text-sm rounded-xl gap-2',
-  lg: 'h-12 px-6 text-base rounded-xl gap-2',
+  sm: 'h-8 px-3 text-[11px] rounded gap-1.5',
+  md: 'h-10 px-4 text-[12px] rounded gap-2',
+  lg: 'h-12 px-5 text-[13px] rounded gap-2',
 }
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
@@ -34,7 +34,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         ref={ref}
         disabled={disabled || loading}
         className={cn(
-          'inline-flex items-center justify-center font-medium transition-colors duration-150 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-zinc-900 disabled:cursor-not-allowed select-none',
+          'inline-flex items-center justify-center font-bold uppercase tracking-[0.06em] transition-all duration-100 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#b9f542] focus-visible:ring-offset-2 disabled:cursor-not-allowed select-none',
           variants[variant],
           sizes[size],
           className

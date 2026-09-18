@@ -36,25 +36,25 @@ function GroupCard({ group }: { group: Group }) {
     <motion.div variants={cardVariants}>
       <Link
         to={`/g/${group.id}`}
-        className="block bg-white dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-4 hover:border-indigo-300 dark:hover:border-indigo-700 hover:shadow-md hover:shadow-indigo-100/60 dark:hover:shadow-none transition-all duration-200 group"
+        className="block bg-white dark:bg-[#1e1e1a] rounded border-2 border-[#0a0a0a] dark:border-[#f0ede5] p-4 shadow-[3px_3px_0_#0a0a0a] dark:shadow-[3px_3px_0_#b9f542] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-100 group"
       >
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-10 h-10 rounded-xl bg-gray-50 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 flex items-center justify-center text-xl shrink-0">
+            <div className="w-10 h-10 rounded bg-[#0a0a0a] dark:bg-[#b9f542] flex items-center justify-center text-xl shrink-0">
               {GROUP_ICONS[group.type] ?? '👥'}
             </div>
             <div className="min-w-0">
-              <h3 className="font-semibold text-gray-900 dark:text-zinc-100 truncate group-hover:text-indigo-700 dark:group-hover:text-indigo-400 transition-colors">
+              <h3 className="font-black uppercase tracking-[0.04em] text-[#0a0a0a] dark:text-[#f0ede5] truncate group-hover:text-[#b9f542] transition-colors">
                 {group.name}
               </h3>
-              <p className="text-xs text-gray-400 dark:text-zinc-500 mt-0.5">
+              <p className="text-[10px] font-mono text-[#4a4940] dark:text-[#a09880] mt-0.5 uppercase tracking-wider">
                 {group.members.length} member{group.members.length !== 1 ? 's' : ''}
                 {total > 0 && ` · ${formatCurrency(total, group.currency)} total`}
               </p>
             </div>
           </div>
           {expenses.length > 0 && (
-            <span className="shrink-0 text-xs font-medium bg-gray-100 dark:bg-zinc-800 text-gray-500 dark:text-zinc-400 px-2.5 py-1 rounded-xl whitespace-nowrap">
+            <span className="shrink-0 text-[9px] font-mono font-medium bg-[#f0ede5] dark:bg-[#1a1a17] text-[#4a4940] dark:text-[#a09880] border border-[#0a0a0a] dark:border-[#f0ede5]/30 px-2 py-0.5 rounded uppercase tracking-wider whitespace-nowrap">
               {expenses.length} expense{expenses.length !== 1 ? 's' : ''}
             </span>
           )}
@@ -65,7 +65,7 @@ function GroupCard({ group }: { group: Group }) {
           {group.members.slice(0, 6).map((m) => (
             <div
               key={m.id}
-              className="w-5 h-5 rounded-full flex items-center justify-center text-white text-[9px] font-bold ring-1 ring-white dark:ring-zinc-900"
+              className="w-5 h-5 rounded-full flex items-center justify-center text-white text-[9px] font-bold ring-1 ring-white dark:ring-[#1e1e1a]"
               style={{ background: m.color }}
               title={m.name}
             >
@@ -73,7 +73,7 @@ function GroupCard({ group }: { group: Group }) {
             </div>
           ))}
           {group.members.length > 6 && (
-            <span className="text-xs text-gray-400 dark:text-zinc-500 ml-1">+{group.members.length - 6}</span>
+            <span className="text-[10px] font-mono text-[#4a4940] dark:text-[#a09880] ml-1">+{group.members.length - 6}</span>
           )}
         </div>
       </Link>
@@ -109,8 +109,8 @@ export default function DashboardPage() {
         <div className="max-w-2xl mx-auto px-4 py-6 md:py-8">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-xl font-bold text-gray-900 dark:text-zinc-100">My Groups</h1>
-              <p className="text-sm text-gray-500 dark:text-zinc-400 mt-0.5">
+              <h1 className="text-xl font-black uppercase tracking-[0.04em] text-[#0a0a0a] dark:text-[#f0ede5]">My Groups</h1>
+              <p className="text-[11px] font-mono text-[#4a4940] dark:text-[#a09880] mt-0.5 uppercase tracking-wider">
                 {groups.length === 0
                   ? 'Create a group to start splitting instantly'
                   : `${groups.length} group${groups.length !== 1 ? 's' : ''}`}
