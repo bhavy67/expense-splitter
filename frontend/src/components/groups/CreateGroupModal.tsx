@@ -56,6 +56,7 @@ export function CreateGroupModal({ open, onClose }: Props) {
   }
 
   function addMember() {
+    if (members.length >= 20) { toast.error('Max 20 members'); return }
     setMembers((prev) => [...prev, ''])
   }
 
@@ -71,11 +72,12 @@ export function CreateGroupModal({ open, onClose }: Props) {
     e.preventDefault()
     const trimmed = name.trim()
     if (!trimmed) { toast.error('Group name is required'); return }
+    if (trimmed.length > 60) { toast.error('Name must be under 60 characters'); return }
 
     const validMembers: Member[] = members
       .map((m, i) => ({
         id: generateId(),
-        name: m.trim(),
+        name: m.trim().slice(0, 40),
         color: MEMBER_COLORS[i % MEMBER_COLORS.length],
       }))
       .filter((m) => m.name.length > 0)
@@ -103,37 +105,41 @@ export function CreateGroupModal({ open, onClose }: Props) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={handleClose} />
+      <div className="absolute inset-0 bg-[#0a0a0a]/60" onClick={handleClose} />
 
-      <div className="relative z-10 w-full sm:max-w-md bg-white dark:bg-zinc-900 rounded-t-3xl sm:rounded-2xl border border-gray-200 dark:border-zinc-800 shadow-2xl p-6 pb-8 sm:pb-6 max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between mb-5">
-          <h2 className="text-lg font-bold text-gray-900 dark:text-zinc-100">New group</h2>
+      <div className="relative z-10 w-full sm:max-w-md bg-white dark:bg-[#1e1e1a] rounded-t sm:rounded border-2 border-[#0a0a0a] dark:border-[#f0ede5] shadow-[5px_5px_0_#0a0a0a] dark:shadow-[5px_5px_0_#b9f542] sm:mx-4 max-h-[92vh] overflow-y-auto">
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b-2 border-[#0a0a0a] dark:border-[#f0ede5]">
+          <h2 className="text-base font-black uppercase tracking-[0.06em] text-[#0a0a0a] dark:text-[#f0ede5]">New group</h2>
           <button
             onClick={handleClose}
-            className="p-1.5 rounded-xl text-gray-400 hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors"
+            className="p-1.5 rounded text-[#4a4940] dark:text-[#a09880] hover:bg-[#f0ede5] dark:hover:bg-[#1a1a17] border border-[#0a0a0a] dark:border-[#f0ede5]/30 transition-colors"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-5 px-6 py-5 pb-8 sm:pb-6">
           {/* Name */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-zinc-300 mb-1.5">
+            <label className="block text-[10px] font-mono font-bold uppercase tracking-[0.12em] text-[#4a4940] dark:text-[#a09880] mb-1.5">
               Group name
             </label>
             <input
               autoFocus
               value={name}
               onChange={(e) => setName(e.target.value)}
+              maxLength={60}
               placeholder="e.g. Goa Trip, Flat 4B, Friday dinners"
-              className="w-full h-10 px-3 rounded-xl border border-gray-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-gray-900 dark:text-zinc-100 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              className="w-full h-10 px-3 rounded border-2 border-[#0a0a0a] dark:border-[#f0ede5]/50 bg-white dark:bg-[#1a1a17] text-[#0a0a0a] dark:text-[#f0ede5] text-[13px] font-medium focus:outline-none focus:border-[#b9f542] focus:shadow-[2px_2px_0_#b9f542] transition-all placeholder:text-[#4a4940]/40 dark:placeholder:text-[#a09880]/40"
             />
           </div>
 
           {/* Type */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-zinc-300 mb-1.5">Type</label>
+            <label className="block text-[10px] font-mono font-bold uppercase tracking-[0.12em] text-[#4a4940] dark:text-[#a09880] mb-2">
+              Type
+            </label>
             <div className="flex gap-2 flex-wrap">
               {GROUP_TYPES.map((t) => (
                 <button
@@ -141,10 +147,10 @@ export function CreateGroupModal({ open, onClose }: Props) {
                   type="button"
                   onClick={() => setType(t.value)}
                   className={cn(
-                    'flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm border transition-colors',
+                    'flex items-center gap-1.5 px-3 py-1.5 rounded border-2 text-[11px] font-bold uppercase tracking-wider transition-all',
                     type === t.value
-                      ? 'bg-indigo-50 dark:bg-indigo-950/50 border-indigo-300 dark:border-indigo-700 text-indigo-700 dark:text-indigo-400 font-medium'
-                      : 'border-gray-200 dark:border-zinc-700 text-gray-600 dark:text-zinc-400 hover:border-gray-300 dark:hover:border-zinc-600'
+                      ? 'border-[#0a0a0a] bg-[#b9f542] text-[#0a0a0a] shadow-[2px_2px_0_#0a0a0a] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none'
+                      : 'border-[#0a0a0a]/20 dark:border-[#f0ede5]/20 text-[#4a4940] dark:text-[#a09880] hover:border-[#0a0a0a] dark:hover:border-[#f0ede5]'
                   )}
                 >
                   <span>{t.icon}</span>
@@ -156,11 +162,13 @@ export function CreateGroupModal({ open, onClose }: Props) {
 
           {/* Currency */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-zinc-300 mb-1.5">Currency</label>
+            <label className="block text-[10px] font-mono font-bold uppercase tracking-[0.12em] text-[#4a4940] dark:text-[#a09880] mb-1.5">
+              Currency
+            </label>
             <select
               value={currency}
               onChange={(e) => setCurrency(e.target.value)}
-              className="w-full h-10 px-3 rounded-xl border border-gray-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-gray-900 dark:text-zinc-100 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full h-10 px-3 rounded border-2 border-[#0a0a0a] dark:border-[#f0ede5]/50 bg-white dark:bg-[#1a1a17] text-[#0a0a0a] dark:text-[#f0ede5] text-[13px] font-medium focus:outline-none focus:border-[#b9f542] focus:shadow-[2px_2px_0_#b9f542] transition-all"
             >
               {CURRENCIES.map((c) => (
                 <option key={c.code} value={c.code}>{c.symbol} {c.name}</option>
@@ -170,13 +178,15 @@ export function CreateGroupModal({ open, onClose }: Props) {
 
           {/* Members */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-zinc-300 mb-0.5">Members</label>
-            <p className="text-xs text-gray-400 dark:text-zinc-500 mb-2">No accounts needed — just add names</p>
+            <label className="block text-[10px] font-mono font-bold uppercase tracking-[0.12em] text-[#4a4940] dark:text-[#a09880] mb-0.5">
+              Members
+            </label>
+            <p className="text-xs text-[#4a4940] dark:text-[#a09880] mb-3">No accounts needed — just add names</p>
             <div className="flex flex-col gap-2">
               {members.map((m, i) => (
                 <div key={i} className="flex items-center gap-2">
                   <div
-                    className="w-6 h-6 rounded-full shrink-0 flex items-center justify-center text-white text-[10px] font-bold"
+                    className="w-7 h-7 rounded-full shrink-0 flex items-center justify-center text-white text-[10px] font-bold"
                     style={{ background: MEMBER_COLORS[i % MEMBER_COLORS.length] }}
                   >
                     {m.trim()[0]?.toUpperCase() ?? (i + 1)}
@@ -184,14 +194,15 @@ export function CreateGroupModal({ open, onClose }: Props) {
                   <input
                     value={m}
                     onChange={(e) => updateMember(i, e.target.value)}
+                    maxLength={40}
                     placeholder={`Member ${i + 1}`}
-                    className="flex-1 h-9 px-3 rounded-xl border border-gray-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-gray-900 dark:text-zinc-100 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="flex-1 h-9 px-3 rounded border-2 border-[#0a0a0a] dark:border-[#f0ede5]/50 bg-white dark:bg-[#1a1a17] text-[#0a0a0a] dark:text-[#f0ede5] text-[13px] font-medium focus:outline-none focus:border-[#b9f542] transition-all placeholder:text-[#4a4940]/40 dark:placeholder:text-[#a09880]/40"
                   />
                   {members.length > 1 && (
                     <button
                       type="button"
                       onClick={() => removeMember(i)}
-                      className="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+                      className="p-1.5 rounded text-[#4a4940] dark:text-[#a09880] hover:text-[#ff5c3d] hover:bg-[#ff5c3d]/10 border border-[#0a0a0a]/20 dark:border-[#f0ede5]/20 transition-colors"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
@@ -201,7 +212,7 @@ export function CreateGroupModal({ open, onClose }: Props) {
               <button
                 type="button"
                 onClick={addMember}
-                className="flex items-center gap-2 text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-medium px-2 py-1 transition-colors self-start"
+                className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#4d6e08] dark:text-[#b9f542] hover:opacity-80 px-1 py-1 transition-opacity self-start mt-1"
               >
                 <Plus className="w-3.5 h-3.5" />
                 Add member

@@ -81,7 +81,7 @@ function ColorPicker({ color, onChange }: { color: string; onChange: (c: string)
               onClick={() => { onChange(c); setOpen(false) }}
               className={cn(
                 'w-6 h-6 rounded-full transition-transform hover:scale-110',
-                c === color && 'ring-2 ring-offset-1 ring-indigo-500'
+                c === color && 'ring-2 ring-offset-1 ring-[#b9f542]'
               )}
               style={{ background: c }}
             />
@@ -134,7 +134,7 @@ export default function GroupSettingsPage() {
   if (!group) {
     return (
       <AppShell>
-        <div className="flex items-center justify-center min-h-screen text-gray-500 dark:text-zinc-500">
+        <div className="flex items-center justify-center min-h-screen text-[#4a4940] dark:text-[#a09880]">
           Group not found
         </div>
       </AppShell>
@@ -301,6 +301,9 @@ export default function GroupSettingsPage() {
                     <option key={c.code} value={c.code}>{c.symbol} {c.name}</option>
                   ))}
                 </select>
+                {currency !== group.currency && (
+                  <p className="text-xs text-[#f97316] mt-1.5">Changing currency only affects the symbol — existing expense amounts are not converted.</p>
+                )}
               </div>
 
               <div>
@@ -356,7 +359,7 @@ export default function GroupSettingsPage() {
                         onKeyDown={(e) => { if (e.key === 'Enter') commitEdit(); if (e.key === 'Escape') cancelEdit() }}
                         className="flex-1 h-8 px-2.5 rounded border-2 border-[#b9f542] bg-white dark:bg-[#1e1e1a] text-[13px] text-[#0a0a0a] dark:text-[#f0ede5] focus:outline-none shadow-[2px_2px_0_#b9f542]"
                       />
-                      <button onClick={commitEdit} className="p-1 rounded text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 transition-colors">
+                      <button onClick={commitEdit} className="p-1 rounded text-[#4d6e08] dark:text-[#b9f542] hover:bg-[#f0ede5] dark:hover:bg-[#1a1a17] transition-colors">
                         <Check className="w-4 h-4" />
                       </button>
                       <button onClick={cancelEdit} className="p-1 rounded text-[#4a4940] dark:text-[#a09880] hover:bg-[#f0ede5] dark:hover:bg-[#1a1a17] transition-colors">
@@ -366,7 +369,7 @@ export default function GroupSettingsPage() {
                   ) : (
                     <>
                       <span className="flex-1 text-[13px] font-medium text-[#0a0a0a] dark:text-[#f0ede5] truncate">{m.name}</span>
-                      <div className="flex items-center gap-1 opacity-0 group-hover/row:opacity-100 transition-opacity">
+                      <div className="flex items-center gap-1 sm:opacity-0 sm:group-hover/row:opacity-100 transition-opacity">
                         <button
                           onClick={() => startEdit(m)}
                           className="p-1.5 rounded text-[#4a4940] dark:text-[#a09880] hover:text-[#0a0a0a] dark:hover:text-[#f0ede5] hover:bg-[#f0ede5] dark:hover:bg-[#1a1a17] transition-colors"
@@ -390,7 +393,7 @@ export default function GroupSettingsPage() {
               {/* Add member row */}
               {showAddInput ? (
                 <div className="flex items-center gap-2 mt-1 py-1 px-1">
-                  <div className="w-7 h-7 rounded-full shrink-0 bg-gray-200 dark:bg-zinc-700 flex items-center justify-center text-gray-400 text-xs font-bold">
+                  <div className="w-7 h-7 rounded-full shrink-0 bg-[#f0ede5] dark:bg-[#1a1a17] border-2 border-dashed border-[#0a0a0a]/20 dark:border-[#f0ede5]/20 flex items-center justify-center text-[#4a4940] dark:text-[#a09880] text-xs font-bold">
                     {newMemberName[0]?.toUpperCase() ?? '+'}
                   </div>
                   <input
@@ -406,7 +409,7 @@ export default function GroupSettingsPage() {
                   />
                   <button
                     onClick={() => { addMember(); setShowAddInput(false) }}
-                    className="p-1 rounded text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 transition-colors"
+                    className="p-1 rounded text-[#4d6e08] dark:text-[#b9f542] hover:bg-[#f0ede5] dark:hover:bg-[#1a1a17] transition-colors"
                   >
                     <Check className="w-4 h-4" />
                   </button>

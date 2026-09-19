@@ -48,7 +48,7 @@ export default function ExpenseDetailPage() {
   if (!group) {
     return (
       <AppShell>
-        <div className="flex items-center justify-center min-h-screen text-gray-500 dark:text-zinc-500">
+        <div className="flex items-center justify-center min-h-screen text-[#4a4940] dark:text-[#a09880]">
           Group not found
         </div>
       </AppShell>
@@ -61,7 +61,7 @@ export default function ExpenseDetailPage() {
     return (
       <AppShell>
         <TopBar title="Expense" showBack />
-        <div className="flex items-center justify-center min-h-screen text-gray-500 dark:text-zinc-500">
+        <div className="flex items-center justify-center min-h-screen text-[#4a4940] dark:text-[#a09880]">
           Expense not found
         </div>
       </AppShell>
@@ -242,7 +242,7 @@ export default function ExpenseDetailPage() {
                 <img
                   src={expense.receiptImage}
                   alt="Receipt"
-                  className="w-full object-contain max-h-96 border-t border-gray-100 dark:border-zinc-800"
+                  className="w-full object-contain max-h-96 border-t-2 border-[#0a0a0a]/10 dark:border-[#f0ede5]/10"
                 />
               )}
             </div>

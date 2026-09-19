@@ -1,5 +1,9 @@
 import type { Group, Expense, Payment } from '@/types'
 
+type WriteErrorHandler = (e: unknown) => void
+let onWriteError: WriteErrorHandler | null = null
+export function setStorageErrorHandler(handler: WriteErrorHandler) { onWriteError = handler }
+
 const P = 'splititt_'
 
 function read<T>(key: string, fallback: T): T {
@@ -15,7 +19,9 @@ function write<T>(key: string, value: T): void {
   try {
     localStorage.setItem(P + key, JSON.stringify(value))
     window.dispatchEvent(new CustomEvent('splititt:update', { detail: key }))
-  } catch {}
+  } catch (e) {
+    onWriteError?.(e)
+  }
 }
 
 export function generateId(): string {

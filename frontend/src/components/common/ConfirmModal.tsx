@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { Button } from './Button'
 
 interface Props {
@@ -12,6 +13,12 @@ interface Props {
 export function ConfirmModal({
   title, description, confirmLabel = 'Confirm', danger = false, onConfirm, onCancel,
 }: Props) {
+  useEffect(() => {
+    function handler(e: KeyboardEvent) { if (e.key === 'Escape') onCancel() }
+    document.addEventListener('keydown', handler)
+    return () => document.removeEventListener('keydown', handler)
+  }, [onCancel])
+
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
       <div className="absolute inset-0 bg-[#0a0a0a]/60" onClick={onCancel} />
