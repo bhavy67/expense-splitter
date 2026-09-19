@@ -73,7 +73,19 @@ body {
 }
 
 #root {
-  min-height: 100svh;
+  min-height: 100dvh;
+}
+
+/* Prevent pull-to-refresh & address-bar-collapse jiggle on mobile */
+html, body {
+  overscroll-behavior: none;
+  /* iOS: prevent elastic bounce at document level */
+  overflow: hidden;
+  height: 100dvh;
+}
+
+body {
+  overflow: hidden;
 }
 
 button,
@@ -98,6 +110,12 @@ summary {
 @keyframes toast-slide-down {
   from { opacity: 0; transform: translateY(-16px) scale(0.96); }
   to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Hide scrollbars while keeping scroll functional */
+@utility scrollbar-none {
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
 }
 
 /* Safe area utilities for notch / home indicator devices */

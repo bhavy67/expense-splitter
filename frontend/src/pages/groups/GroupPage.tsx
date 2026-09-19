@@ -27,7 +27,7 @@ export default function GroupPage() {
   if (!group) {
     return (
       <AppShell>
-        <div className="flex items-center justify-center min-h-screen text-[#4a4940] dark:text-[#a09880]">
+        <div className="flex items-center justify-center min-h-[100dvh] text-[#4a4940] dark:text-[#a09880]">
           Group not found
         </div>
       </AppShell>
@@ -105,11 +105,11 @@ export default function GroupPage() {
                 Manage
               </button>
             </div>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
               {group.members.map((m) => (
                 <div
                   key={m.id}
-                  className="flex items-center gap-1.5 bg-[#f0ede5] dark:bg-[#1a1a17] border border-[#0a0a0a] dark:border-[#f0ede5]/20 rounded px-2.5 py-1.5"
+                  className="flex items-center gap-1.5 bg-[#f0ede5] dark:bg-[#1a1a17] border border-[#0a0a0a] dark:border-[#f0ede5]/20 rounded px-2.5 py-1.5 shrink-0"
                 >
                   <div
                     className="w-5 h-5 rounded-full flex items-center justify-center text-white text-[10px] font-bold shrink-0"

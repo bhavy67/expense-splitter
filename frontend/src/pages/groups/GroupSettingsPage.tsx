@@ -134,7 +134,7 @@ export default function GroupSettingsPage() {
   if (!group) {
     return (
       <AppShell>
-        <div className="flex items-center justify-center min-h-screen text-[#4a4940] dark:text-[#a09880]">
+        <div className="flex items-center justify-center min-h-[100dvh] text-[#4a4940] dark:text-[#a09880]">
           Group not found
         </div>
       </AppShell>
