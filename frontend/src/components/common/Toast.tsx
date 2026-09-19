@@ -46,7 +46,7 @@ const config: Record<ToastType, { icon: React.ReactNode; accent: string; iconCol
 
 function ToastItem({ toast: t, onRemove }: { toast: Toast; onRemove: () => void }) {
   useEffect(() => {
-    const timer = setTimeout(onRemove, 5000)
+    const timer = setTimeout(onRemove, 2500)
     return () => clearTimeout(timer)
   }, [onRemove])
 
