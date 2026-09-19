@@ -44,11 +44,11 @@ export function ExpenseCard({ expense, members, groupId, groupCurrency }: Props)
           {payer && (
             <>
               <div className="w-3 h-3 rounded-full shrink-0" style={{ background: payer.color }} />
-              <span className="text-[10px] font-mono text-[#4a4940] dark:text-[#a09880]">{payer.name}</span>
+              <span className="text-xs font-medium text-[#4a4940] dark:text-[#c8bfb0]">{payer.name}</span>
               <span className="text-[#a09880] dark:text-[#606060]">·</span>
             </>
           )}
-          <span className="text-[10px] font-mono text-[#4a4940] dark:text-[#a09880]">{fmtDate(expense.date)}</span>
+          <span className="text-xs font-medium text-[#4a4940] dark:text-[#c8bfb0]">{fmtDate(expense.date)}</span>
         </div>
       </div>
 
@@ -57,11 +57,11 @@ export function ExpenseCard({ expense, members, groupId, groupCurrency }: Props)
           {formatCurrency(expense.amount, groupCurrency ?? expense.currency)}
         </p>
         {isForeignCurrency && expense.exchangeRate ? (
-          <p className="text-[9px] font-mono text-[#4a4940] dark:text-[#a09880] mt-0.5 uppercase tracking-wider">
+          <p className="text-[10px] font-mono font-medium text-[#4a4940] dark:text-[#a09880] mt-0.5 uppercase tracking-wider">
             {(expense.amount / expense.exchangeRate).toFixed(2)} {expense.currency}
           </p>
         ) : (
-          <p className="text-[9px] font-mono text-[#4a4940] dark:text-[#a09880] mt-0.5 uppercase tracking-wider">
+          <p className="text-[10px] font-mono font-medium text-[#4a4940] dark:text-[#a09880] mt-0.5 uppercase tracking-wider">
             {SPLIT_LABELS[expense.splitType] ?? expense.splitType}
           </p>
         )}

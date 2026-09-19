@@ -19,25 +19,25 @@ export function LogoMark({ size = 32, className }: LogoMarkProps) {
       {/* Black square base */}
       <rect width="32" height="32" fill="#0a0a0a" />
 
-      {/* ₹ Rupee symbol in electric lime — the expense */}
+      {/* ₹ centered in the square via text-anchor middle */}
       <text
-        x="2"
-        y="27"
+        x="16"
+        y="24"
+        textAnchor="middle"
         fontFamily="'DM Sans', 'Arial', sans-serif"
         fontWeight="900"
-        fontSize="25"
+        fontSize="22"
         fill="#b9f542"
       >
         ₹
       </text>
 
-      {/* Bold diagonal slash — the split. Line computed to pass through
-          the visual center of the ₹ glyph (~x10, y17) at DM Sans 900 */}
+      {/* 45° slash through the center of the square (16,16) — cuts the ₹ diagonally */}
       <line
         x1="29"
         y1="3"
         x2="3"
-        y2="25"
+        y2="29"
         stroke="#fafaf7"
         strokeWidth="3"
         strokeLinecap="round"

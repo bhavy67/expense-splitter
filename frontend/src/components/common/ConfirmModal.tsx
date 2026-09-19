@@ -19,7 +19,7 @@ export function ConfirmModal({
         <div className="flex flex-col gap-1.5 mb-6">
           <h2 className="text-base font-black uppercase tracking-[0.04em] text-[#0a0a0a] dark:text-[#f0ede5]">{title}</h2>
           {description && (
-            <p className="text-[12px] font-mono text-[#4a4940] dark:text-[#a09880] leading-relaxed">{description}</p>
+            <p className="text-sm text-[#4a4940] dark:text-[#c8bfb0] leading-relaxed">{description}</p>
           )}
         </div>
         <div className="flex gap-3">
