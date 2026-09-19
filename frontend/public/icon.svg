@@ -1,5 +1,12 @@
 <svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="512" height="512" fill="#0a0a0a"/>
-  <text x="256" y="384" text-anchor="middle" font-family="Arial, 'Helvetica Neue', sans-serif" font-weight="900" font-size="352" fill="#b9f542">₹</text>
-  <line x1="464" y1="48" x2="48" y2="464" stroke="#fafaf7" stroke-width="48" stroke-linecap="round"/>
+  <style>
+    .rupee { fill: #4d6e08; }
+    .slash { stroke: #0a0a0a; }
+    @media (prefers-color-scheme: dark) {
+      .rupee { fill: #b9f542; }
+      .slash { stroke: #f0ede5; }
+    }
+  </style>
+  <text x="256" y="384" text-anchor="middle" font-family="Arial, 'Helvetica Neue', sans-serif" font-weight="900" font-size="352" class="rupee">₹</text>
+  <line x1="464" y1="48" x2="48" y2="464" stroke-width="48" stroke-linecap="round" class="slash"/>
 </svg>
