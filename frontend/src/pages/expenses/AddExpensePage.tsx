@@ -380,6 +380,7 @@ export default function AddExpensePage() {
                 </select>
                 <input
                   type="number"
+                  inputMode="decimal"
                   min="0"
                   step="0.01"
                   placeholder="0.00"
@@ -398,6 +399,7 @@ export default function AddExpensePage() {
                   <span className="text-[11px] font-mono text-[#0a0a0a] dark:text-[#f0ede5]">1 {expenseCurrency} =</span>
                   <input
                     type="number"
+                    inputMode="decimal"
                     min="0.000001"
                     step="any"
                     value={exchangeRate}
@@ -472,7 +474,7 @@ export default function AddExpensePage() {
           {/* ── Paid by ──────────────────────────────────────────────────── */}
           <div>
             <p className="text-[10px] font-mono font-bold uppercase tracking-[0.12em] text-[#4a4940] dark:text-[#a09880] mb-2 px-1">Paid by</p>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
               {group.members.map(m => (
                 <button
                   key={m.id}
@@ -590,10 +592,11 @@ export default function AddExpensePage() {
                           </button>
                           <input
                             type="number"
+                            inputMode="numeric"
                             min="0"
                             value={v}
                             onChange={e => setShareVals(p => ({ ...p, [m.id]: Math.max(0, parseInt(e.target.value) || 0) }))}
-                            className="h-8 w-24 px-2 rounded border-2 border-[#0a0a0a] dark:border-[#f0ede5]/50 bg-white dark:bg-[#1a1a17] text-[13px] font-mono text-[#0a0a0a] dark:text-[#f0ede5] focus:outline-none focus:border-[#b9f542] text-center"
+                            className="h-8 w-16 px-2 rounded border-2 border-[#0a0a0a] dark:border-[#f0ede5]/50 bg-white dark:bg-[#1a1a17] text-[13px] font-mono text-[#0a0a0a] dark:text-[#f0ede5] focus:outline-none focus:border-[#b9f542] text-center"
                           />
                           <button
                             type="button"
@@ -632,12 +635,13 @@ export default function AddExpensePage() {
                         <div className="flex items-center gap-1">
                           <input
                             type="number"
+                            inputMode="decimal"
                             min="0"
                             max="100"
                             step="0.1"
                             value={pct}
                             onChange={e => setPctVals(p => ({ ...p, [m.id]: parseFloat(e.target.value) || 0 }))}
-                            className="h-8 w-24 px-2 rounded border-2 border-[#0a0a0a] dark:border-[#f0ede5]/50 bg-white dark:bg-[#1a1a17] text-[13px] font-mono text-[#0a0a0a] dark:text-[#f0ede5] focus:outline-none focus:border-[#b9f542] text-right"
+                            className="h-8 w-16 px-2 rounded border-2 border-[#0a0a0a] dark:border-[#f0ede5]/50 bg-white dark:bg-[#1a1a17] text-[13px] font-mono text-[#0a0a0a] dark:text-[#f0ede5] focus:outline-none focus:border-[#b9f542] text-right"
                           />
                           <span className="text-[13px] font-mono text-[#4a4940] dark:text-[#a09880]">%</span>
                         </div>
@@ -679,12 +683,13 @@ export default function AddExpensePage() {
                         <span className="text-[11px] font-mono text-[#4a4940] dark:text-[#a09880]">{currency}</span>
                         <input
                           type="number"
+                          inputMode="decimal"
                           min="0"
                           step="0.01"
                           placeholder="0.00"
                           value={exactVals[m.id] ?? ''}
                           onChange={e => setExactVals(p => ({ ...p, [m.id]: e.target.value }))}
-                          className="h-8 w-24 px-2 rounded border-2 border-[#0a0a0a] dark:border-[#f0ede5]/50 bg-white dark:bg-[#1a1a17] text-[13px] font-mono text-[#0a0a0a] dark:text-[#f0ede5] focus:outline-none focus:border-[#b9f542] text-right"
+                          className="h-8 w-20 px-2 rounded border-2 border-[#0a0a0a] dark:border-[#f0ede5]/50 bg-white dark:bg-[#1a1a17] text-[13px] font-mono text-[#0a0a0a] dark:text-[#f0ede5] focus:outline-none focus:border-[#b9f542] text-right"
                         />
                       </div>
                     </div>
