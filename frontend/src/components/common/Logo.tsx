@@ -16,10 +16,7 @@ export function LogoMark({ size = 32, className }: LogoMarkProps) {
       className={cn('shrink-0', className)}
       aria-hidden="true"
     >
-      {/* Black square base */}
-      <rect width="32" height="32" fill="#0a0a0a" />
-
-      {/* ₹ centered in the square via text-anchor middle */}
+      {/* ₹ centered — electric lime in dark, deep olive in light (contrast-safe) */}
       <text
         x="16"
         y="24"
@@ -27,20 +24,20 @@ export function LogoMark({ size = 32, className }: LogoMarkProps) {
         fontFamily="'DM Sans', 'Arial', sans-serif"
         fontWeight="900"
         fontSize="22"
-        fill="#b9f542"
+        className="fill-[#4d6e08] dark:fill-[#b9f542]"
       >
         ₹
       </text>
 
-      {/* 45° slash through the center of the square (16,16) — cuts the ₹ diagonally */}
+      {/* 45° slash through center — cuts the ₹; near-black in light, cream in dark */}
       <line
         x1="29"
         y1="3"
         x2="3"
         y2="29"
-        stroke="#fafaf7"
         strokeWidth="3"
         strokeLinecap="round"
+        className="stroke-[#0a0a0a] dark:stroke-[#f0ede5]"
       />
     </svg>
   )
@@ -65,7 +62,7 @@ export function Logo({ size = 28, className, wordmarkClassName, light }: LogoPro
         )}
         style={{ fontSize: size * 0.6 }}
       >
-        Split<span className="text-[#b9f542]">Itt</span>
+        Split<span className={light ? 'text-[#b9f542]' : 'text-[#4d6e08] dark:text-[#b9f542]'}>Itt</span>
       </span>
     </span>
   )
