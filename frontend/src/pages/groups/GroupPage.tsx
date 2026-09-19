@@ -67,7 +67,7 @@ export default function GroupPage() {
           <div className="hidden md:flex items-center justify-between mb-5">
             <div>
               <h1 className="text-xl font-black uppercase tracking-[0.04em] text-[#0a0a0a] dark:text-[#f0ede5]">{group.name}</h1>
-              <p className="text-[11px] font-mono text-[#4a4940] dark:text-[#a09880] mt-0.5 uppercase tracking-wider">
+              <p className="text-xs font-medium text-[#4a4940] dark:text-[#a09880] mt-0.5">
                 {group.members.length} member{group.members.length !== 1 ? 's' : ''}
                 {total > 0 && ` · ${formatCurrency(total, group.currency)} total`}
                 {' · '}{group.currency}
@@ -90,10 +90,10 @@ export default function GroupPage() {
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
                 <Users className="w-4 h-4 text-[#4a4940] dark:text-[#a09880]" />
-                <span className="text-[10px] font-mono font-bold uppercase tracking-[0.12em] text-[#4a4940] dark:text-[#a09880]">
+                <span className="text-xs font-bold uppercase tracking-[0.1em] text-[#4a4940] dark:text-[#a09880]">
                   Members
                 </span>
-                <span className="text-[9px] font-mono bg-[#f0ede5] dark:bg-[#1a1a17] border border-[#0a0a0a] dark:border-[#f0ede5]/30 px-1.5 py-0.5 rounded">
+                <span className="text-[10px] font-mono font-medium bg-[#f0ede5] dark:bg-[#1a1a17] border border-[#0a0a0a] dark:border-[#f0ede5]/30 px-1.5 py-0.5 rounded text-[#0a0a0a] dark:text-[#f0ede5]">
                   {group.members.length}
                 </span>
               </div>
@@ -112,12 +112,12 @@ export default function GroupPage() {
                   className="flex items-center gap-1.5 bg-[#f0ede5] dark:bg-[#1a1a17] border border-[#0a0a0a] dark:border-[#f0ede5]/20 rounded px-2.5 py-1.5"
                 >
                   <div
-                    className="w-5 h-5 rounded-full flex items-center justify-center text-white text-[9px] font-bold shrink-0"
+                    className="w-5 h-5 rounded-full flex items-center justify-center text-white text-[10px] font-bold shrink-0"
                     style={{ background: m.color }}
                   >
                     {m.name[0]?.toUpperCase()}
                   </div>
-                  <span className="text-[12px] font-medium text-[#0a0a0a] dark:text-[#f0ede5]">{m.name}</span>
+                  <span className="text-sm font-medium text-[#0a0a0a] dark:text-[#f0ede5]">{m.name}</span>
                 </div>
               ))}
             </div>
@@ -134,7 +134,7 @@ export default function GroupPage() {
                 key={id}
                 onClick={() => setTab(id)}
                 className={cn(
-                  'flex-1 flex items-center justify-center gap-1.5 py-2.5 text-[11px] font-bold uppercase tracking-[0.1em] transition-all',
+                  'flex-1 flex items-center justify-center gap-1.5 py-2.5 text-xs font-bold uppercase tracking-[0.1em] transition-all',
                   tab === id
                     ? 'text-[#0a0a0a] dark:text-[#f0ede5] border-b-[3px] border-[#b9f542] -mb-[2px]'
                     : 'text-[#4a4940] dark:text-[#a09880] hover:text-[#0a0a0a] dark:hover:text-[#f0ede5]'
@@ -153,8 +153,8 @@ export default function GroupPage() {
                 <div className="w-12 h-12 rounded bg-[#f0ede5] dark:bg-[#1a1a17] border-2 border-[#0a0a0a] dark:border-[#f0ede5]/50 flex items-center justify-center mx-auto mb-3 text-2xl shadow-[2px_2px_0_#0a0a0a] dark:shadow-[2px_2px_0_#b9f542]">
                   💸
                 </div>
-                <p className="text-[12px] font-black uppercase tracking-[0.06em] text-[#0a0a0a] dark:text-[#f0ede5] mb-1">No expenses yet</p>
-                <p className="text-[10px] font-mono text-[#4a4940] dark:text-[#a09880] mb-4">
+                <p className="text-sm font-black uppercase tracking-[0.06em] text-[#0a0a0a] dark:text-[#f0ede5] mb-1">No expenses yet</p>
+                <p className="text-sm text-[#4a4940] dark:text-[#c8bfb0] mb-4">
                   Add your first expense to start splitting
                 </p>
                 <Button size="sm" onClick={() => navigate(`/g/${groupId}/expenses/new`)}>

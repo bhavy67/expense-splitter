@@ -65,7 +65,7 @@ export function BalancesTab({ group, expenses, payments }: Props) {
           ⚖️
         </div>
         <p className="text-sm font-mono font-bold text-[#0a0a0a] dark:text-[#f0ede5] uppercase tracking-[0.08em] mb-1">No expenses yet</p>
-        <p className="text-[11px] font-mono text-[#4a4940] dark:text-[#a09880]">
+        <p className="text-sm text-[#4a4940] dark:text-[#c8bfb0]">
           Add expenses first to see who owes what
         </p>
       </div>
@@ -84,7 +84,7 @@ export function BalancesTab({ group, expenses, payments }: Props) {
         ].map((s) => (
           <div key={s.label} className="bg-white dark:bg-[#1e1e1a] rounded border-2 border-[#0a0a0a] dark:border-[#f0ede5] p-3 text-center shadow-[2px_2px_0_#0a0a0a] dark:shadow-[2px_2px_0_#b9f542]">
             <p className={cn('text-sm font-mono font-bold', s.color)}>{s.value}</p>
-            <p className="text-[9px] font-mono uppercase tracking-wider text-[#4a4940] dark:text-[#a09880] mt-0.5">{s.label}</p>
+            <p className="text-[10px] font-medium uppercase tracking-wider text-[#4a4940] dark:text-[#a09880] mt-0.5">{s.label}</p>
           </div>
         ))}
       </div>
@@ -92,7 +92,7 @@ export function BalancesTab({ group, expenses, payments }: Props) {
       {/* Who owes who */}
       <div className="bg-white dark:bg-[#1e1e1a] border-2 border-[#0a0a0a] dark:border-[#f0ede5] rounded overflow-hidden">
         <div className="bg-[#0a0a0a] dark:bg-[#1a1a17] px-4 py-2.5 flex items-center justify-between">
-          <p className="text-[10px] font-mono font-bold uppercase tracking-[0.12em] text-[#f0ede5]">
+          <p className="text-xs font-bold uppercase tracking-[0.1em] text-[#f0ede5]">
             Who pays who
           </p>
           <div className="flex items-center gap-3">
@@ -104,7 +104,7 @@ export function BalancesTab({ group, expenses, payments }: Props) {
                   confirmLabel: 'Settle all',
                   onConfirm: doSettleAll,
                 })}
-                className="flex items-center gap-1 text-[10px] font-mono font-bold uppercase tracking-wider text-[#b9f542] hover:text-[#a3db2e] transition-colors"
+                className="flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-[#b9f542] hover:text-[#a3db2e] transition-colors"
               >
                 <Zap className="w-3 h-3" />
                 Settle all
@@ -112,7 +112,7 @@ export function BalancesTab({ group, expenses, payments }: Props) {
             )}
             <button
               onClick={() => setPaymentTarget({ fromId: group.members[0]?.id, toId: group.members[1]?.id })}
-              className="flex items-center gap-1 text-[10px] font-mono font-bold uppercase tracking-wider text-[#f0ede5]/60 hover:text-[#f0ede5] transition-colors"
+              className="flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-[#f0ede5]/60 hover:text-[#f0ede5] transition-colors"
             >
               <PlusCircle className="w-3 h-3" />
               Record
@@ -186,7 +186,7 @@ export function BalancesTab({ group, expenses, payments }: Props) {
       {/* Member balances */}
       <div className="bg-white dark:bg-[#1e1e1a] border-2 border-[#0a0a0a] dark:border-[#f0ede5] rounded overflow-hidden">
         <div className="bg-[#0a0a0a] dark:bg-[#1a1a17] px-4 py-2.5">
-          <p className="text-[10px] font-mono font-bold uppercase tracking-[0.12em] text-[#f0ede5]">
+          <p className="text-xs font-bold uppercase tracking-[0.1em] text-[#f0ede5]">
             Individual balances
           </p>
         </div>
@@ -221,7 +221,7 @@ export function BalancesTab({ group, expenses, payments }: Props) {
                 {!isPos && !isNeg && (
                   <p className="text-sm font-mono font-medium text-[#4a4940] dark:text-[#a09880]">Settled</p>
                 )}
-                <p className="text-[10px] font-mono uppercase tracking-[0.12em] text-[#4a4940] dark:text-[#a09880] mt-0.5">
+                <p className="text-[10px] font-medium uppercase tracking-wide text-[#4a4940] dark:text-[#a09880] mt-0.5">
                   {isPos ? 'gets back' : isNeg ? 'owes' : ''}
                 </p>
               </div>
@@ -237,7 +237,7 @@ export function BalancesTab({ group, expenses, payments }: Props) {
             onClick={() => setShowHistory((v) => !v)}
             className="w-full bg-[#0a0a0a] dark:bg-[#1a1a17] px-4 py-2.5 flex items-center justify-between hover:opacity-90 transition-opacity"
           >
-            <p className="text-[10px] font-mono font-bold uppercase tracking-[0.12em] text-[#f0ede5]">
+            <p className="text-xs font-bold uppercase tracking-[0.1em] text-[#f0ede5]">
               Payment history <span className="font-mono">({payments.length})</span>
             </p>
             {showHistory
@@ -267,7 +267,7 @@ export function BalancesTab({ group, expenses, payments }: Props) {
                       <p className="text-sm font-mono font-medium text-[#0a0a0a] dark:text-[#f0ede5]">
                         {from?.name ?? '?'} → {to?.name ?? '?'}
                       </p>
-                      <p className="text-[10px] font-mono uppercase tracking-[0.12em] text-[#4a4940] dark:text-[#a09880] mt-0.5">
+                      <p className="text-xs font-medium text-[#4a4940] dark:text-[#a09880] mt-0.5">
                         {fmtDate(p.date)}{p.note ? ` · ${p.note}` : ''}
                       </p>
                     </div>

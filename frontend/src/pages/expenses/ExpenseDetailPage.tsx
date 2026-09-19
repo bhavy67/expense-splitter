@@ -115,7 +115,7 @@ export default function ExpenseDetailPage() {
                 <h1 className="text-xl font-black uppercase tracking-[0.02em] text-[#0a0a0a] dark:text-[#f0ede5] truncate">
                   {expense.title}
                 </h1>
-                <p className="text-[10px] font-mono uppercase tracking-wider text-[#4a4940] dark:text-[#a09880] mt-0.5">
+                <p className="text-xs font-medium text-[#4a4940] dark:text-[#a09880] mt-0.5">
                   {fmtDate(expense.date)}
                 </p>
               </div>
@@ -123,7 +123,7 @@ export default function ExpenseDetailPage() {
                 <p className="text-2xl font-mono font-bold text-[#0a0a0a] dark:text-[#f0ede5]">
                   {formatCurrency(expense.amount, expense.currency)}
                 </p>
-                <p className="text-[9px] font-mono uppercase text-[#4a4940] dark:text-[#a09880] mt-0.5">
+                <p className="text-[10px] font-mono font-medium uppercase text-[#4a4940] dark:text-[#a09880] mt-0.5">
                   {expense.currency}
                 </p>
               </div>
@@ -141,7 +141,7 @@ export default function ExpenseDetailPage() {
             {/* Paid by */}
             {payer && (
               <div className="flex items-center gap-2 mt-4 pt-4 border-t-2 border-[#0a0a0a]/10 dark:border-[#f0ede5]/10">
-                <span className="text-[9px] font-mono uppercase tracking-wider text-[#4a4940] dark:text-[#a09880]">Paid by</span>
+                <span className="text-xs font-medium uppercase tracking-wide text-[#4a4940] dark:text-[#a09880]">Paid by</span>
                 <MemberDot member={payer} />
                 <span className="text-sm font-medium text-[#0a0a0a] dark:text-[#f0ede5]">{payer.name}</span>
               </div>
@@ -173,8 +173,8 @@ export default function ExpenseDetailPage() {
                         return (
                           <div key={s.memberId} className="flex items-center gap-1 bg-[#f0ede5] dark:bg-[#1a1a17] border border-[#0a0a0a] dark:border-[#f0ede5]/30 rounded px-2 py-0.5">
                             <div className="w-3 h-3 rounded-full shrink-0" style={{ background: m.color }} />
-                            <span className="text-[10px] font-mono text-[#4a4940] dark:text-[#a09880]">{m.name}</span>
-                            <span className="text-[10px] font-mono font-medium text-[#0a0a0a] dark:text-[#f0ede5] ml-1">
+                            <span className="text-[10px] font-medium text-[#4a4940] dark:text-[#a09880]">{m.name}</span>
+                            <span className="text-[10px] font-medium text-[#0a0a0a] dark:text-[#f0ede5] ml-1">
                               {formatCurrency(s.amount, expense.currency)}
                             </span>
                           </div>
@@ -201,12 +201,12 @@ export default function ExpenseDetailPage() {
                       <MemberDot member={m} />
                       <span className="flex-1 text-sm text-[#0a0a0a] dark:text-[#f0ede5]">{m.name}</span>
                       {shares != null && (
-                        <span className="text-[10px] font-mono text-[#4a4940] dark:text-[#a09880] mr-2">
+                        <span className="text-xs font-medium text-[#4a4940] dark:text-[#a09880] mr-2">
                           {shares} share{shares !== 1 ? 's' : ''}
                         </span>
                       )}
                       {expense.splitType !== 'exact' && expense.splitType !== 'shares' && (
-                        <span className="text-[10px] font-mono text-[#4a4940] dark:text-[#a09880] mr-2">
+                        <span className="text-xs font-medium text-[#4a4940] dark:text-[#a09880] mr-2">
                           {pct.toFixed(1)}%
                         </span>
                       )}
@@ -223,7 +223,7 @@ export default function ExpenseDetailPage() {
           {/* Notes */}
           {expense.notes && (
             <div className="bg-white dark:bg-[#1e1e1a] rounded border-2 border-[#0a0a0a] dark:border-[#f0ede5] shadow-[3px_3px_0_#0a0a0a] dark:shadow-[3px_3px_0_#b9f542] p-4">
-              <p className="text-[10px] font-mono font-bold uppercase tracking-[0.12em] text-[#4a4940] dark:text-[#a09880] mb-2">Notes</p>
+              <p className="text-xs font-bold uppercase tracking-[0.1em] text-[#4a4940] dark:text-[#a09880] mb-2">Notes</p>
               <p className="text-[13px] text-[#0a0a0a] dark:text-[#f0ede5] whitespace-pre-wrap">{expense.notes}</p>
             </div>
           )}

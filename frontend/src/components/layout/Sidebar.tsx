@@ -78,7 +78,7 @@ export function Sidebar() {
         </div>
         <div className="flex flex-col gap-0.5">
           {groups.length === 0 && (
-            <p className="text-[11px] text-[#0a0a0a]/30 dark:text-[#f0ede5]/30 font-mono px-3 py-2 uppercase tracking-wider">No groups yet</p>
+            <p className="text-xs font-medium text-[#4a4940] dark:text-[#a09880] px-3 py-2">No groups yet</p>
           )}
           {groups.map((g) => <GroupLink key={g.id} group={g} />)}
         </div>

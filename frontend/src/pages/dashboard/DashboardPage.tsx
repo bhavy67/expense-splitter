@@ -47,14 +47,14 @@ function GroupCard({ group }: { group: Group }) {
               <h3 className="font-black uppercase tracking-[0.04em] text-[#0a0a0a] dark:text-[#f0ede5] truncate group-hover:text-[#b9f542] transition-colors">
                 {group.name}
               </h3>
-              <p className="text-[10px] font-mono text-[#4a4940] dark:text-[#a09880] mt-0.5 uppercase tracking-wider">
+              <p className="text-xs font-medium text-[#4a4940] dark:text-[#a09880] mt-0.5">
                 {group.members.length} member{group.members.length !== 1 ? 's' : ''}
                 {total > 0 && ` · ${formatCurrency(total, group.currency)} total`}
               </p>
             </div>
           </div>
           {expenses.length > 0 && (
-            <span className="shrink-0 text-[9px] font-mono font-medium bg-[#f0ede5] dark:bg-[#1a1a17] text-[#4a4940] dark:text-[#a09880] border border-[#0a0a0a] dark:border-[#f0ede5]/30 px-2 py-0.5 rounded uppercase tracking-wider whitespace-nowrap">
+            <span className="shrink-0 text-[10px] font-medium bg-[#f0ede5] dark:bg-[#1a1a17] text-[#4a4940] dark:text-[#c8bfb0] border border-[#0a0a0a] dark:border-[#f0ede5]/30 px-2 py-0.5 rounded uppercase tracking-wider whitespace-nowrap">
               {expenses.length} expense{expenses.length !== 1 ? 's' : ''}
             </span>
           )}
@@ -65,7 +65,7 @@ function GroupCard({ group }: { group: Group }) {
           {group.members.slice(0, 6).map((m) => (
             <div
               key={m.id}
-              className="w-5 h-5 rounded-full flex items-center justify-center text-white text-[9px] font-bold ring-1 ring-white dark:ring-[#1e1e1a]"
+              className="w-5 h-5 rounded-full flex items-center justify-center text-white text-[10px] font-bold ring-1 ring-white dark:ring-[#1e1e1a]"
               style={{ background: m.color }}
               title={m.name}
             >
@@ -73,7 +73,7 @@ function GroupCard({ group }: { group: Group }) {
             </div>
           ))}
           {group.members.length > 6 && (
-            <span className="text-[10px] font-mono text-[#4a4940] dark:text-[#a09880] ml-1">+{group.members.length - 6}</span>
+            <span className="text-xs font-medium text-[#4a4940] dark:text-[#a09880] ml-1">+{group.members.length - 6}</span>
           )}
         </div>
       </Link>
@@ -110,7 +110,7 @@ export default function DashboardPage() {
           <div className="flex items-center justify-between mb-6">
             <div>
               <h1 className="text-xl font-black uppercase tracking-[0.04em] text-[#0a0a0a] dark:text-[#f0ede5]">My Groups</h1>
-              <p className="text-[11px] font-mono text-[#4a4940] dark:text-[#a09880] mt-0.5 uppercase tracking-wider">
+              <p className="text-xs font-medium text-[#4a4940] dark:text-[#a09880] mt-0.5">
                 {groups.length === 0
                   ? 'Create a group to start splitting instantly'
                   : `${groups.length} group${groups.length !== 1 ? 's' : ''}`}
