@@ -12,7 +12,7 @@ const ExpenseDetailPage = lazy(() => import('@/pages/expenses/ExpenseDetailPage'
 
 function PageLoader() {
   return (
-    <div className="flex items-center justify-center min-h-screen bg-[#fafaf7] dark:bg-[#0d0d0d]">
+    <div className="flex items-center justify-center min-h-[100dvh] bg-[#fafaf7] dark:bg-[#0d0d0d]">
       <div className="w-6 h-6 border-2 border-[#b9f542] border-t-transparent rounded-full animate-spin" />
     </div>
   )

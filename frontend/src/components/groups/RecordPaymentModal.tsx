@@ -97,7 +97,7 @@ export function RecordPaymentModal({
           </div>
 
           {/* From → To */}
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3">
             <div className="flex-1">
               <p className="text-[10px] font-mono font-bold uppercase tracking-[0.12em] text-[#4a4940] dark:text-[#a09880] mb-1.5">From (payer)</p>
               <div className="relative">
@@ -132,9 +132,12 @@ export function RecordPaymentModal({
               </div>
             </div>
 
-            <div className="flex flex-col items-center gap-1 pt-5 shrink-0">
+            <div className="flex sm:flex-col items-center justify-center gap-1 sm:pt-5 shrink-0">
               <div className="w-8 h-8 rounded bg-[#f0ede5] dark:bg-[#1a1a17] border-2 border-[#0a0a0a] dark:border-[#f0ede5]/30 flex items-center justify-center">
-                <svg className="w-4 h-4 text-[#0a0a0a] dark:text-[#f0ede5]" viewBox="0 0 16 16" fill="none">
+                <svg className="w-4 h-4 text-[#0a0a0a] dark:text-[#f0ede5] sm:hidden" viewBox="0 0 16 16" fill="none">
+                  <path d="M8 3v10M4 9l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                <svg className="w-4 h-4 text-[#0a0a0a] dark:text-[#f0ede5] hidden sm:block" viewBox="0 0 16 16" fill="none">
                   <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </div>

@@ -56,7 +56,7 @@ export function Sidebar() {
   const { theme, toggle } = useThemeStore()
 
   return (
-    <aside className="hidden md:flex flex-col w-60 shrink-0 h-screen sticky top-0 border-r-2 border-[#0a0a0a] dark:border-[#b9f542] bg-[#fafaf7] dark:bg-[#0d0d0d] px-3 py-4">
+    <aside className="hidden md:flex flex-col w-60 shrink-0 h-[100dvh] sticky top-0 border-r-2 border-[#0a0a0a] dark:border-[#b9f542] bg-[#fafaf7] dark:bg-[#0d0d0d] px-3 py-4">
       <Link to="/" className="px-2 mb-6">
         <Logo size={26} />
       </Link>
