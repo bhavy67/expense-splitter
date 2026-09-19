@@ -246,7 +246,7 @@ export default function AddExpensePage() {
 
     if (splitType === 'percentage') {
       if (amt <= 0) { toast.error('Enter an amount'); return null }
-      if (Math.abs(pctTotal - 100) > 0.5) { toast.error(`Percentages must total 100% (currently ${pctTotal.toFixed(1)}%)`); return null }
+      if (Math.abs(pctTotal - 100) > 0.01) { toast.error(`Percentages must total 100% (currently ${pctTotal.toFixed(1)}%)`); return null }
       const splits = group!.members
         .filter(m => (pctVals[m.id] ?? 0) > 0)
         .map(m => ({
@@ -332,7 +332,7 @@ export default function AddExpensePage() {
       <TopBar title={existing ? 'Edit Expense' : 'Add Expense'} showBack />
 
       <PageTransition>
-        <form onSubmit={handleSubmit} className="max-w-2xl mx-auto px-4 py-6 pb-28 flex flex-col gap-5">
+        <form id="add-expense-form" onSubmit={handleSubmit} className="max-w-2xl mx-auto px-4 py-6 pb-28 flex flex-col gap-5">
 
           {/* ── Templates strip ──────────────────────────────────────────── */}
           {templates.length > 0 && !existing && (
@@ -649,9 +649,9 @@ export default function AddExpensePage() {
                       </div>
                     )
                   })}
-                  <div className={cn('flex items-center justify-end gap-2 px-4 py-2 border-t border-[#0a0a0a]/10 dark:border-[#f0ede5]/10 text-[11px] font-mono font-bold', Math.abs(pctTotal - 100) < 0.5 ? 'text-[#b9f542]' : 'text-[#ff5c3d]')}>
+                  <div className={cn('flex items-center justify-end gap-2 px-4 py-2 border-t border-[#0a0a0a]/10 dark:border-[#f0ede5]/10 text-[11px] font-mono font-bold', Math.abs(pctTotal - 100) < 0.01 ? 'text-[#b9f542]' : 'text-[#ff5c3d]')}>
                     <span>{pctTotal.toFixed(1)}% of 100%</span>
-                    {Math.abs(pctTotal - 100) < 0.5 && <svg className="w-4 h-4" viewBox="0 0 16 16" fill="none"><path d="M3 8l4 4 6-7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                    {Math.abs(pctTotal - 100) < 0.01 && <svg className="w-4 h-4" viewBox="0 0 16 16" fill="none"><path d="M3 8l4 4 6-7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>}
                   </div>
                 </div>
               )}
@@ -870,9 +870,8 @@ export default function AddExpensePage() {
           </Button>
           <Button
             type="submit"
+            form="add-expense-form"
             className="flex-1"
-            form={undefined}
-            onClick={handleSubmit as unknown as React.MouseEventHandler<HTMLButtonElement>}
           >
             {existing ? 'Save changes' : 'Add expense'}
           </Button>

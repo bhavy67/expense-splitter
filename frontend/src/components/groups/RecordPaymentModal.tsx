@@ -105,13 +105,16 @@ export function RecordPaymentModal({
                     key={m.id}
                     type="button"
                     onClick={() => setFromId(m.id)}
+                    disabled={m.id === toId}
                     className={cn(
                       'flex items-center gap-2 px-2.5 py-1.5 rounded transition-all text-left',
-                      fromId === m.id
-                        ? 'border-2 border-[#0a0a0a] shadow-[2px_2px_0_#0a0a0a] text-white text-[12px] font-medium'
-                        : 'border-2 border-[#0a0a0a]/20 dark:border-[#f0ede5]/20 text-[12px] font-medium text-[#0a0a0a] dark:text-[#f0ede5] hover:border-[#0a0a0a] dark:hover:border-[#f0ede5]'
+                      m.id === toId
+                        ? 'border-2 border-[#0a0a0a]/10 dark:border-[#f0ede5]/10 text-[12px] font-medium text-[#4a4940]/40 dark:text-[#a09880]/40 cursor-not-allowed'
+                        : fromId === m.id
+                          ? 'border-2 border-[#0a0a0a] shadow-[2px_2px_0_#0a0a0a] text-white text-[12px] font-medium'
+                          : 'border-2 border-[#0a0a0a]/20 dark:border-[#f0ede5]/20 text-[12px] font-medium text-[#0a0a0a] dark:text-[#f0ede5] hover:border-[#0a0a0a] dark:hover:border-[#f0ede5]'
                     )}
-                    style={fromId === m.id ? { background: m.color } : undefined}
+                    style={fromId === m.id && m.id !== toId ? { background: m.color } : undefined}
                   >
                     <div
                       className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold text-white shrink-0"
@@ -146,13 +149,16 @@ export function RecordPaymentModal({
                     key={m.id}
                     type="button"
                     onClick={() => setToId(m.id)}
+                    disabled={m.id === fromId}
                     className={cn(
                       'flex items-center gap-2 px-2.5 py-1.5 rounded transition-all text-left',
-                      toId === m.id
-                        ? 'border-2 border-[#0a0a0a] shadow-[2px_2px_0_#0a0a0a] text-white text-[12px] font-medium'
-                        : 'border-2 border-[#0a0a0a]/20 dark:border-[#f0ede5]/20 text-[12px] font-medium text-[#0a0a0a] dark:text-[#f0ede5] hover:border-[#0a0a0a] dark:hover:border-[#f0ede5]'
+                      m.id === fromId
+                        ? 'border-2 border-[#0a0a0a]/10 dark:border-[#f0ede5]/10 text-[12px] font-medium text-[#4a4940]/40 dark:text-[#a09880]/40 cursor-not-allowed'
+                        : toId === m.id
+                          ? 'border-2 border-[#0a0a0a] shadow-[2px_2px_0_#0a0a0a] text-white text-[12px] font-medium'
+                          : 'border-2 border-[#0a0a0a]/20 dark:border-[#f0ede5]/20 text-[12px] font-medium text-[#0a0a0a] dark:text-[#f0ede5] hover:border-[#0a0a0a] dark:hover:border-[#f0ede5]'
                     )}
-                    style={toId === m.id ? { background: m.color } : undefined}
+                    style={toId === m.id && m.id !== fromId ? { background: m.color } : undefined}
                   >
                     <div
                       className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold text-white shrink-0"
