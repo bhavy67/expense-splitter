@@ -18,7 +18,7 @@ export function BottomNav() {
           end
           className={({ isActive }) =>
             cn(
-              'flex flex-col items-center gap-0.5 px-4 py-1 transition-colors',
+              'flex flex-col items-center gap-0.5 px-5 py-2 min-h-[44px] justify-center transition-colors',
               isActive
                 ? 'text-[#4d6e08] dark:text-[#b9f542]'
                 : 'text-[#4a4940]/50 dark:text-[#f0ede5]/40 hover:text-[#0a0a0a] dark:hover:text-[#f0ede5]'
@@ -26,7 +26,7 @@ export function BottomNav() {
           }
         >
           <LayoutDashboard className="w-5 h-5" />
-          <span className="text-[9px] font-bold uppercase tracking-[0.1em]">Home</span>
+          <span className="text-[10px] font-bold uppercase tracking-[0.1em]">Home</span>
         </NavLink>
 
         <button
@@ -38,10 +38,10 @@ export function BottomNav() {
 
         <button
           onClick={toggle}
-          className="flex flex-col items-center gap-0.5 px-4 py-1 text-[#4a4940]/50 dark:text-[#f0ede5]/40 hover:text-[#0a0a0a] dark:hover:text-[#f0ede5] transition-colors"
+          className="flex flex-col items-center gap-0.5 px-5 py-2 min-h-[44px] justify-center text-[#4a4940]/50 dark:text-[#f0ede5]/40 hover:text-[#0a0a0a] dark:hover:text-[#f0ede5] transition-colors"
         >
           {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-          <span className="text-[9px] font-bold uppercase tracking-[0.1em]">Theme</span>
+          <span className="text-[10px] font-bold uppercase tracking-[0.1em]">Theme</span>
         </button>
       </div>
     </nav>

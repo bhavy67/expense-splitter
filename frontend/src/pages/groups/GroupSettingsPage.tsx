@@ -73,7 +73,7 @@ function ColorPicker({ color, onChange }: { color: string; onChange: (c: string)
         title="Change color"
       />
       {open && (
-        <div className="absolute left-0 top-9 z-20 bg-white dark:bg-[#1e1e1a] border-2 border-[#0a0a0a] dark:border-[#f0ede5] rounded shadow-[3px_3px_0_#0a0a0a] dark:shadow-[3px_3px_0_#b9f542] p-2 grid grid-cols-5 gap-1.5">
+        <div className="absolute left-0 top-9 z-20 bg-white dark:bg-[#1e1e1a] border-2 border-[#0a0a0a] dark:border-[#f0ede5] rounded shadow-[3px_3px_0_#0a0a0a] dark:shadow-[3px_3px_0_#b9f542] p-2 grid grid-cols-5 gap-1.5 max-[400px]:left-auto max-[400px]:right-0">
           {MEMBER_COLORS.map((c) => (
             <button
               key={c}
@@ -372,14 +372,14 @@ export default function GroupSettingsPage() {
                       <div className="flex items-center gap-1 sm:opacity-0 sm:group-hover/row:opacity-100 transition-opacity">
                         <button
                           onClick={() => startEdit(m)}
-                          className="p-1.5 rounded text-[#4a4940] dark:text-[#a09880] hover:text-[#0a0a0a] dark:hover:text-[#f0ede5] hover:bg-[#f0ede5] dark:hover:bg-[#1a1a17] transition-colors"
+                          className="w-9 h-9 flex items-center justify-center rounded text-[#4a4940] dark:text-[#a09880] hover:text-[#0a0a0a] dark:hover:text-[#f0ede5] hover:bg-[#f0ede5] dark:hover:bg-[#1a1a17] transition-colors"
                           title="Rename"
                         >
                           <Pencil className="w-3.5 h-3.5" />
                         </button>
                         <button
                           onClick={() => removeMember(m.id)}
-                          className="p-1.5 rounded text-[#4a4940] dark:text-[#a09880] hover:text-[#ff5c3d] hover:bg-[#ff5c3d]/10 transition-colors"
+                          className="w-9 h-9 flex items-center justify-center rounded text-[#4a4940] dark:text-[#a09880] hover:text-[#ff5c3d] hover:bg-[#ff5c3d]/10 transition-colors"
                           title="Remove"
                         >
                           <Trash2 className="w-3.5 h-3.5" />

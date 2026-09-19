@@ -17,7 +17,7 @@ export function TopBar({ title, showBack, actions }: TopBarProps) {
       {showBack && (
         <button
           onClick={() => navigate(-1)}
-          className="p-1.5 rounded text-[#0a0a0a] dark:text-[#f0ede5] hover:bg-[#0a0a0a]/10 dark:hover:bg-white/10 transition-colors -ml-1"
+          className="w-10 h-10 flex items-center justify-center rounded text-[#0a0a0a] dark:text-[#f0ede5] hover:bg-[#0a0a0a]/10 dark:hover:bg-white/10 transition-colors -ml-2"
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
@@ -27,7 +27,7 @@ export function TopBar({ title, showBack, actions }: TopBarProps) {
         {actions && <div className="flex items-center gap-1.5">{actions}</div>}
         <button
           onClick={toggle}
-          className="p-1.5 rounded text-[#4a4940] dark:text-[#f0ede5]/60 hover:text-[#0a0a0a] dark:hover:text-[#b9f542] hover:bg-[#0a0a0a]/10 dark:hover:bg-white/10 transition-colors"
+          className="w-10 h-10 flex items-center justify-center rounded text-[#4a4940] dark:text-[#f0ede5]/60 hover:text-[#0a0a0a] dark:hover:text-[#b9f542] hover:bg-[#0a0a0a]/10 dark:hover:bg-white/10 transition-colors"
           aria-label="Toggle theme"
         >
           {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}

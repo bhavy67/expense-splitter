@@ -84,6 +84,7 @@ export function RecordPaymentModal({
             <div className="flex items-center justify-center gap-2">
               <input
                 type="number"
+                inputMode="decimal"
                 min="0.01"
                 step="0.01"
                 placeholder="0.00"
@@ -99,7 +100,8 @@ export function RecordPaymentModal({
           <div className="flex items-center gap-2">
             <div className="flex-1">
               <p className="text-[10px] font-mono font-bold uppercase tracking-[0.12em] text-[#4a4940] dark:text-[#a09880] mb-1.5">From (payer)</p>
-              <div className="flex flex-col gap-1 max-h-36 overflow-y-auto">
+              <div className="relative">
+              <div className="flex flex-col gap-1 max-h-40 overflow-y-auto">
                 {members.map((m) => (
                   <button
                     key={m.id}
@@ -126,6 +128,8 @@ export function RecordPaymentModal({
                   </button>
                 ))}
               </div>
+              {members.length > 4 && <div className="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-white dark:from-[#1e1e1a] to-transparent pointer-events-none rounded-b" />}
+              </div>
             </div>
 
             <div className="flex flex-col items-center gap-1 pt-5 shrink-0">
@@ -143,7 +147,8 @@ export function RecordPaymentModal({
 
             <div className="flex-1">
               <p className="text-[10px] font-mono font-bold uppercase tracking-[0.12em] text-[#4a4940] dark:text-[#a09880] mb-1.5">To (receiver)</p>
-              <div className="flex flex-col gap-1 max-h-36 overflow-y-auto">
+              <div className="relative">
+              <div className="flex flex-col gap-1 max-h-40 overflow-y-auto">
                 {members.map((m) => (
                   <button
                     key={m.id}
@@ -169,6 +174,8 @@ export function RecordPaymentModal({
                     <span className="truncate">{m.name}</span>
                   </button>
                 ))}
+              </div>
+              {members.length > 4 && <div className="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-white dark:from-[#1e1e1a] to-transparent pointer-events-none rounded-b" />}
               </div>
             </div>
           </div>

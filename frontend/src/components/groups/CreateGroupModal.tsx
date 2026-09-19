@@ -182,7 +182,7 @@ export function CreateGroupModal({ open, onClose }: Props) {
               Members
             </label>
             <p className="text-xs text-[#4a4940] dark:text-[#a09880] mb-3">No accounts needed — just add names</p>
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-2 max-h-52 overflow-y-auto">
               {members.map((m, i) => (
                 <div key={i} className="flex items-center gap-2">
                   <div

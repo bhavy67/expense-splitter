@@ -86,7 +86,7 @@ export function ToastProvider() {
   if (!toasts.length) return null
 
   return (
-    <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[9999] flex flex-col gap-2 items-center w-full max-w-sm px-4">
+    <div className="fixed top-0 left-1/2 -translate-x-1/2 z-[9999] flex flex-col gap-2 items-center w-full max-w-sm px-4" style={{ paddingTop: 'max(1rem, env(safe-area-inset-top))' }}>
       {toasts.map((t) => (
         <ToastItem key={t.id} toast={t} onRemove={() => remove(t.id)} />
       ))}

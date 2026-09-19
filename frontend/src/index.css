@@ -100,6 +100,27 @@ summary {
   to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
+/* Safe area utilities for notch / home indicator devices */
+@utility pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+@utility pt-safe {
+  padding-top: env(safe-area-inset-top);
+}
+@utility pb-nav-safe {
+  padding-bottom: calc(5rem + env(safe-area-inset-bottom));
+}
+
+/* Hide number input spinners globally */
+input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
 .avatar-animated {
   animation: avatar-pulse 3s ease-in-out infinite, avatar-float 4s ease-in-out infinite;
 }
