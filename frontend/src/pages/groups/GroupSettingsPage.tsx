@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { ArrowLeft, Trash2, Plus, Check, X, Pencil, Download } from 'lucide-react'
+import { ArrowLeft, Trash2, Plus, Check, X, Pencil, Download, AtSign } from 'lucide-react'
 import { AppShell } from '@/components/layout/AppShell'
 import { TopBar } from '@/components/layout/TopBar'
 import { Button } from '@/components/common/Button'
@@ -9,6 +9,7 @@ import { PageTransition } from '@/components/common/PageTransition'
 import { useGroup } from '@/hooks/useStore'
 import { saveGroup, deleteGroup, generateId, exportGroupData } from '@/lib/storage'
 import { toast } from '@/components/common/Toast'
+import { isValidUpiId } from '@/lib/upi'
 import { cn } from '@/lib/utils'
 import type { GroupType, Member } from '@/types'
 
@@ -108,10 +109,13 @@ export default function GroupSettingsPage() {
   const [members, setMembers] = useState<Member[]>(group?.members ?? [])
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editingName, setEditingName] = useState('')
+  const [editingUpiId, setEditingUpiId] = useState<string | null>(null)
+  const [editingUpiValue, setEditingUpiValue] = useState('')
   const [showAddInput, setShowAddInput] = useState(false)
   const [newMemberName, setNewMemberName] = useState('')
   const addInputRef = useRef<HTMLInputElement>(null)
   const editInputRef = useRef<HTMLInputElement>(null)
+  const upiInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     if (group) {
@@ -130,6 +134,10 @@ export default function GroupSettingsPage() {
   useEffect(() => {
     if (editingId) editInputRef.current?.focus()
   }, [editingId])
+
+  useEffect(() => {
+    if (editingUpiId) upiInputRef.current?.focus()
+  }, [editingUpiId])
 
   if (!group) {
     return (
@@ -177,6 +185,43 @@ export default function GroupSettingsPage() {
 
   function cancelEdit() {
     setEditingId(null)
+  }
+
+  // ── UPI ID (independent from name editing) ───────────────────────────────
+
+  function startUpiEdit(m: Member) {
+    setEditingUpiId(m.id)
+    setEditingUpiValue(m.upiId ?? '')
+  }
+
+  function commitUpiEdit() {
+    const trimmed = editingUpiValue.trim()
+    if (!trimmed) { setEditingUpiId(null); return }
+
+    if (!isValidUpiId(trimmed)) {
+      toast.error('Invalid UPI ID — try name@upi or 9876543210@ybl')
+      return
+    }
+
+    const dupe = members.find((m) => m.id !== editingUpiId && m.upiId === trimmed)
+    if (dupe) toast.info(`This UPI ID is already saved for ${dupe.name}`)
+
+    const member = members.find((m) => m.id === editingUpiId)
+    const isUpdate = !!member?.upiId
+
+    persistMembers(members.map((m) => m.id === editingUpiId ? { ...m, upiId: trimmed } : m))
+    toast.success(isUpdate ? `UPI ID updated for ${member!.name}` : `UPI ID saved for ${member!.name}`)
+    setEditingUpiId(null)
+  }
+
+  function cancelUpiEdit() {
+    setEditingUpiId(null)
+    setEditingUpiValue('')
+  }
+
+  function clearUpi(m: Member) {
+    persistMembers(members.map((mb) => mb.id === m.id ? { ...mb, upiId: undefined } : mb))
+    toast.info(`UPI ID removed for ${m.name}`)
   }
 
   function changeColor(memberId: string, color: string) {
@@ -346,46 +391,107 @@ export default function GroupSettingsPage() {
               {members.map((m) => (
                 <div
                   key={m.id}
-                  className="flex items-center gap-3 py-2 px-1 rounded hover:bg-[#f0ede5] dark:hover:bg-[#1a1a17] group/row transition-colors"
+                  className="flex items-start gap-3 py-2 px-1 rounded hover:bg-[#f0ede5] dark:hover:bg-[#1a1a17] group/row transition-colors"
                 >
-                  <ColorPicker color={m.color} onChange={(c) => changeColor(m.id, c)} />
+                  {/* Color dot — stays top-aligned */}
+                  <div className="pt-1 shrink-0">
+                    <ColorPicker color={m.color} onChange={(c) => changeColor(m.id, c)} />
+                  </div>
 
-                  {editingId === m.id ? (
-                    <div className="flex items-center gap-2 flex-1 min-w-0">
-                      <input
-                        ref={editInputRef}
-                        value={editingName}
-                        onChange={(e) => setEditingName(e.target.value)}
-                        onKeyDown={(e) => { if (e.key === 'Enter') commitEdit(); if (e.key === 'Escape') cancelEdit() }}
-                        className="flex-1 h-8 px-2.5 rounded border-2 border-[#b9f542] bg-white dark:bg-[#1e1e1a] text-[13px] text-[#0a0a0a] dark:text-[#f0ede5] focus:outline-none shadow-[2px_2px_0_#b9f542]"
-                      />
-                      <button onClick={commitEdit} className="p-1 rounded text-[#4d6e08] dark:text-[#b9f542] hover:bg-[#f0ede5] dark:hover:bg-[#1a1a17] transition-colors">
-                        <Check className="w-4 h-4" />
-                      </button>
-                      <button onClick={cancelEdit} className="p-1 rounded text-[#4a4940] dark:text-[#a09880] hover:bg-[#f0ede5] dark:hover:bg-[#1a1a17] transition-colors">
-                        <X className="w-4 h-4" />
-                      </button>
-                    </div>
-                  ) : (
-                    <>
-                      <span className="flex-1 text-[13px] font-medium text-[#0a0a0a] dark:text-[#f0ede5] truncate">{m.name}</span>
-                      <div className="flex items-center gap-1 sm:opacity-0 sm:group-hover/row:opacity-100 transition-opacity">
-                        <button
-                          onClick={() => startEdit(m)}
-                          className="w-9 h-9 flex items-center justify-center rounded text-[#4a4940] dark:text-[#a09880] hover:text-[#0a0a0a] dark:hover:text-[#f0ede5] hover:bg-[#f0ede5] dark:hover:bg-[#1a1a17] transition-colors"
-                          title="Rename"
-                        >
-                          <Pencil className="w-3.5 h-3.5" />
+                  {/* Content column: name row + independent UPI row */}
+                  <div className="flex-1 min-w-0">
+                    {/* ── Name row ── */}
+                    {editingId === m.id ? (
+                      <div className="flex items-center gap-2">
+                        <input
+                          ref={editInputRef}
+                          value={editingName}
+                          onChange={(e) => setEditingName(e.target.value)}
+                          onKeyDown={(e) => { if (e.key === 'Enter') commitEdit(); if (e.key === 'Escape') cancelEdit() }}
+                          className="flex-1 h-8 px-2.5 rounded border-2 border-[#b9f542] bg-white dark:bg-[#1e1e1a] text-[13px] text-[#0a0a0a] dark:text-[#f0ede5] focus:outline-none shadow-[2px_2px_0_#b9f542]"
+                        />
+                        <button onMouseDown={(e) => e.preventDefault()} onClick={commitEdit} className="p-1 rounded text-[#4d6e08] dark:text-[#b9f542] hover:bg-[#f0ede5] dark:hover:bg-[#1a1a17] transition-colors">
+                          <Check className="w-4 h-4" />
                         </button>
-                        <button
-                          onClick={() => removeMember(m.id)}
-                          className="w-9 h-9 flex items-center justify-center rounded text-[#4a4940] dark:text-[#a09880] hover:text-[#ff5c3d] hover:bg-[#ff5c3d]/10 transition-colors"
-                          title="Remove"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
+                        <button onMouseDown={(e) => e.preventDefault()} onClick={cancelEdit} className="p-1 rounded text-[#4a4940] dark:text-[#a09880] hover:bg-[#f0ede5] dark:hover:bg-[#1a1a17] transition-colors">
+                          <X className="w-4 h-4" />
                         </button>
                       </div>
-                    </>
+                    ) : (
+                      <span className="block text-[13px] font-medium text-[#0a0a0a] dark:text-[#f0ede5] truncate leading-6">{m.name}</span>
+                    )}
+
+                    {/* ── UPI row (always independent) ── */}
+                    {editingId !== m.id && (
+                      <div className="mt-0.5 flex items-center">
+                        {editingUpiId === m.id ? (
+                          <div className="flex items-center gap-1.5 flex-1 min-w-0">
+                            <AtSign className="w-3 h-3 text-[#88bc20] dark:text-[#b9f542] shrink-0" />
+                            <input
+                              ref={upiInputRef}
+                              value={editingUpiValue}
+                              onChange={(e) => setEditingUpiValue(e.target.value)}
+                              onKeyDown={(e) => { if (e.key === 'Enter') commitUpiEdit(); if (e.key === 'Escape') cancelUpiEdit() }}
+                              onBlur={cancelUpiEdit}
+                              placeholder="e.g. name@upi or 9876543210@ybl"
+                              className="flex-1 h-6 px-2 rounded border-2 border-[#b9f542] bg-white dark:bg-[#1e1e1a] text-[11px] font-mono text-[#0a0a0a] dark:text-[#f0ede5] placeholder:text-[#4a4940]/40 dark:placeholder:text-[#a09880]/40 focus:outline-none shadow-[1px_1px_0_#b9f542]"
+                            />
+                            <button onMouseDown={(e) => e.preventDefault()} onClick={commitUpiEdit} className="p-0.5 rounded text-[#4d6e08] dark:text-[#b9f542] hover:bg-[#f0ede5] dark:hover:bg-[#1a1a17] transition-colors shrink-0">
+                              <Check className="w-3.5 h-3.5" />
+                            </button>
+                            <button onMouseDown={(e) => e.preventDefault()} onClick={cancelUpiEdit} className="p-0.5 rounded text-[#4a4940] dark:text-[#a09880] hover:bg-[#f0ede5] dark:hover:bg-[#1a1a17] transition-colors shrink-0">
+                              <X className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        ) : m.upiId ? (
+                          <div className="flex items-center gap-1">
+                            <button
+                              onClick={() => startUpiEdit(m)}
+                              className="flex items-center gap-1 text-[10px] font-mono text-[#88bc20] dark:text-[#b9f542] hover:underline underline-offset-2 transition-colors max-w-[180px]"
+                              title="Edit UPI ID"
+                            >
+                              <AtSign className="w-2.5 h-2.5 shrink-0" />
+                              <span className="truncate">{m.upiId}</span>
+                            </button>
+                            <button
+                              onClick={() => clearUpi(m)}
+                              className="p-0.5 rounded text-[#4a4940]/40 dark:text-[#a09880]/40 hover:text-[#ff5c3d] transition-colors"
+                              title="Remove UPI ID"
+                            >
+                              <X className="w-2.5 h-2.5" />
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => startUpiEdit(m)}
+                            className="flex items-center gap-1 text-[10px] font-mono text-[#4a4940]/50 dark:text-[#a09880]/50 hover:text-[#88bc20] dark:hover:text-[#b9f542] transition-colors"
+                          >
+                            <Plus className="w-2.5 h-2.5" />
+                            Add UPI ID
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Pencil + Trash — hidden during either edit mode */}
+                  {editingId !== m.id && editingUpiId !== m.id && (
+                    <div className="flex items-center gap-1 sm:opacity-0 sm:group-hover/row:opacity-100 transition-opacity pt-0.5">
+                      <button
+                        onClick={() => startEdit(m)}
+                        className="w-8 h-8 flex items-center justify-center rounded text-[#4a4940] dark:text-[#a09880] hover:text-[#0a0a0a] dark:hover:text-[#f0ede5] hover:bg-[#f0ede5] dark:hover:bg-[#1a1a17] transition-colors"
+                        title="Rename"
+                      >
+                        <Pencil className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        onClick={() => removeMember(m.id)}
+                        className="w-8 h-8 flex items-center justify-center rounded text-[#4a4940] dark:text-[#a09880] hover:text-[#ff5c3d] hover:bg-[#ff5c3d]/10 transition-colors"
+                        title="Remove"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   )}
                 </div>
               ))}
