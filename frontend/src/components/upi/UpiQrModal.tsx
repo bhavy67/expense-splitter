@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useRef, useEffect } from 'react'
 import { X, Copy, Download, Share2, Smartphone, AtSign, AlertTriangle, Lock, CheckCircle2 } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { QRCodeCanvas } from 'qrcode.react'
@@ -30,6 +30,12 @@ function WhatsAppIcon({ className }: { className?: string }) {
 
 export function UpiQrModal({ debt, group, members, onClose }: UpiQrModalProps) {
   const qrRef = useRef<HTMLCanvasElement>(null)
+
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) { if (e.key === 'Escape') onClose() }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [onClose])
 
   const fromMember = members.find((m) => m.id === debt.from)
   const toMember   = members.find((m) => m.id === debt.to)
@@ -240,6 +246,9 @@ export function UpiQrModal({ debt, group, members, onClose }: UpiQrModalProps) {
                     </p>
                     <p className="text-[11px] font-mono text-[#4a4940] dark:text-[#a09880] mt-1.5">
                       {fromMember.name} → {toMember.name}
+                    </p>
+                    <p className="text-[10px] font-mono text-[#4a4940]/50 dark:text-[#a09880]/50 mt-1">
+                      Open PhonePe, GPay or Paytm · Scan QR
                     </p>
                   </div>
                 </div>

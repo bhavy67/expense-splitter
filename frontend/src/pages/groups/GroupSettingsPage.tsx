@@ -387,6 +387,25 @@ export default function GroupSettingsPage() {
 
           {/* ── Members ────────────────────────────────────────────────────── */}
           <SectionCard title="Members">
+            {/* UPI completion indicator */}
+            {members.length > 0 && (() => {
+              const withUpi = members.filter((m) => m.upiId).length
+              if (withUpi === 0) return (
+                <p className="text-[10px] font-mono text-[#4a4940]/60 dark:text-[#a09880]/60 mb-3 -mt-1">
+                  No UPI IDs set — click a member's pencil icon to add
+                </p>
+              )
+              if (withUpi === members.length) return (
+                <p className="text-[10px] font-mono text-[#22c55e] mb-3 -mt-1">
+                  All {members.length} members have UPI IDs ✓
+                </p>
+              )
+              return (
+                <p className="text-[10px] font-mono text-[#88bc20] dark:text-[#b9f542] mb-3 -mt-1">
+                  {withUpi} of {members.length} members have UPI IDs
+                </p>
+              )
+            })()}
             <div className="flex flex-col gap-1">
               {members.map((m) => (
                 <div
