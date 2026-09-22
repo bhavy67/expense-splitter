@@ -8,6 +8,7 @@ export interface Member {
   id: string
   name: string
   color: string
+  upiId?: string
 }
 
 export interface Group {
