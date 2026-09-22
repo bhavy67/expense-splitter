@@ -392,7 +392,7 @@ export default function GroupSettingsPage() {
               const withUpi = members.filter((m) => m.upiId).length
               if (withUpi === 0) return (
                 <p className="text-[10px] font-mono text-[#4a4940]/60 dark:text-[#a09880]/60 mb-3 -mt-1">
-                  No UPI IDs set — click a member's pencil icon to add
+                  No UPI IDs set — tap "+ Add UPI ID" below a member's name
                 </p>
               )
               if (withUpi === members.length) return (
