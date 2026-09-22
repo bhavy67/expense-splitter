@@ -1,11 +1,11 @@
 import { useState, lazy, Suspense } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { Settings, Plus, Users, Receipt, Scale, UserPlus, BarChart2 } from 'lucide-react'
+import { Settings, Plus, Users, Receipt, Scale, UserPlus, BarChart2, Search, SlidersHorizontal, X } from 'lucide-react'
 import { AppShell } from '@/components/layout/AppShell'
 import { TopBar } from '@/components/layout/TopBar'
 import { Button } from '@/components/common/Button'
 import { PageTransition } from '@/components/common/PageTransition'
-import { ExpenseCard } from '@/components/expenses/ExpenseCard'
+import { ExpenseCard, CATEGORY_EMOJIS } from '@/components/expenses/ExpenseCard'
 import { BalancesTab } from '@/components/groups/BalancesTab'
 import { useGroup, useExpenses, usePayments } from '@/hooks/useStore'
 
@@ -13,6 +13,13 @@ const AnalyticsTab = lazy(() => import('@/components/groups/AnalyticsTab'))
 import { formatCurrency } from '@/lib/currency'
 import { getTotalExpenses } from '@/lib/calculations'
 import { cn } from '@/lib/utils'
+import type { ExpenseCategory } from '@/types'
+
+const CATEGORY_LABELS: Record<string, string> = {
+  food: 'Food', travel: 'Travel', accommodation: 'Stay',
+  utilities: 'Bills', entertainment: 'Fun', shopping: 'Shopping',
+  medical: 'Medical', other: 'Other',
+}
 
 type Tab = 'expenses' | 'balances' | 'stats'
 
@@ -23,6 +30,10 @@ export default function GroupPage() {
   const expenses = useExpenses(groupId!)
   const payments = usePayments(groupId!)
   const [tab, setTab] = useState<Tab>('expenses')
+  const [searchQuery, setSearchQuery] = useState('')
+  const [filterCategory, setFilterCategory] = useState<ExpenseCategory | null>(null)
+  const [filterPaidBy, setFilterPaidBy] = useState<string | null>(null)
+  const [showFilters, setShowFilters] = useState(false)
 
   if (!group) {
     return (
@@ -35,6 +46,17 @@ export default function GroupPage() {
   }
 
   const total = getTotalExpenses(expenses)
+
+  const activeFilterCount = [filterCategory, filterPaidBy].filter(Boolean).length
+  const filteredExpenses = expenses.filter(e => {
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase()
+      if (!e.title.toLowerCase().includes(q) && !e.notes?.toLowerCase().includes(q)) return false
+    }
+    if (filterCategory && e.category !== filterCategory) return false
+    if (filterPaidBy && e.paidBy !== filterPaidBy) return false
+    return true
+  })
 
   return (
     <AppShell>
@@ -163,17 +185,153 @@ export default function GroupPage() {
                 </Button>
               </div>
             ) : (
-              <div className="flex flex-col gap-2">
-                {expenses.map((expense) => (
-                  <ExpenseCard
-                    key={expense.id}
-                    expense={expense}
-                    members={group.members}
-                    groupId={groupId!}
-                    groupCurrency={group.currency}
-                  />
-                ))}
-              </div>
+              <>
+                {/* Search + Filter bar */}
+                <div className="flex gap-2 mb-3">
+                  <div className="flex-1 flex items-center gap-2 h-9 px-3 rounded border-2 border-[#0a0a0a] dark:border-[#f0ede5]/50 bg-white dark:bg-[#1e1e1a]">
+                    <Search className="w-3.5 h-3.5 text-[#4a4940] dark:text-[#a09880] shrink-0" />
+                    <input
+                      value={searchQuery}
+                      onChange={e => setSearchQuery(e.target.value)}
+                      placeholder="Search expenses…"
+                      className="flex-1 text-[12px] font-medium bg-transparent text-[#0a0a0a] dark:text-[#f0ede5] placeholder:text-[#4a4940]/40 dark:placeholder:text-[#a09880]/40 focus:outline-none"
+                    />
+                    {searchQuery && (
+                      <button onClick={() => setSearchQuery('')} className="shrink-0 text-[#4a4940] dark:text-[#a09880] hover:text-[#0a0a0a] dark:hover:text-[#f0ede5] transition-colors">
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => setShowFilters(v => !v)}
+                    className={cn(
+                      'flex items-center gap-1.5 h-9 px-3 rounded border-2 text-[11px] font-mono font-bold uppercase tracking-wider transition-all shrink-0',
+                      showFilters || activeFilterCount > 0
+                        ? 'border-[#0a0a0a] bg-[#b9f542] text-[#0a0a0a] shadow-[2px_2px_0_#0a0a0a] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none'
+                        : 'border-[#0a0a0a] dark:border-[#f0ede5]/50 text-[#4a4940] dark:text-[#a09880] bg-white dark:bg-[#1e1e1a] hover:border-[#0a0a0a] dark:hover:border-[#f0ede5]'
+                    )}
+                  >
+                    <SlidersHorizontal className="w-3.5 h-3.5" />
+                    Filter{activeFilterCount > 0 && <span>({activeFilterCount})</span>}
+                  </button>
+                </div>
+
+                {/* Filter panel */}
+                {showFilters && (
+                  <div className="bg-white dark:bg-[#1e1e1a] rounded border-2 border-[#0a0a0a] dark:border-[#f0ede5] p-3 mb-3 flex flex-col gap-3">
+                    {/* Category */}
+                    <div>
+                      <p className="text-[9px] font-mono font-bold uppercase tracking-[0.12em] text-[#4a4940] dark:text-[#a09880] mb-2">Category</p>
+                      <div className="flex gap-1.5 flex-wrap">
+                        <button
+                          onClick={() => setFilterCategory(null)}
+                          className={cn(
+                            'px-2.5 py-1 rounded border-2 text-[10px] font-mono font-bold uppercase tracking-wider transition-all',
+                            !filterCategory
+                              ? 'border-[#0a0a0a] bg-[#0a0a0a] text-[#f0ede5]'
+                              : 'border-[#0a0a0a]/20 dark:border-[#f0ede5]/20 text-[#4a4940] dark:text-[#a09880] hover:border-[#0a0a0a] dark:hover:border-[#f0ede5]'
+                          )}
+                        >
+                          All
+                        </button>
+                        {(Object.keys(CATEGORY_EMOJIS) as ExpenseCategory[]).map(cat => (
+                          <button
+                            key={cat}
+                            onClick={() => setFilterCategory(filterCategory === cat ? null : cat)}
+                            className={cn(
+                              'flex items-center gap-1 px-2.5 py-1 rounded border-2 text-[10px] font-mono font-bold uppercase tracking-wider transition-all',
+                              filterCategory === cat
+                                ? 'border-[#0a0a0a] bg-[#b9f542] text-[#0a0a0a] shadow-[1px_1px_0_#0a0a0a]'
+                                : 'border-[#0a0a0a]/20 dark:border-[#f0ede5]/20 text-[#4a4940] dark:text-[#a09880] hover:border-[#0a0a0a] dark:hover:border-[#f0ede5]'
+                            )}
+                          >
+                            <span>{CATEGORY_EMOJIS[cat]}</span>
+                            <span>{CATEGORY_LABELS[cat]}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Paid by */}
+                    <div>
+                      <p className="text-[9px] font-mono font-bold uppercase tracking-[0.12em] text-[#4a4940] dark:text-[#a09880] mb-2">Paid by</p>
+                      <div className="flex gap-1.5 flex-wrap">
+                        <button
+                          onClick={() => setFilterPaidBy(null)}
+                          className={cn(
+                            'px-2.5 py-1 rounded border-2 text-[10px] font-mono font-bold uppercase tracking-wider transition-all',
+                            !filterPaidBy
+                              ? 'border-[#0a0a0a] bg-[#0a0a0a] text-[#f0ede5]'
+                              : 'border-[#0a0a0a]/20 dark:border-[#f0ede5]/20 text-[#4a4940] dark:text-[#a09880] hover:border-[#0a0a0a] dark:hover:border-[#f0ede5]'
+                          )}
+                        >
+                          Anyone
+                        </button>
+                        {group.members.map(m => (
+                          <button
+                            key={m.id}
+                            onClick={() => setFilterPaidBy(filterPaidBy === m.id ? null : m.id)}
+                            className={cn(
+                              'flex items-center gap-1.5 px-2.5 py-1 rounded border-2 text-[10px] font-mono font-bold uppercase tracking-wider transition-all',
+                              filterPaidBy === m.id
+                                ? 'border-[#0a0a0a] text-[#0a0a0a] shadow-[1px_1px_0_#0a0a0a]'
+                                : 'border-[#0a0a0a]/20 dark:border-[#f0ede5]/20 text-[#4a4940] dark:text-[#a09880] hover:border-[#0a0a0a] dark:hover:border-[#f0ede5]'
+                            )}
+                            style={filterPaidBy === m.id ? { background: m.color } : undefined}
+                          >
+                            <div className="w-3 h-3 rounded-full shrink-0" style={{ background: filterPaidBy === m.id ? 'rgba(255,255,255,0.3)' : m.color }} />
+                            {m.name}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Clear all */}
+                    {activeFilterCount > 0 && (
+                      <button
+                        onClick={() => { setFilterCategory(null); setFilterPaidBy(null) }}
+                        className="self-start flex items-center gap-1 text-[10px] font-mono font-bold uppercase tracking-wider text-[#ff5c3d] hover:underline underline-offset-2 transition-colors"
+                      >
+                        <X className="w-3 h-3" />
+                        Clear all filters
+                      </button>
+                    )}
+                  </div>
+                )}
+
+                {/* Results */}
+                {filteredExpenses.length === 0 ? (
+                  <div className="bg-white dark:bg-[#1e1e1a] rounded border-2 border-[#0a0a0a] dark:border-[#f0ede5] p-8 text-center">
+                    <p className="text-sm font-mono font-bold text-[#0a0a0a] dark:text-[#f0ede5] uppercase tracking-[0.06em] mb-1">No results</p>
+                    <p className="text-sm text-[#4a4940] dark:text-[#c8bfb0] mb-3">Try adjusting your search or filters</p>
+                    <button
+                      onClick={() => { setSearchQuery(''); setFilterCategory(null); setFilterPaidBy(null) }}
+                      className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#88bc20] hover:underline underline-offset-2"
+                    >
+                      Clear all
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    {(searchQuery || activeFilterCount > 0) && (
+                      <p className="text-[10px] font-mono text-[#4a4940] dark:text-[#a09880] mb-2">
+                        {filteredExpenses.length} of {expenses.length} expense{expenses.length !== 1 ? 's' : ''}
+                      </p>
+                    )}
+                    <div className="flex flex-col gap-2">
+                      {filteredExpenses.map(expense => (
+                        <ExpenseCard
+                          key={expense.id}
+                          expense={expense}
+                          members={group.members}
+                          groupId={groupId!}
+                          groupCurrency={group.currency}
+                        />
+                      ))}
+                    </div>
+                  </>
+                )}
+              </>
             )
           )}
 
