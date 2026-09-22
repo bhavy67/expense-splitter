@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { Camera } from 'lucide-react'
 import { formatCurrency } from '@/lib/currency'
 import type { Expense, Member } from '@/types'
 
@@ -49,6 +50,12 @@ export function ExpenseCard({ expense, members, groupId, groupCurrency }: Props)
             </>
           )}
           <span className="text-xs font-medium text-[#4a4940] dark:text-[#c8bfb0]">{fmtDate(expense.date)}</span>
+          {expense.receiptImage && (
+            <>
+              <span className="text-[#a09880] dark:text-[#606060]">·</span>
+              <Camera className="w-2.5 h-2.5 text-[#4a4940] dark:text-[#a09880]" />
+            </>
+          )}
         </div>
       </div>
 
@@ -59,6 +66,10 @@ export function ExpenseCard({ expense, members, groupId, groupCurrency }: Props)
         {isForeignCurrency && expense.exchangeRate ? (
           <p className="text-[10px] font-mono font-medium text-[#4a4940] dark:text-[#a09880] mt-0.5 uppercase tracking-wider">
             {(expense.amount / expense.exchangeRate).toFixed(2)} {expense.currency}
+          </p>
+        ) : expense.splitType === 'itemized' && expense.items?.length ? (
+          <p className="text-[10px] font-mono font-medium text-[#4a4940] dark:text-[#a09880] mt-0.5 uppercase tracking-wider">
+            {expense.items.length} item{expense.items.length !== 1 ? 's' : ''}
           </p>
         ) : (
           <p className="text-[10px] font-mono font-medium text-[#4a4940] dark:text-[#a09880] mt-0.5 uppercase tracking-wider">

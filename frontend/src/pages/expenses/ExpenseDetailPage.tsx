@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { Edit2, Trash2, ChevronDown, ChevronUp } from 'lucide-react'
+import { Edit2, Trash2, ChevronDown, ChevronUp, X } from 'lucide-react'
 import { AppShell } from '@/components/layout/AppShell'
 import { TopBar } from '@/components/layout/TopBar'
 import { Button } from '@/components/common/Button'
@@ -43,6 +43,7 @@ export default function ExpenseDetailPage() {
   const navigate = useNavigate()
   const group = useGroup(groupId!)
   const [showReceipt, setShowReceipt] = useState(false)
+  const [receiptFullscreen, setReceiptFullscreen] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
 
   if (!group) {
@@ -239,11 +240,17 @@ export default function ExpenseDetailPage() {
                 {showReceipt ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
               </button>
               {showReceipt && (
-                <img
-                  src={expense.receiptImage}
-                  alt="Receipt"
-                  className="w-full object-contain max-h-96 border-t-2 border-[#0a0a0a]/10 dark:border-[#f0ede5]/10"
-                />
+                <div>
+                  <img
+                    src={expense.receiptImage}
+                    alt="Receipt"
+                    className="w-full object-contain max-h-96 border-t-2 border-[#0a0a0a]/10 dark:border-[#f0ede5]/10 cursor-zoom-in"
+                    onClick={() => setReceiptFullscreen(true)}
+                  />
+                  <p className="text-[9px] font-mono text-center text-[#4a4940]/50 dark:text-[#a09880]/50 py-1.5">
+                    Tap image to view full size
+                  </p>
+                </div>
               )}
             </div>
           )}
@@ -280,6 +287,25 @@ export default function ExpenseDetailPage() {
           onConfirm={handleDelete}
           onCancel={() => setConfirmDelete(false)}
         />
+      )}
+
+      {receiptFullscreen && expense.receiptImage && (
+        <div
+          className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4"
+          onClick={() => setReceiptFullscreen(false)}
+        >
+          <img
+            src={expense.receiptImage}
+            alt="Receipt"
+            className="max-w-full max-h-full object-contain rounded"
+          />
+          <button
+            className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/15 flex items-center justify-center text-white hover:bg-white/25 transition-colors"
+            onClick={() => setReceiptFullscreen(false)}
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
       )}
     </AppShell>
   )
