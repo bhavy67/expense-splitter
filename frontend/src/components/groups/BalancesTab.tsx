@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { ChevronDown, ChevronUp, ArrowRight, CheckCircle2, PlusCircle, Zap, QrCode } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { ChevronDown, ChevronUp, ArrowRight, CheckCircle2, PlusCircle, Zap, QrCode, AtSign } from 'lucide-react'
 import { AnimatePresence } from 'framer-motion'
 import { whatsappRemindText } from '@/lib/upi'
 import { Button } from '@/components/common/Button'
@@ -33,6 +34,7 @@ interface PaymentTarget {
 }
 
 export function BalancesTab({ group, expenses, payments }: Props) {
+  const navigate = useNavigate()
   const [showHistory, setShowHistory] = useState(false)
   const [paymentTarget, setPaymentTarget] = useState<PaymentTarget | null>(null)
   const [confirmConfig, setConfirmConfig] = useState<ConfirmConfig | null>(null)
@@ -120,6 +122,22 @@ export function BalancesTab({ group, expenses, payments }: Props) {
           </div>
         ))}
       </div>
+
+      {/* UPI setup nudge — only when INR + debts exist + zero members have UPI IDs */}
+      {isInr && !isSettled && group.members.every((m) => !m.upiId) && (
+        <div className="flex items-center gap-3 px-3 py-2.5 rounded border border-[#b9f542]/40 bg-[#b9f542]/10">
+          <AtSign className="w-4 h-4 text-[#4d6e08] dark:text-[#b9f542] shrink-0" />
+          <p className="flex-1 text-[11px] font-mono text-[#4d6e08] dark:text-[#b9f542]">
+            Add UPI IDs to enable one-tap QR payments
+          </p>
+          <button
+            onClick={() => navigate(`/g/${group.id}/settings`)}
+            className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#4d6e08] dark:text-[#b9f542] hover:underline underline-offset-2 shrink-0"
+          >
+            Set up →
+          </button>
+        </div>
+      )}
 
       {/* Who owes who */}
       <div className="bg-white dark:bg-[#1e1e1a] border-2 border-[#0a0a0a] dark:border-[#f0ede5] rounded overflow-hidden">
