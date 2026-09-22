@@ -1,14 +1,17 @@
 import { useState } from 'react'
-import { ChevronDown, ChevronUp, ArrowRight, CheckCircle2, PlusCircle, Zap } from 'lucide-react'
+import { ChevronDown, ChevronUp, ArrowRight, CheckCircle2, PlusCircle, Zap, QrCode } from 'lucide-react'
+import { AnimatePresence } from 'framer-motion'
 import { Button } from '@/components/common/Button'
 import { ConfirmModal } from '@/components/common/ConfirmModal'
 import { RecordPaymentModal } from './RecordPaymentModal'
+import { UpiQrModal } from '@/components/upi/UpiQrModal'
 import { deletePayment, savePayment, generateId } from '@/lib/storage'
 import { calculateBalances, simplifyDebts } from '@/lib/calculations'
 import { formatCurrency } from '@/lib/currency'
+import { isUpiSupportedCurrency } from '@/lib/upi'
 import { toast } from '@/components/common/Toast'
 import { cn } from '@/lib/utils'
-import type { Group, Expense, Payment } from '@/types'
+import type { Debt, Group, Expense, Payment } from '@/types'
 
 type ConfirmConfig = { title: string; description?: string; confirmLabel: string; danger?: boolean; onConfirm: () => void }
 
@@ -32,6 +35,7 @@ export function BalancesTab({ group, expenses, payments }: Props) {
   const [showHistory, setShowHistory] = useState(false)
   const [paymentTarget, setPaymentTarget] = useState<PaymentTarget | null>(null)
   const [confirmConfig, setConfirmConfig] = useState<ConfirmConfig | null>(null)
+  const [upiDebt, setUpiDebt] = useState<Debt | null>(null)
 
   function doSettleAll() {
     const now = new Date()
@@ -53,6 +57,20 @@ export function BalancesTab({ group, expenses, payments }: Props) {
   const memberMap = Object.fromEntries(group.members.map((m) => [m.id, m]))
   const balances = calculateBalances(expenses, payments, group.members)
   const debts = simplifyDebts(balances)
+  const isInr = isUpiSupportedCurrency(group.currency)
+
+  function handleUpiClick(debt: Debt) {
+    const to = memberMap[debt.to]
+    if (!isInr) {
+      toast.info(`UPI is only available for INR groups (this group uses ${group.currency})`)
+      return
+    }
+    if (!to?.upiId) {
+      toast.info(`${to?.name ?? 'This member'} hasn't added a UPI ID — ask them to add it in Group Settings`)
+      return
+    }
+    setUpiDebt(debt)
+  }
 
   const totalExpenses = expenses.reduce((s, e) => s + e.amount, 0)
   const totalPaid = payments.reduce((s, p) => s + p.amount, 0)
@@ -168,6 +186,27 @@ export function BalancesTab({ group, expenses, payments }: Props) {
                   <span className="text-sm font-mono font-bold text-[#f59e0b] shrink-0">
                     {formatCurrency(debt.amount, group.currency)}
                   </span>
+
+                  {/* UPI button */}
+                  <button
+                    onClick={() => handleUpiClick(debt)}
+                    className={cn(
+                      'shrink-0 flex items-center gap-1 text-[9px] font-mono font-bold px-2 py-1 rounded border uppercase tracking-wider transition-all',
+                      isInr && memberMap[debt.to]?.upiId
+                        ? 'bg-white dark:bg-[#1a1a17] text-[#0a0a0a] dark:text-[#f0ede5] border-[#0a0a0a] dark:border-[#f0ede5] hover:translate-x-[1px] hover:translate-y-[1px]'
+                        : 'bg-transparent text-[#4a4940] dark:text-[#a09880] border-[#0a0a0a]/20 dark:border-[#f0ede5]/20 cursor-pointer'
+                    )}
+                    title={
+                      !isInr
+                        ? `UPI only for INR groups`
+                        : !memberMap[debt.to]?.upiId
+                        ? `${memberMap[debt.to]?.name} has no UPI ID`
+                        : `Pay via UPI`
+                    }
+                  >
+                    <QrCode className="w-3 h-3" />
+                    UPI
+                  </button>
 
                   {/* Settle button */}
                   <button
@@ -319,6 +358,17 @@ export function BalancesTab({ group, expenses, payments }: Props) {
           defaultAmount={paymentTarget.amount}
         />
       )}
+
+      <AnimatePresence>
+        {upiDebt && (
+          <UpiQrModal
+            debt={upiDebt}
+            group={group}
+            members={group.members}
+            onClose={() => setUpiDebt(null)}
+          />
+        )}
+      </AnimatePresence>
 
       {confirmConfig && (
         <ConfirmModal
