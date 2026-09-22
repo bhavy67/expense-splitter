@@ -78,6 +78,24 @@ export function getUpiAmountWarnings(amount: number): string[] {
   return warnings
 }
 
+/** WhatsApp reminder when the payee has no UPI ID — plain text, no payment link */
+export function whatsappRemindText({
+  fromName,
+  toName,
+  amount,
+  groupName,
+}: {
+  fromName: string
+  toName: string
+  amount: number
+  groupName: string
+}): string {
+  return (
+    `Hey ${fromName}, just a reminder — you owe ₹${formatUpiAmount(amount)} to ${toName} for *${groupName}*.\n\n` +
+    `Please settle up when you can! 🙏`
+  )
+}
+
 /** Build a shareable WhatsApp message for a debt */
 export function whatsappShareText({
   fromName,

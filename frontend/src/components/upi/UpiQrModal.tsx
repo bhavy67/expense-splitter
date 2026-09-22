@@ -1,5 +1,5 @@
 import { useRef } from 'react'
-import { X, Copy, Download, Share2, Smartphone, AtSign, AlertTriangle, Lock } from 'lucide-react'
+import { X, Copy, Download, Share2, Smartphone, AtSign, AlertTriangle, Lock, CheckCircle2 } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { QRCodeCanvas } from 'qrcode.react'
 import {
@@ -9,6 +9,7 @@ import {
   isUpiSupportedCurrency,
   whatsappShareText,
 } from '@/lib/upi'
+import { savePayment, generateId } from '@/lib/storage'
 import { toast } from '@/components/common/Toast'
 import type { Debt, Group, Member } from '@/types'
 
@@ -19,7 +20,6 @@ interface UpiQrModalProps {
   onClose: () => void
 }
 
-// Inline WhatsApp icon (lucide has no official one)
 function WhatsAppIcon({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="currentColor">
@@ -52,7 +52,11 @@ export function UpiQrModal({ debt, group, members, onClose }: UpiQrModalProps) {
       const blob = await new Promise<Blob>((resolve, reject) =>
         canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('toBlob failed'))), 'image/png')
       )
-      const file = new File([blob], `pay-${toMember!.name.toLowerCase().replace(/\s+/g, '-')}.png`, { type: 'image/png' })
+      const file = new File(
+        [blob],
+        `pay-${toMember!.name.toLowerCase().replace(/\s+/g, '-')}.png`,
+        { type: 'image/png' }
+      )
       if (navigator.share && navigator.canShare?.({ files: [file] })) {
         await navigator.share({
           title: `Pay ${toMember!.name}`,
@@ -123,16 +127,33 @@ export function UpiQrModal({ debt, group, members, onClose }: UpiQrModalProps) {
   function handleWhatsApp() {
     if (!toMember?.upiId) return
     const text = whatsappShareText({
-      fromName: fromMember!.name,
-      toName:   toMember.name,
-      amount:   debt.amount,
-      upiId:    toMember.upiId,
+      fromName:  fromMember!.name,
+      toName:    toMember.name,
+      amount:    debt.amount,
+      upiId:     toMember.upiId,
       groupName: group.name,
     })
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank')
   }
 
+  function handleRecordPayment() {
+    const now = new Date()
+    savePayment({
+      id:             generateId(),
+      groupId:        group.id,
+      fromMemberId:   debt.from,
+      toMemberId:     debt.to,
+      amount:         debt.amount,
+      date:           now.toISOString().split('T')[0],
+      createdAt:      now.toISOString(),
+    })
+    toast.success(`₹${formatUpiAmount(debt.amount)} marked as paid — ${fromMember!.name} → ${toMember!.name}`)
+    onClose()
+  }
+
   // ── Render ───────────────────────────────────────────────────────────────────
+
+  const showActions = isInr && !!toMember.upiId
 
   return (
     <>
@@ -151,18 +172,20 @@ export function UpiQrModal({ debt, group, members, onClose }: UpiQrModalProps) {
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: 48 }}
         transition={{ type: 'spring', damping: 28, stiffness: 320 }}
-        className="fixed inset-x-0 bottom-0 z-50 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[360px] bg-white dark:bg-[#1e1e1a] border-2 border-[#0a0a0a] dark:border-[#f0ede5] rounded-t-2xl md:rounded-2xl shadow-[4px_4px_0_#0a0a0a] dark:shadow-[4px_4px_0_#b9f542] overflow-hidden"
+        className="fixed inset-x-0 bottom-0 z-50 flex flex-col max-h-[92dvh] md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[360px] md:max-h-[90vh] bg-white dark:bg-[#1e1e1a] border-2 border-[#0a0a0a] dark:border-[#f0ede5] rounded-t-2xl md:rounded-2xl shadow-[4px_4px_0_#0a0a0a] dark:shadow-[4px_4px_0_#b9f542] overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Drag handle (mobile) */}
-        <div className="flex justify-center pt-2.5 md:hidden">
+        {/* Drag handle — mobile only */}
+        <div className="flex justify-center pt-2.5 pb-0.5 shrink-0 md:hidden">
           <div className="w-10 h-1 rounded-full bg-[#0a0a0a]/20 dark:bg-[#f0ede5]/20" />
         </div>
 
-        {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b-2 border-[#0a0a0a] dark:border-[#f0ede5]">
+        {/* Header — fixed, never scrolls */}
+        <div className="shrink-0 flex items-center justify-between px-4 py-3 border-b-2 border-[#0a0a0a] dark:border-[#f0ede5]">
           <div>
-            <p className="text-[10px] font-mono uppercase tracking-[0.12em] text-[#4a4940] dark:text-[#a09880]">Pay via UPI</p>
+            <p className="text-[10px] font-mono uppercase tracking-[0.12em] text-[#4a4940] dark:text-[#a09880]">
+              Pay via UPI
+            </p>
             <h2 className="text-[15px] font-black uppercase tracking-[0.04em] text-[#0a0a0a] dark:text-[#f0ede5] leading-tight">
               {toMember.name}
             </h2>
@@ -175,126 +198,143 @@ export function UpiQrModal({ debt, group, members, onClose }: UpiQrModalProps) {
           </button>
         </div>
 
-        {/* Body */}
-        <div className="p-4 flex flex-col gap-3">
-          {!isInr ? (
-            /* Non-INR state */
-            <div className="flex flex-col items-center gap-3 py-8 text-center">
-              <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-[#f0ede5] dark:bg-[#1a1a17] border-2 border-[#0a0a0a]/20 dark:border-[#f0ede5]/20">
-                <Lock className="w-5 h-5 text-[#4a4940] dark:text-[#a09880]" />
-              </div>
-              <div>
-                <p className="text-[13px] font-bold text-[#0a0a0a] dark:text-[#f0ede5]">
-                  UPI is only available for INR groups
-                </p>
-                <p className="text-[11px] font-mono text-[#4a4940] dark:text-[#a09880] mt-1">
-                  This group uses {group.currency}
-                </p>
-              </div>
-            </div>
-          ) : (
-            <>
-              {/* QR code */}
-              <div className="flex flex-col items-center gap-3">
-                <div className="bg-white p-3 rounded-xl border-2 border-[#0a0a0a] shadow-[3px_3px_0_#0a0a0a] dark:shadow-[3px_3px_0_#b9f542]">
-                  <QRCodeCanvas
-                    ref={qrRef}
-                    value={upiLink}
-                    size={184}
-                    level="M"
-                    bgColor="#ffffff"
-                    fgColor="#0a0a0a"
-                    includeMargin={false}
-                  />
+        {/* Scrollable body — all content + actions scroll together */}
+        <div className="flex-1 overflow-y-auto">
+          {/* Content */}
+          <div className="p-4 flex flex-col gap-3">
+            {!isInr ? (
+              /* Non-INR state */
+              <div className="flex flex-col items-center gap-3 py-8 text-center">
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-[#f0ede5] dark:bg-[#1a1a17] border-2 border-[#0a0a0a]/20 dark:border-[#f0ede5]/20">
+                  <Lock className="w-5 h-5 text-[#4a4940] dark:text-[#a09880]" />
                 </div>
-
-                {/* Amount + direction */}
-                <div className="text-center">
-                  <p className="text-[30px] font-black font-mono text-[#0a0a0a] dark:text-[#f0ede5] leading-none tracking-tight">
-                    ₹{formatUpiAmount(debt.amount)}
+                <div>
+                  <p className="text-[13px] font-bold text-[#0a0a0a] dark:text-[#f0ede5]">
+                    UPI is only available for INR groups
                   </p>
-                  <p className="text-[11px] font-mono text-[#4a4940] dark:text-[#a09880] mt-1.5">
-                    {fromMember.name} → {toMember.name}
+                  <p className="text-[11px] font-mono text-[#4a4940] dark:text-[#a09880] mt-1">
+                    This group uses {group.currency}
                   </p>
                 </div>
               </div>
+            ) : (
+              <>
+                {/* QR code */}
+                <div className="flex flex-col items-center gap-3">
+                  <div className="bg-white p-3 rounded-xl border-2 border-[#0a0a0a] shadow-[3px_3px_0_#0a0a0a] dark:shadow-[3px_3px_0_#b9f542]">
+                    <QRCodeCanvas
+                      ref={qrRef}
+                      value={upiLink}
+                      size={184}
+                      level="M"
+                      bgColor="#ffffff"
+                      fgColor="#0a0a0a"
+                      includeMargin={false}
+                    />
+                  </div>
 
-              {/* UPI ID pill */}
-              <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[#f0ede5] dark:bg-[#1a1a17] border border-[#0a0a0a]/10 dark:border-[#f0ede5]/10">
-                <AtSign className="w-3.5 h-3.5 text-[#88bc20] dark:text-[#b9f542] shrink-0" />
-                <span className="flex-1 text-[12px] font-mono text-[#0a0a0a] dark:text-[#f0ede5] truncate">
-                  {toMember.upiId}
-                </span>
+                  {/* Amount + direction */}
+                  <div className="text-center">
+                    <p className="text-[30px] font-black font-mono text-[#0a0a0a] dark:text-[#f0ede5] leading-none tracking-tight">
+                      ₹{formatUpiAmount(debt.amount)}
+                    </p>
+                    <p className="text-[11px] font-mono text-[#4a4940] dark:text-[#a09880] mt-1.5">
+                      {fromMember.name} → {toMember.name}
+                    </p>
+                  </div>
+                </div>
+
+                {/* UPI ID pill */}
+                <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[#f0ede5] dark:bg-[#1a1a17] border border-[#0a0a0a]/10 dark:border-[#f0ede5]/10">
+                  <AtSign className="w-3.5 h-3.5 text-[#88bc20] dark:text-[#b9f542] shrink-0" />
+                  <span className="flex-1 text-[12px] font-mono text-[#0a0a0a] dark:text-[#f0ede5] truncate">
+                    {toMember.upiId}
+                  </span>
+                  <button
+                    onClick={handleCopyUpiId}
+                    className="p-1 rounded text-[#4a4940] dark:text-[#a09880] hover:text-[#0a0a0a] dark:hover:text-[#f0ede5] transition-colors shrink-0"
+                    title="Copy UPI ID"
+                  >
+                    <Copy className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+
+                {/* Warning banners */}
+                {warnings.map((w) => (
+                  <div key={w} className="flex items-start gap-2 px-3 py-2 rounded-lg bg-[#f59e0b]/10 border border-[#f59e0b]/30">
+                    <AlertTriangle className="w-3.5 h-3.5 text-[#f59e0b] shrink-0 mt-0.5" />
+                    <p className="text-[11px] font-mono text-[#92640a] dark:text-[#fbbf24]">{w}</p>
+                  </div>
+                ))}
+              </>
+            )}
+          </div>
+
+          {/* Action buttons */}
+          {showActions && (
+            <div className="px-4 pb-2 flex flex-col gap-2">
+              {/* Primary: Share QR */}
+              <button
+                onClick={handleShare}
+                className="w-full h-10 flex items-center justify-center gap-2 rounded border-2 border-[#0a0a0a] bg-[#b9f542] text-[#0a0a0a] text-[13px] font-bold uppercase tracking-wider shadow-[2px_2px_0_#0a0a0a] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all"
+              >
+                <Share2 className="w-4 h-4" />
+                Share QR
+              </button>
+
+              {/* Copy + Download */}
+              <div className="grid grid-cols-2 gap-2">
                 <button
-                  onClick={handleCopyUpiId}
-                  className="p-1 rounded text-[#4a4940] dark:text-[#a09880] hover:text-[#0a0a0a] dark:hover:text-[#f0ede5] transition-colors shrink-0"
-                  title="Copy UPI ID"
+                  onClick={handleCopyLink}
+                  className="h-9 flex items-center justify-center gap-1.5 rounded border-2 border-[#0a0a0a] dark:border-[#f0ede5] bg-white dark:bg-[#1a1a17] text-[#0a0a0a] dark:text-[#f0ede5] text-[11px] font-bold uppercase tracking-wider shadow-[2px_2px_0_#0a0a0a] dark:shadow-[2px_2px_0_#f0ede5] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all"
                 >
                   <Copy className="w-3.5 h-3.5" />
+                  Copy Link
+                </button>
+                <button
+                  onClick={handleDownload}
+                  className="h-9 flex items-center justify-center gap-1.5 rounded border-2 border-[#0a0a0a] dark:border-[#f0ede5] bg-white dark:bg-[#1a1a17] text-[#0a0a0a] dark:text-[#f0ede5] text-[11px] font-bold uppercase tracking-wider shadow-[2px_2px_0_#0a0a0a] dark:shadow-[2px_2px_0_#f0ede5] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  Download
                 </button>
               </div>
 
-              {/* Warning banners */}
-              {warnings.map((w) => (
-                <div key={w} className="flex items-start gap-2 px-3 py-2 rounded-lg bg-[#f59e0b]/10 border border-[#f59e0b]/30">
-                  <AlertTriangle className="w-3.5 h-3.5 text-[#f59e0b] shrink-0 mt-0.5" />
-                  <p className="text-[11px] font-mono text-[#92640a] dark:text-[#fbbf24]">{w}</p>
-                </div>
-              ))}
-            </>
+              {/* Open in app + WhatsApp */}
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  onClick={handleOpenInApp}
+                  className="h-9 flex items-center justify-center gap-1.5 rounded border-2 border-[#0a0a0a] dark:border-[#f0ede5] bg-white dark:bg-[#1a1a17] text-[#0a0a0a] dark:text-[#f0ede5] text-[11px] font-bold uppercase tracking-wider shadow-[2px_2px_0_#0a0a0a] dark:shadow-[2px_2px_0_#f0ede5] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all"
+                >
+                  <Smartphone className="w-3.5 h-3.5" />
+                  Open App
+                </button>
+                <button
+                  onClick={handleWhatsApp}
+                  className="h-9 flex items-center justify-center gap-1.5 rounded border-2 border-[#22c55e]/40 bg-[#22c55e]/10 text-[#16a34a] dark:text-[#22c55e] text-[11px] font-bold uppercase tracking-wider hover:bg-[#22c55e]/20 transition-colors"
+                >
+                  <WhatsAppIcon className="w-3.5 h-3.5" />
+                  WhatsApp
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Mark as Paid — closes the loop after showing QR */}
+          {showActions && (
+            <div className="px-4 pt-1 pb-[calc(1.25rem+env(safe-area-inset-bottom,0px))]">
+              <div className="border-t border-[#0a0a0a]/10 dark:border-[#f0ede5]/10 pt-3">
+                <button
+                  onClick={handleRecordPayment}
+                  className="w-full h-10 flex items-center justify-center gap-2 rounded border-2 border-dashed border-[#22c55e]/50 text-[#16a34a] dark:text-[#22c55e] text-[12px] font-bold uppercase tracking-wider hover:bg-[#22c55e]/10 transition-colors"
+                >
+                  <CheckCircle2 className="w-4 h-4" />
+                  Mark as Paid
+                </button>
+              </div>
+            </div>
           )}
         </div>
-
-        {/* Action buttons */}
-        {isInr && toMember.upiId && (
-          <div className="px-4 pb-5 flex flex-col gap-2">
-
-            {/* Primary: Share QR */}
-            <button
-              onClick={handleShare}
-              className="w-full h-10 flex items-center justify-center gap-2 rounded border-2 border-[#0a0a0a] bg-[#b9f542] text-[#0a0a0a] text-[13px] font-bold uppercase tracking-wider shadow-[2px_2px_0_#0a0a0a] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all"
-            >
-              <Share2 className="w-4 h-4" />
-              Share QR
-            </button>
-
-            {/* Secondary: Copy link + Download */}
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                onClick={handleCopyLink}
-                className="h-9 flex items-center justify-center gap-1.5 rounded border-2 border-[#0a0a0a] dark:border-[#f0ede5] bg-white dark:bg-[#1a1a17] text-[#0a0a0a] dark:text-[#f0ede5] text-[11px] font-bold uppercase tracking-wider shadow-[2px_2px_0_#0a0a0a] dark:shadow-[2px_2px_0_#f0ede5] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all"
-              >
-                <Copy className="w-3.5 h-3.5" />
-                Copy Link
-              </button>
-              <button
-                onClick={handleDownload}
-                className="h-9 flex items-center justify-center gap-1.5 rounded border-2 border-[#0a0a0a] dark:border-[#f0ede5] bg-white dark:bg-[#1a1a17] text-[#0a0a0a] dark:text-[#f0ede5] text-[11px] font-bold uppercase tracking-wider shadow-[2px_2px_0_#0a0a0a] dark:shadow-[2px_2px_0_#f0ede5] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all"
-              >
-                <Download className="w-3.5 h-3.5" />
-                Download
-              </button>
-            </div>
-
-            {/* Tertiary: Open in app + WhatsApp */}
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                onClick={handleOpenInApp}
-                className="h-9 flex items-center justify-center gap-1.5 rounded border-2 border-[#0a0a0a] dark:border-[#f0ede5] bg-white dark:bg-[#1a1a17] text-[#0a0a0a] dark:text-[#f0ede5] text-[11px] font-bold uppercase tracking-wider shadow-[2px_2px_0_#0a0a0a] dark:shadow-[2px_2px_0_#f0ede5] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all"
-              >
-                <Smartphone className="w-3.5 h-3.5" />
-                Open App
-              </button>
-              <button
-                onClick={handleWhatsApp}
-                className="h-9 flex items-center justify-center gap-1.5 rounded border-2 border-[#22c55e]/40 bg-[#22c55e]/10 text-[#16a34a] dark:text-[#22c55e] text-[11px] font-bold uppercase tracking-wider hover:bg-[#22c55e]/20 transition-colors"
-              >
-                <WhatsAppIcon className="w-3.5 h-3.5" />
-                WhatsApp
-              </button>
-            </div>
-          </div>
-        )}
       </motion.div>
     </>
   )
