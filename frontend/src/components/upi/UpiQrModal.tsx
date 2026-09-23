@@ -285,7 +285,7 @@ export function UpiQrModal({ debt, group, members, onClose }: UpiQrModalProps) {
               {/* Primary: Share QR */}
               <button
                 onClick={handleShare}
-                className="w-full h-10 flex items-center justify-center gap-2 rounded border-2 border-[#0a0a0a] bg-[#b9f542] text-[#0a0a0a] text-[13px] font-bold uppercase tracking-wider shadow-[2px_2px_0_#0a0a0a] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all"
+                className="w-full h-10 flex items-center justify-center gap-2 rounded border-2 border-[#0a0a0a] bg-[#b9f542] text-[#0a0a0a] text-[13px] font-bold uppercase tracking-wider shadow-[2px_2px_0_#0a0a0a] dark:shadow-[2px_2px_0_#f0ede5] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all"
               >
                 <Share2 className="w-4 h-4" />
                 Share QR

@@ -29,17 +29,6 @@ const GROUP_TYPES: { value: GroupType; label: string; icon: string }[] = [
   { value: 'other',     label: 'Other',   icon: '👥' },
 ]
 
-const CURRENCIES = [
-  { code: 'INR', symbol: '₹',   name: 'Indian Rupee' },
-  { code: 'USD', symbol: '$',   name: 'US Dollar' },
-  { code: 'EUR', symbol: '€',   name: 'Euro' },
-  { code: 'GBP', symbol: '£',   name: 'British Pound' },
-  { code: 'JPY', symbol: '¥',   name: 'Japanese Yen' },
-  { code: 'AUD', symbol: 'A$',  name: 'Australian Dollar' },
-  { code: 'CAD', symbol: 'C$',  name: 'Canadian Dollar' },
-  { code: 'SGD', symbol: 'S$',  name: 'Singapore Dollar' },
-  { code: 'AED', symbol: 'د.إ', name: 'UAE Dirham' },
-]
 
 function SectionCard({ title, children, className }: { title?: string; children: React.ReactNode; className?: string }) {
   return (
@@ -102,7 +91,6 @@ export default function GroupSettingsPage() {
   // Group info state
   const [name, setName] = useState(group?.name ?? '')
   const [type, setType] = useState<GroupType>(group?.type ?? 'other')
-  const [currency, setCurrency] = useState(group?.currency ?? 'INR')
   const [description, setDescription] = useState(group?.description ?? '')
 
   // Member state
@@ -121,7 +109,6 @@ export default function GroupSettingsPage() {
     if (group) {
       setName(group.name)
       setType(group.type)
-      setCurrency(group.currency)
       setDescription(group.description)
       setMembers(group.members)
     }
@@ -152,7 +139,6 @@ export default function GroupSettingsPage() {
   const infoChanged =
     name.trim() !== group.name ||
     type !== group.type ||
-    currency !== group.currency ||
     description !== group.description
 
   // ── Group info ──────────────────────────────────────────────────────────────
@@ -160,7 +146,7 @@ export default function GroupSettingsPage() {
   function saveInfo() {
     const trimmed = name.trim()
     if (!trimmed) { toast.error('Name is required'); return }
-    saveGroup({ ...group!, name: trimmed, type, currency, description, updatedAt: new Date().toISOString() })
+    saveGroup({ ...group!, name: trimmed, type, description, updatedAt: new Date().toISOString() })
     toast.success('Saved')
   }
 
@@ -324,7 +310,7 @@ export default function GroupSettingsPage() {
                       onClick={() => setType(t.value)}
                       className={cn(
                         type === t.value
-                          ? 'flex items-center gap-1.5 px-3 py-1.5 rounded border-2 border-[#0a0a0a] bg-[#b9f542] text-[#0a0a0a] text-[12px] font-bold uppercase tracking-wider transition-all shadow-[2px_2px_0_#0a0a0a] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none'
+                          ? 'flex items-center gap-1.5 px-3 py-1.5 rounded border-2 border-[#0a0a0a] bg-[#b9f542] text-[#0a0a0a] text-[12px] font-bold uppercase tracking-wider transition-all shadow-[2px_2px_0_#0a0a0a] dark:shadow-[2px_2px_0_#f0ede5] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none'
                           : 'flex items-center gap-1.5 px-3 py-1.5 rounded border-2 border-[#0a0a0a] dark:border-[#f0ede5]/30 text-[#4a4940] dark:text-[#a09880] text-[12px] font-medium uppercase tracking-wider transition-colors hover:border-[#0a0a0a] dark:hover:border-[#f0ede5]'
                       )}
                     >
@@ -333,22 +319,6 @@ export default function GroupSettingsPage() {
                     </button>
                   ))}
                 </div>
-              </div>
-
-              <div>
-                <label className="block font-mono text-[10px] uppercase tracking-[0.12em] text-[#4a4940] dark:text-[#a09880] mb-1.5">Currency</label>
-                <select
-                  value={currency}
-                  onChange={(e) => setCurrency(e.target.value)}
-                  className="w-full h-10 px-3 rounded border-2 border-[#0a0a0a] dark:border-[#f0ede5]/50 bg-white dark:bg-[#1a1a17] text-[#0a0a0a] dark:text-[#f0ede5] text-[13px] font-medium focus:outline-none focus:border-[#b9f542] focus:shadow-[2px_2px_0_#b9f542] transition-all"
-                >
-                  {CURRENCIES.map((c) => (
-                    <option key={c.code} value={c.code}>{c.symbol} {c.name}</option>
-                  ))}
-                </select>
-                {currency !== group.currency && (
-                  <p className="text-xs text-[#f97316] mt-1.5">Changing currency only affects the symbol — existing expense amounts are not converted.</p>
-                )}
               </div>
 
               <div>
@@ -375,7 +345,7 @@ export default function GroupSettingsPage() {
                     variant="ghost"
                     onClick={() => {
                       setName(group.name); setType(group.type)
-                      setCurrency(group.currency); setDescription(group.description)
+                      setDescription(group.description)
                     }}
                   >
                     Discard
