@@ -113,7 +113,7 @@ export function RecordPaymentModal({
                       m.id === toId
                         ? 'border-2 border-[#0a0a0a]/10 dark:border-[#f0ede5]/10 text-[12px] font-medium text-[#4a4940]/40 dark:text-[#a09880]/40 cursor-not-allowed'
                         : fromId === m.id
-                          ? 'border-2 border-[#0a0a0a] shadow-[2px_2px_0_#0a0a0a] text-white text-[12px] font-medium'
+                          ? 'border-2 border-[#0a0a0a] shadow-[2px_2px_0_#0a0a0a] dark:shadow-[2px_2px_0_#b9f542] text-white text-[12px] font-medium'
                           : 'border-2 border-[#0a0a0a]/20 dark:border-[#f0ede5]/20 text-[12px] font-medium text-[#0a0a0a] dark:text-[#f0ede5] hover:border-[#0a0a0a] dark:hover:border-[#f0ede5]'
                     )}
                     style={fromId === m.id && m.id !== toId ? { background: m.color } : undefined}
@@ -163,7 +163,7 @@ export function RecordPaymentModal({
                       m.id === fromId
                         ? 'border-2 border-[#0a0a0a]/10 dark:border-[#f0ede5]/10 text-[12px] font-medium text-[#4a4940]/40 dark:text-[#a09880]/40 cursor-not-allowed'
                         : toId === m.id
-                          ? 'border-2 border-[#0a0a0a] shadow-[2px_2px_0_#0a0a0a] text-white text-[12px] font-medium'
+                          ? 'border-2 border-[#0a0a0a] shadow-[2px_2px_0_#0a0a0a] dark:shadow-[2px_2px_0_#b9f542] text-white text-[12px] font-medium'
                           : 'border-2 border-[#0a0a0a]/20 dark:border-[#f0ede5]/20 text-[12px] font-medium text-[#0a0a0a] dark:text-[#f0ede5] hover:border-[#0a0a0a] dark:hover:border-[#f0ede5]'
                     )}
                     style={toId === m.id && m.id !== fromId ? { background: m.color } : undefined}

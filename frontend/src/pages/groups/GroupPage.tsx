@@ -207,7 +207,7 @@ export default function GroupPage() {
                     className={cn(
                       'flex items-center gap-1.5 h-9 px-3 rounded border-2 text-[11px] font-mono font-bold uppercase tracking-wider transition-all shrink-0',
                       showFilters || activeFilterCount > 0
-                        ? 'border-[#0a0a0a] bg-[#b9f542] text-[#0a0a0a] shadow-[2px_2px_0_#0a0a0a] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none'
+                        ? 'border-[#0a0a0a] bg-[#b9f542] text-[#0a0a0a] shadow-[2px_2px_0_#0a0a0a] dark:shadow-[2px_2px_0_#f0ede5] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none'
                         : 'border-[#0a0a0a] dark:border-[#f0ede5]/50 text-[#4a4940] dark:text-[#a09880] bg-white dark:bg-[#1e1e1a] hover:border-[#0a0a0a] dark:hover:border-[#f0ede5]'
                     )}
                   >
@@ -241,7 +241,7 @@ export default function GroupPage() {
                             className={cn(
                               'flex items-center gap-1 px-2.5 py-1 rounded border-2 text-[10px] font-mono font-bold uppercase tracking-wider transition-all',
                               filterCategory === cat
-                                ? 'border-[#0a0a0a] bg-[#b9f542] text-[#0a0a0a] shadow-[1px_1px_0_#0a0a0a]'
+                                ? 'border-[#0a0a0a] bg-[#b9f542] text-[#0a0a0a] shadow-[1px_1px_0_#0a0a0a] dark:shadow-[1px_1px_0_#f0ede5]'
                                 : 'border-[#0a0a0a]/20 dark:border-[#f0ede5]/20 text-[#4a4940] dark:text-[#a09880] hover:border-[#0a0a0a] dark:hover:border-[#f0ede5]'
                             )}
                           >
@@ -274,7 +274,7 @@ export default function GroupPage() {
                             className={cn(
                               'flex items-center gap-1.5 px-2.5 py-1 rounded border-2 text-[10px] font-mono font-bold uppercase tracking-wider transition-all',
                               filterPaidBy === m.id
-                                ? 'border-[#0a0a0a] text-[#0a0a0a] shadow-[1px_1px_0_#0a0a0a]'
+                                ? 'border-[#0a0a0a] text-[#0a0a0a] shadow-[1px_1px_0_#0a0a0a] dark:shadow-[1px_1px_0_#b9f542]'
                                 : 'border-[#0a0a0a]/20 dark:border-[#f0ede5]/20 text-[#4a4940] dark:text-[#a09880] hover:border-[#0a0a0a] dark:hover:border-[#f0ede5]'
                             )}
                             style={filterPaidBy === m.id ? { background: m.color } : undefined}
@@ -356,7 +356,7 @@ export default function GroupPage() {
       {/* Mobile FAB */}
       <button
         onClick={() => navigate(`/g/${groupId}/expenses/new`)}
-        className="md:hidden fixed bottom-20 right-4 w-14 h-14 rounded bg-[#b9f542] flex items-center justify-center border-2 border-[#0a0a0a] shadow-[3px_3px_0_#0a0a0a] transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-none z-30"
+        className="md:hidden fixed bottom-20 right-4 w-14 h-14 rounded bg-[#b9f542] flex items-center justify-center border-2 border-[#0a0a0a] shadow-[3px_3px_0_#0a0a0a] dark:shadow-[3px_3px_0_#f0ede5] transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-none z-30"
       >
         <Plus className="w-6 h-6 text-[#0a0a0a]" />
       </button>

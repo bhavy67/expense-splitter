@@ -61,7 +61,7 @@ export function InstallPrompt() {
             </div>
             <button
               onClick={install}
-              className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded border-2 border-[#0a0a0a] bg-[#b9f542] text-[#0a0a0a] text-xs font-bold uppercase tracking-wider shadow-[2px_2px_0_#0a0a0a] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all"
+              className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded border-2 border-[#0a0a0a] bg-[#b9f542] text-[#0a0a0a] text-xs font-bold uppercase tracking-wider shadow-[2px_2px_0_#0a0a0a] dark:shadow-[2px_2px_0_#f0ede5] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all"
             >
               <Download className="w-3.5 h-3.5" />
               Install

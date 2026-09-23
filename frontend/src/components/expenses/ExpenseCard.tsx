@@ -26,7 +26,6 @@ interface Props {
 
 export function ExpenseCard({ expense, members, groupId, groupCurrency }: Props) {
   const payer = members.find((m) => m.id === expense.paidBy)
-  const isForeignCurrency = groupCurrency && expense.currency !== groupCurrency
 
   return (
     <Link
@@ -63,11 +62,7 @@ export function ExpenseCard({ expense, members, groupId, groupCurrency }: Props)
         <p className="text-[13px] font-mono font-medium text-[#0a0a0a] dark:text-[#f0ede5]">
           {formatCurrency(expense.amount, groupCurrency ?? expense.currency)}
         </p>
-        {isForeignCurrency && expense.exchangeRate ? (
-          <p className="text-[10px] font-mono font-medium text-[#4a4940] dark:text-[#a09880] mt-0.5 uppercase tracking-wider">
-            {(expense.amount / expense.exchangeRate).toFixed(2)} {expense.currency}
-          </p>
-        ) : expense.splitType === 'itemized' && expense.items?.length ? (
+        {expense.splitType === 'itemized' && expense.items?.length ? (
           <p className="text-[10px] font-mono font-medium text-[#4a4940] dark:text-[#a09880] mt-0.5 uppercase tracking-wider">
             {expense.items.length} item{expense.items.length !== 1 ? 's' : ''}
           </p>

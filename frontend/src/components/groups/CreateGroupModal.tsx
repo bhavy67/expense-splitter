@@ -21,17 +21,6 @@ const GROUP_TYPES: { value: GroupType; label: string; icon: string }[] = [
   { value: 'other',     label: 'Other',   icon: '👥' },
 ]
 
-const CURRENCIES = [
-  { code: 'INR', symbol: '₹',   name: 'Indian Rupee' },
-  { code: 'USD', symbol: '$',   name: 'US Dollar' },
-  { code: 'EUR', symbol: '€',   name: 'Euro' },
-  { code: 'GBP', symbol: '£',   name: 'British Pound' },
-  { code: 'JPY', symbol: '¥',   name: 'Japanese Yen' },
-  { code: 'AUD', symbol: 'A$',  name: 'Australian Dollar' },
-  { code: 'CAD', symbol: 'C$',  name: 'Canadian Dollar' },
-  { code: 'SGD', symbol: 'S$',  name: 'Singapore Dollar' },
-  { code: 'AED', symbol: 'د.إ', name: 'UAE Dirham' },
-]
 
 interface Props {
   open: boolean
@@ -42,13 +31,12 @@ export function CreateGroupModal({ open, onClose }: Props) {
   const navigate = useNavigate()
   const [name, setName] = useState('')
   const [type, setType] = useState<GroupType>('other')
-  const [currency, setCurrency] = useState('INR')
   const [members, setMembers] = useState<string[]>(['', ''])
 
   if (!open) return null
 
   function reset() {
-    setName(''); setType('other'); setCurrency('INR'); setMembers(['', ''])
+    setName(''); setType('other'); setMembers(['', ''])
   }
 
   function handleClose() {
@@ -90,7 +78,7 @@ export function CreateGroupModal({ open, onClose }: Props) {
       name: trimmed,
       description: '',
       type,
-      currency,
+      currency: 'INR',
       members: validMembers,
       createdAt: now,
       updatedAt: now,
@@ -149,7 +137,7 @@ export function CreateGroupModal({ open, onClose }: Props) {
                   className={cn(
                     'flex items-center gap-1.5 px-3 py-1.5 rounded border-2 text-[11px] font-bold uppercase tracking-wider transition-all',
                     type === t.value
-                      ? 'border-[#0a0a0a] bg-[#b9f542] text-[#0a0a0a] shadow-[2px_2px_0_#0a0a0a] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none'
+                      ? 'border-[#0a0a0a] bg-[#b9f542] text-[#0a0a0a] shadow-[2px_2px_0_#0a0a0a] dark:shadow-[2px_2px_0_#f0ede5] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none'
                       : 'border-[#0a0a0a]/20 dark:border-[#f0ede5]/20 text-[#4a4940] dark:text-[#a09880] hover:border-[#0a0a0a] dark:hover:border-[#f0ede5]'
                   )}
                 >
@@ -158,22 +146,6 @@ export function CreateGroupModal({ open, onClose }: Props) {
                 </button>
               ))}
             </div>
-          </div>
-
-          {/* Currency */}
-          <div>
-            <label className="block text-[10px] font-mono font-bold uppercase tracking-[0.12em] text-[#4a4940] dark:text-[#a09880] mb-1.5">
-              Currency
-            </label>
-            <select
-              value={currency}
-              onChange={(e) => setCurrency(e.target.value)}
-              className="w-full h-10 px-3 rounded border-2 border-[#0a0a0a] dark:border-[#f0ede5]/50 bg-white dark:bg-[#1a1a17] text-[#0a0a0a] dark:text-[#f0ede5] text-[13px] font-medium focus:outline-none focus:border-[#b9f542] focus:shadow-[2px_2px_0_#b9f542] transition-all"
-            >
-              {CURRENCIES.map((c) => (
-                <option key={c.code} value={c.code}>{c.symbol} {c.name}</option>
-              ))}
-            </select>
           </div>
 
           {/* Members */}

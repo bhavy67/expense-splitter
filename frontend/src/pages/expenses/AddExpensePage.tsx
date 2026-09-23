@@ -14,7 +14,6 @@ import { toast } from '@/components/common/Toast'
 import { cn } from '@/lib/utils'
 import type { Expense, SplitType, ExpenseCategory, SplitEntry, ExpenseItem } from '@/types'
 
-const CURRENCIES = ['INR', 'USD', 'EUR', 'GBP', 'AED', 'CAD', 'AUD', 'SGD', 'JPY', 'THB', 'MYR', 'IDR']
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -74,9 +73,6 @@ export default function AddExpensePage() {
   const [paidBy, setPaidBy]   = useState(existing?.paidBy ?? group?.members[0]?.id ?? '')
   const [splitType, setSplitType] = useState<SplitType>(existing?.splitType ?? 'equal')
   const [receiptImage, setReceiptImage] = useState<string | undefined>(existing?.receiptImage)
-  // multi-currency
-  const [expenseCurrency, setExpenseCurrency] = useState(existing?.currency ?? group?.currency ?? 'INR')
-  const [exchangeRate, setExchangeRate]       = useState(existing?.exchangeRate?.toString() ?? '1')
   // templates
   const [templates, setTemplates]             = useState(() => getTemplates())
   const [savingTemplate, setSavingTemplate]   = useState(false)
@@ -142,9 +138,8 @@ export default function AddExpensePage() {
 
   // ── Derived / computed ──────────────────────────────────────────────────────
 
-  const currency = group.currency                                           // group base currency
-  const rate     = expenseCurrency !== currency ? (parseFloat(exchangeRate) || 1) : 1
-  const amt      = (parseFloat(amount) || 0) * rate                        // always in group currency
+  const currency = group.currency
+  const amt      = parseFloat(amount) || 0
 
   const itemizedTotal = formItems.reduce((s, it) => s + (parseFloat(it.amount) || 0), 0)
 
@@ -306,8 +301,7 @@ export default function AddExpensePage() {
       groupId: groupId!,
       title: trimmedTitle,
       amount: finalAmount,
-      currency: expenseCurrency,
-      exchangeRate: expenseCurrency !== currency ? rate : undefined,
+      currency: group.currency,
       category,
       paidBy,
       splitType,
@@ -369,22 +363,14 @@ export default function AddExpensePage() {
             </div>
             <div className="p-5 text-center">
               <div className="flex items-center justify-center gap-2">
-                {/* Currency selector */}
-                <select
-                  value={expenseCurrency}
-                  disabled={splitType === 'itemized'}
-                  onChange={e => { setExpenseCurrency(e.target.value); setExchangeRate('1') }}
-                  className="text-2xl text-[#4a4940] dark:text-[#a09880] font-light bg-transparent border-none outline-none cursor-pointer disabled:cursor-default"
-                >
-                  {CURRENCIES.map(c => <option key={c} value={c}>{c}</option>)}
-                </select>
+                <span className="text-2xl text-[#4a4940] dark:text-[#a09880] font-light">₹</span>
                 <input
                   type="number"
                   inputMode="decimal"
                   min="0"
                   step="0.01"
                   placeholder="0.00"
-                  value={splitType === 'itemized' ? (itemizedTotal / rate).toFixed(2) : amount}
+                  value={splitType === 'itemized' ? itemizedTotal.toFixed(2) : amount}
                   onChange={e => setAmount(e.target.value)}
                   readOnly={splitType === 'itemized'}
                   className={cn(
@@ -393,27 +379,6 @@ export default function AddExpensePage() {
                   )}
                 />
               </div>
-              {/* Exchange rate row */}
-              {expenseCurrency !== currency && splitType !== 'itemized' && (
-                <div className="flex items-center justify-center gap-2 mt-3 pt-3 border-t border-[#0a0a0a]/10 dark:border-[#f0ede5]/10">
-                  <span className="text-[11px] font-mono text-[#0a0a0a] dark:text-[#f0ede5]">1 {expenseCurrency} =</span>
-                  <input
-                    type="number"
-                    inputMode="decimal"
-                    min="0.000001"
-                    step="any"
-                    value={exchangeRate}
-                    onChange={e => setExchangeRate(e.target.value)}
-                    className="h-7 w-20 px-2 rounded border-2 border-[#0a0a0a] dark:border-[#f0ede5]/50 bg-white dark:bg-[#1e1e1a] text-[12px] font-mono focus:outline-none focus:border-[#b9f542] text-[#0a0a0a] dark:text-[#f0ede5] text-center"
-                  />
-                  <span className="text-[11px] font-mono text-[#0a0a0a] dark:text-[#f0ede5]">{currency}</span>
-                  {amt > 0 && (
-                    <span className="text-[11px] font-mono font-bold text-[#b9f542]">
-                      = {formatCurrency(amt, currency)}
-                    </span>
-                  )}
-                </div>
-              )}
               {splitType === 'itemized' && (
                 <p className="text-[11px] font-mono text-[#4a4940] dark:text-[#a09880] mt-1">Calculated from items below</p>
               )}
@@ -460,7 +425,7 @@ export default function AddExpensePage() {
                   className={cn(
                     'flex flex-col items-center gap-1 p-2 rounded border-2 text-center',
                     category === cat.value
-                      ? 'border-[#0a0a0a] bg-[#b9f542] text-[#0a0a0a] text-[11px] font-mono uppercase tracking-wider font-bold shadow-[2px_2px_0_#0a0a0a] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all'
+                      ? 'border-[#0a0a0a] bg-[#b9f542] text-[#0a0a0a] text-[11px] font-mono uppercase tracking-wider font-bold shadow-[2px_2px_0_#0a0a0a] dark:shadow-[2px_2px_0_#f0ede5] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all'
                       : 'border-[#0a0a0a]/20 dark:border-[#f0ede5]/20 text-[11px] font-mono uppercase tracking-wider text-[#4a4940] dark:text-[#a09880] transition-all hover:border-[#0a0a0a] dark:hover:border-[#f0ede5]'
                   )}
                 >
@@ -483,7 +448,7 @@ export default function AddExpensePage() {
                   className={cn(
                     'flex items-center gap-2 px-3 py-2 rounded border-2 text-[11px] font-mono font-bold uppercase tracking-wider transition-all',
                     paidBy === m.id
-                      ? 'border-[#0a0a0a] text-[#0a0a0a] shadow-[2px_2px_0_#0a0a0a] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none'
+                      ? 'border-[#0a0a0a] text-[#0a0a0a] shadow-[2px_2px_0_#0a0a0a] dark:shadow-[2px_2px_0_#b9f542] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none'
                       : 'border-[#0a0a0a]/20 dark:border-[#f0ede5]/20 text-[#4a4940] dark:text-[#a09880] bg-white dark:bg-[#1e1e1a] hover:border-[#0a0a0a] dark:hover:border-[#f0ede5]'
                   )}
                   style={paidBy === m.id ? { background: m.color } : undefined}
@@ -515,7 +480,7 @@ export default function AddExpensePage() {
                   className={cn(
                     'flex-1 h-8 rounded border-2 text-[11px] font-mono font-bold uppercase tracking-wider transition-all',
                     splitType === tab.value
-                      ? 'border-[#0a0a0a] bg-[#b9f542] text-[#0a0a0a] shadow-[2px_2px_0_#0a0a0a] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none'
+                      ? 'border-[#0a0a0a] bg-[#b9f542] text-[#0a0a0a] shadow-[2px_2px_0_#0a0a0a] dark:shadow-[2px_2px_0_#f0ede5] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none'
                       : 'border-[#0a0a0a]/20 dark:border-[#f0ede5]/20 text-[#4a4940] dark:text-[#a09880] hover:border-[#0a0a0a] dark:hover:border-[#f0ede5]'
                   )}
                 >
@@ -742,7 +707,7 @@ export default function AddExpensePage() {
                               className={cn(
                                 'flex items-center gap-1.5 px-2 py-1 rounded border-2 text-[11px] font-mono font-bold uppercase tracking-wider transition-all',
                                 on
-                                  ? 'border-[#0a0a0a] text-[#0a0a0a] shadow-[2px_2px_0_#0a0a0a] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none'
+                                  ? 'border-[#0a0a0a] text-[#0a0a0a] shadow-[2px_2px_0_#0a0a0a] dark:shadow-[2px_2px_0_#b9f542] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none'
                                   : 'border-[#0a0a0a]/20 dark:border-[#f0ede5]/20 text-[#4a4940] dark:text-[#a09880]'
                               )}
                               style={on ? { background: m.color } : undefined}
