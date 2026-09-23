@@ -301,7 +301,7 @@ export default function AddExpensePage() {
       groupId: groupId!,
       title: trimmedTitle,
       amount: finalAmount,
-      currency: group.currency,
+      currency: group!.currency,
       category,
       paidBy,
       splitType,
