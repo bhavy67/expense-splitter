@@ -23,3 +23,4 @@ supabase/.temp
 
 # Redis
 dump.rdb
+brag-output*/
