@@ -1,11 +1,14 @@
 [
   {
-    "relation": ["delegate_permission/common.handle_all_urls"],
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
     "target": {
       "namespace": "android_app",
       "package_name": "in.bhavyladani.splititt",
       "sha256_cert_fingerprints": [
-        "3A:00:A4:03:E2:23:56:B3:20:2A:3D:9E:61:0F:40:21:93:01:04:17:EB:69:CB:E7:8E:F5:B7:60:18:0C:6F:66"
+        "3A:00:A4:03:E2:23:56:B3:20:2A:3D:9E:61:0F:40:21:93:01:04:17:EB:69:CB:E7:8E:F5:B7:60:18:0C:6F:66",
+        "EE:7B:C8:96:1D:EF:F2:D7:70:6C:B7:01:AB:25:C2:8D:1F:38:0F:55:8A:0D:44:24:5B:7A:C7:6A:A7:FD:D2:87"
       ]
     }
   }
