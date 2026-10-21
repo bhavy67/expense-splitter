@@ -185,7 +185,7 @@ export function BalancesTab({ group, expenses, payments }: Props) {
               return (
                 <div
                   key={i}
-                  className="flex items-center gap-3 px-4 py-3.5 border-b border-[#0a0a0a]/10 dark:border-[#f0ede5]/10 last:border-0"
+                  className="flex flex-wrap items-center gap-x-3 gap-y-2.5 px-4 py-3.5 border-b border-[#0a0a0a]/10 dark:border-[#f0ede5]/10 last:border-0"
                 >
                   {/* From */}
                   <div className="flex items-center gap-1.5 min-w-0">
@@ -227,6 +227,8 @@ export function BalancesTab({ group, expenses, payments }: Props) {
                     {formatCurrency(debt.amount, group.currency)}
                   </span>
 
+                  {/* Actions wrap to their own line on narrow phones (360px) instead of squeezing the names */}
+                  <div className="flex items-center gap-2 ml-auto">
                   {/* UPI (active) or Remind (WhatsApp) — no dead-end dimmed state */}
                   {isInr && memberMap[debt.to]?.upiId ? (
                     <button
@@ -257,6 +259,7 @@ export function BalancesTab({ group, expenses, payments }: Props) {
                   >
                     Settle
                   </button>
+                  </div>
                 </div>
               )
             })}
