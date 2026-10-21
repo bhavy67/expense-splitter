@@ -84,7 +84,7 @@ export function CreateGroupModal({ open, onClose }: Props) {
       updatedAt: now,
     }
 
-    saveGroup(group)
+    if (!saveGroup(group)) return
     toast.success(`"${trimmed}" created!`)
     reset()
     onClose()
@@ -99,7 +99,7 @@ export function CreateGroupModal({ open, onClose }: Props) {
         {/* Header */}
         <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b-2 border-[#0a0a0a] dark:border-[#f0ede5]">
           <h2 className="text-base font-black uppercase tracking-[0.06em] text-[#0a0a0a] dark:text-[#f0ede5]">New group</h2>
-          <button
+          <button aria-label="Close"
             onClick={handleClose}
             className="p-1.5 rounded text-[#4a4940] dark:text-[#a09880] hover:bg-[#f0ede5] dark:hover:bg-[#1a1a17] border border-[#0a0a0a] dark:border-[#f0ede5]/30 transition-colors"
           >
@@ -171,7 +171,7 @@ export function CreateGroupModal({ open, onClose }: Props) {
                     className="flex-1 h-9 px-3 rounded border-2 border-[#0a0a0a] dark:border-[#f0ede5]/50 bg-white dark:bg-[#1a1a17] text-[#0a0a0a] dark:text-[#f0ede5] text-[13px] font-medium focus:outline-none focus:border-[#b9f542] transition-all placeholder:text-[#4a4940]/40 dark:placeholder:text-[#a09880]/40"
                   />
                   {members.length > 1 && (
-                    <button
+                    <button aria-label="Remove member"
                       type="button"
                       onClick={() => removeMember(i)}
                       className="p-1.5 rounded text-[#4a4940] dark:text-[#a09880] hover:text-[#ff5c3d] hover:bg-[#ff5c3d]/10 border border-[#0a0a0a]/20 dark:border-[#f0ede5]/20 transition-colors"

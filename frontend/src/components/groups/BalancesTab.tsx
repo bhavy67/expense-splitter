@@ -12,7 +12,7 @@ import { calculateBalances, simplifyDebts } from '@/lib/calculations'
 import { formatCurrency } from '@/lib/currency'
 import { isUpiSupportedCurrency } from '@/lib/upi'
 import { toast } from '@/components/common/Toast'
-import { cn } from '@/lib/utils'
+import { cn, today } from '@/lib/utils'
 import type { Debt, Group, Expense, Payment } from '@/types'
 
 type ConfirmConfig = { title: string; description?: string; confirmLabel: string; danger?: boolean; onConfirm: () => void }
@@ -43,15 +43,16 @@ export function BalancesTab({ group, expenses, payments }: Props) {
   function doSettleAll() {
     const now = new Date()
     for (const debt of debts) {
-      savePayment({
+      const saved = savePayment({
         id: generateId(),
         groupId: group.id,
         fromMemberId: debt.from,
         toMemberId: debt.to,
         amount: debt.amount,
-        date: now.toISOString().split('T')[0],
+        date: today(),
         createdAt: now.toISOString(),
       })
+      if (!saved) { setConfirmConfig(null); return }
     }
     toast.success(`${debts.length} payment${debts.length > 1 ? 's' : ''} recorded — all settled!`)
     setConfirmConfig(null)
@@ -354,7 +355,7 @@ export function BalancesTab({ group, expenses, payments }: Props) {
                     <span className="text-sm font-mono font-bold text-[#22c55e] shrink-0">
                       {formatCurrency(p.amount, group.currency)}
                     </span>
-                    <button
+                    <button aria-label="Delete payment"
                       onClick={() => setConfirmConfig({
                         title: 'Delete payment?',
                         description: 'This payment record will be removed. Balances will be recalculated.',

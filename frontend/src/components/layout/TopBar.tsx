@@ -15,7 +15,7 @@ export function TopBar({ title, showBack, actions }: TopBarProps) {
   return (
     <header className="md:hidden sticky top-0 z-30 flex items-center h-14 px-3 bg-[#fafaf7] dark:bg-[#0d0d0d] border-b-2 border-[#0a0a0a] dark:border-[#b9f542] gap-2">
       {showBack && (
-        <button
+        <button aria-label="Go back"
           onClick={() => navigate(-1)}
           className="w-10 h-10 flex items-center justify-center rounded text-[#0a0a0a] dark:text-[#f0ede5] hover:bg-[#0a0a0a]/10 dark:hover:bg-white/10 transition-colors -ml-2"
         >

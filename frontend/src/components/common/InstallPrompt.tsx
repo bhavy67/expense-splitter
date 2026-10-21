@@ -66,7 +66,7 @@ export function InstallPrompt() {
               <Download className="w-3.5 h-3.5" />
               Install
             </button>
-            <button
+            <button aria-label="Dismiss"
               onClick={dismiss}
               className="shrink-0 w-7 h-7 rounded border border-[#0a0a0a]/20 dark:border-[#f0ede5]/20 flex items-center justify-center text-[#4a4940] dark:text-[#a09880] hover:bg-[#f0ede5] dark:hover:bg-[#1a1a17] transition-colors"
             >

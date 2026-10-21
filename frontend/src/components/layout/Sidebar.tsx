@@ -68,7 +68,7 @@ export function Sidebar() {
       <div className="mt-5 flex-1 overflow-y-auto min-h-0">
         <div className="flex items-center justify-between px-2 mb-1.5">
           <span className="text-[9px] font-bold text-[#0a0a0a]/30 dark:text-[#f0ede5]/30 uppercase tracking-[0.15em] font-mono">Groups</span>
-          <button
+          <button aria-label="New group"
             onClick={() => navigate('/?new=1')}
             className="p-0.5 rounded text-[#0a0a0a]/40 dark:text-[#f0ede5]/40 hover:text-[#b9f542] hover:bg-[#0a0a0a]/5 dark:hover:bg-white/10 transition-colors"
             title="New group"

@@ -27,7 +27,7 @@ export function BottomNav() {
           <span className="text-[10px] font-bold uppercase tracking-[0.1em]">Home</span>
         </NavLink>
 
-        <button
+        <button aria-label="New group"
           onClick={() => navigate('/?new=1')}
           className="w-12 h-12 rounded bg-[#b9f542] flex items-center justify-center border-2 border-[#0a0a0a] shadow-[3px_3px_0_#0a0a0a] dark:shadow-[3px_3px_0_#b9f542] -mt-5 transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
         >

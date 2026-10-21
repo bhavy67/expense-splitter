@@ -8,11 +8,26 @@ import { PageTransition } from '@/components/common/PageTransition'
 import { useGroup } from '@/hooks/useStore'
 import { saveExpense, getExpense, generateId } from '@/lib/storage'
 import { getTemplates, saveTemplate, deleteTemplate } from '@/lib/templates'
-import { buildEqualSplits } from '@/lib/calculations'
+import { buildEqualSplits, buildItemizedSplits } from '@/lib/calculations'
 import { formatCurrency } from '@/lib/currency'
 import { toast } from '@/components/common/Toast'
-import { cn } from '@/lib/utils'
+import { cn, today } from '@/lib/utils'
 import type { Expense, SplitType, ExpenseCategory, SplitEntry, ExpenseItem } from '@/types'
+
+const RECEIPT_MAX_PX = 1280
+
+// Phone photos are 2–5 MB; storage holds ~5 MB total. Downscale to a JPEG
+// of ~100–200 KB so receipts fit (createImageBitmap applies EXIF rotation).
+async function compressReceipt(file: File): Promise<string> {
+  const bmp = await createImageBitmap(file)
+  const scale = Math.min(1, RECEIPT_MAX_PX / Math.max(bmp.width, bmp.height))
+  const canvas = document.createElement('canvas')
+  canvas.width = Math.round(bmp.width * scale)
+  canvas.height = Math.round(bmp.height * scale)
+  canvas.getContext('2d')!.drawImage(bmp, 0, 0, canvas.width, canvas.height)
+  bmp.close()
+  return canvas.toDataURL('image/jpeg', 0.7)
+}
 
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -67,7 +82,7 @@ export default function AddExpensePage() {
     }
     return existing.amount.toString()
   })
-  const [date, setDate]       = useState(existing?.date ?? new Date().toISOString().split('T')[0])
+  const [date, setDate]       = useState(existing?.date ?? today())
   const [category, setCategory] = useState<ExpenseCategory>(existing?.category ?? 'other')
   const [notes, setNotes]     = useState(existing?.notes ?? '')
   const [paidBy, setPaidBy]   = useState(existing?.paidBy ?? group?.members[0]?.id ?? '')
@@ -164,7 +179,7 @@ export default function AddExpensePage() {
   function handleSaveTemplate() {
     const name = templateName.trim()
     if (!name) { toast.error('Enter a template name'); return }
-    saveTemplate({ name, title: title.trim() || 'Expense', category, splitType, notes: notes.trim() || undefined })
+    if (!saveTemplate({ name, title: title.trim() || 'Expense', category, splitType, notes: notes.trim() || undefined })) return
     setTemplates(getTemplates())
     setSavingTemplate(false)
     setTemplateName('')
@@ -176,14 +191,15 @@ export default function AddExpensePage() {
     setTemplates(getTemplates())
   }
 
-  function handlePhotoChange(e: React.ChangeEvent<HTMLInputElement>) {
+  async function handlePhotoChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
-    if (!file) return
-    if (file.size > 600_000) { toast.error('Image must be under 600KB'); return }
-    const reader = new FileReader()
-    reader.onload = ev => setReceiptImage(ev.target?.result as string)
-    reader.readAsDataURL(file)
     e.target.value = ''
+    if (!file) return
+    try {
+      setReceiptImage(await compressReceipt(file))
+    } catch {
+      toast.error("Couldn't read that image — try a JPG or PNG")
+    }
   }
 
   function distributeExactEqually() {
@@ -266,21 +282,11 @@ export default function AddExpensePage() {
 
     // itemized
     if (itemizedTotal <= 0) { toast.error('Add at least one item'); return null }
-    const memberAmounts: Record<string, number> = {}
-    const processedItems: ExpenseItem[] = []
-    for (const it of formItems) {
-      const itAmt = parseFloat(it.amount) || 0
-      if (itAmt <= 0 || it.memberIds.length === 0) continue
-      const perPerson = itAmt / it.memberIds.length
-      const itSplits: SplitEntry[] = it.memberIds.map(id => ({ memberId: id, amount: Math.round(perPerson * 100) / 100 }))
-      processedItems.push({ id: it.id, name: it.name || 'Item', amount: itAmt, splits: itSplits })
-      for (const id of it.memberIds) memberAmounts[id] = (memberAmounts[id] ?? 0) + perPerson
-    }
-    const splits = Object.entries(memberAmounts)
-      .filter(([, a]) => a > 0.001)
-      .map(([memberId, a]) => ({ memberId, amount: Math.round(a * 100) / 100 }))
+    const { splits, items } = buildItemizedSplits(
+      formItems.map(it => ({ id: it.id, name: it.name, amount: parseFloat(it.amount) || 0, memberIds: it.memberIds }))
+    )
     if (splits.length === 0) { toast.error('Assign items to members'); return null }
-    return { splits, items: processedItems }
+    return { splits, items }
   }
 
   function handleSubmit(e: React.FormEvent) {
@@ -314,7 +320,7 @@ export default function AddExpensePage() {
       updatedAt: now,
     }
 
-    saveExpense(expense)
+    if (!saveExpense(expense)) return // storage full: the error toast is shown; keep the form so nothing is lost
     toast.success(existing ? 'Expense updated' : 'Expense added')
     navigate(existing ? `/g/${groupId}/expenses/${expense.id}` : `/g/${groupId}`)
   }
@@ -548,7 +554,7 @@ export default function AddExpensePage() {
                         </div>
                         <span className="flex-1 text-[13px] font-medium text-[#0a0a0a] dark:text-[#f0ede5] truncate">{m.name}</span>
                         <div className="flex items-center gap-1.5">
-                          <button
+                          <button aria-label="Fewer shares"
                             type="button"
                             onClick={() => setShareVals(p => ({ ...p, [m.id]: Math.max(0, (p[m.id] ?? 0) - 1) }))}
                             className="w-7 h-7 rounded border-2 border-[#0a0a0a] dark:border-[#f0ede5]/50 bg-[#f0ede5] dark:bg-[#1a1a17] flex items-center justify-center text-[#0a0a0a] dark:text-[#f0ede5] hover:bg-[#b9f542] hover:border-[#0a0a0a] transition-colors"
@@ -563,7 +569,7 @@ export default function AddExpensePage() {
                             onChange={e => setShareVals(p => ({ ...p, [m.id]: Math.max(0, parseInt(e.target.value) || 0) }))}
                             className="h-8 w-16 px-2 rounded border-2 border-[#0a0a0a] dark:border-[#f0ede5]/50 bg-white dark:bg-[#1a1a17] text-[13px] font-mono text-[#0a0a0a] dark:text-[#f0ede5] focus:outline-none focus:border-[#b9f542] text-center"
                           />
-                          <button
+                          <button aria-label="More shares"
                             type="button"
                             onClick={() => setShareVals(p => ({ ...p, [m.id]: (p[m.id] ?? 0) + 1 }))}
                             className="w-7 h-7 rounded border-2 border-[#0a0a0a] dark:border-[#f0ede5]/50 bg-[#f0ede5] dark:bg-[#1a1a17] flex items-center justify-center text-[#0a0a0a] dark:text-[#f0ede5] hover:bg-[#b9f542] hover:border-[#0a0a0a] transition-colors"
@@ -692,7 +698,7 @@ export default function AddExpensePage() {
                         />
                       </div>
                       {formItems.length > 1 && (
-                        <button type="button" onClick={() => removeItem(item.id)} className="p-1 rounded text-[#ff5c3d] hover:bg-[#ff5c3d]/10 transition-colors border border-[#ff5c3d]/30">
+                        <button aria-label="Remove item" type="button" onClick={() => removeItem(item.id)} className="p-1 rounded text-[#ff5c3d] hover:bg-[#ff5c3d]/10 transition-colors border border-[#ff5c3d]/30">
                           <X className="w-4 h-4" />
                         </button>
                       )}
@@ -794,7 +800,7 @@ export default function AddExpensePage() {
               <div className="flex items-start gap-3">
                 <div className="relative">
                   <img src={receiptImage} alt="Receipt" className="w-20 h-20 object-cover rounded border-2 border-[#0a0a0a] dark:border-[#f0ede5]/30 overflow-hidden" />
-                  <button
+                  <button aria-label="Remove receipt"
                     type="button"
                     onClick={() => setReceiptImage(undefined)}
                     className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-[#ff5c3d] text-white flex items-center justify-center shadow hover:opacity-80 transition-opacity"

@@ -6,10 +6,11 @@ import { TopBar } from '@/components/layout/TopBar'
 import { Button } from '@/components/common/Button'
 import { ConfirmModal } from '@/components/common/ConfirmModal'
 import { PageTransition } from '@/components/common/PageTransition'
-import { useGroup } from '@/hooks/useStore'
+import { useGroup, useExpenses, usePayments } from '@/hooks/useStore'
 import { saveGroup, deleteGroup, generateId, exportGroupData } from '@/lib/storage'
 import { toast } from '@/components/common/Toast'
 import { isValidUpiId } from '@/lib/upi'
+import { isMemberInUse } from '@/lib/calculations'
 import { cn } from '@/lib/utils'
 import type { GroupType, Member } from '@/types'
 
@@ -86,6 +87,8 @@ export default function GroupSettingsPage() {
   const { groupId } = useParams<{ groupId: string }>()
   const navigate = useNavigate()
   const group = useGroup(groupId!)
+  const expenses = useExpenses(groupId!)
+  const payments = usePayments(groupId!)
   const [confirmConfig, setConfirmConfig] = useState<ConfirmConfig | null>(null)
 
   // Group info state
@@ -146,7 +149,7 @@ export default function GroupSettingsPage() {
   function saveInfo() {
     const trimmed = name.trim()
     if (!trimmed) { toast.error('Name is required'); return }
-    saveGroup({ ...group!, name: trimmed, type, description, updatedAt: new Date().toISOString() })
+    if (!saveGroup({ ...group!, name: trimmed, type, description, updatedAt: new Date().toISOString() })) return
     toast.success('Saved')
   }
 
@@ -216,9 +219,13 @@ export default function GroupSettingsPage() {
 
   function removeMember(memberId: string) {
     const member = members.find((m) => m.id === memberId)
+    if (isMemberInUse(memberId, expenses, payments)) {
+      toast.error(`${member?.name ?? 'This member'} is part of expenses or payments — delete those first`)
+      return
+    }
     setConfirmConfig({
       title: `Remove ${member?.name ?? 'member'}?`,
-      description: 'They will be removed from this group. Past expenses they are part of will not be affected.',
+      description: 'They will be removed from this group.',
       confirmLabel: 'Remove',
       danger: true,
       onConfirm: () => {
@@ -399,10 +406,10 @@ export default function GroupSettingsPage() {
                           onKeyDown={(e) => { if (e.key === 'Enter') commitEdit(); if (e.key === 'Escape') cancelEdit() }}
                           className="flex-1 h-8 px-2.5 rounded border-2 border-[#b9f542] bg-white dark:bg-[#1e1e1a] text-[13px] text-[#0a0a0a] dark:text-[#f0ede5] focus:outline-none shadow-[2px_2px_0_#b9f542]"
                         />
-                        <button onMouseDown={(e) => e.preventDefault()} onClick={commitEdit} className="p-1 rounded text-[#4d6e08] dark:text-[#b9f542] hover:bg-[#f0ede5] dark:hover:bg-[#1a1a17] transition-colors">
+                        <button aria-label="Save name" onMouseDown={(e) => e.preventDefault()} onClick={commitEdit} className="p-1 rounded text-[#4d6e08] dark:text-[#b9f542] hover:bg-[#f0ede5] dark:hover:bg-[#1a1a17] transition-colors">
                           <Check className="w-4 h-4" />
                         </button>
-                        <button onMouseDown={(e) => e.preventDefault()} onClick={cancelEdit} className="p-1 rounded text-[#4a4940] dark:text-[#a09880] hover:bg-[#f0ede5] dark:hover:bg-[#1a1a17] transition-colors">
+                        <button aria-label="Cancel" onMouseDown={(e) => e.preventDefault()} onClick={cancelEdit} className="p-1 rounded text-[#4a4940] dark:text-[#a09880] hover:bg-[#f0ede5] dark:hover:bg-[#1a1a17] transition-colors">
                           <X className="w-4 h-4" />
                         </button>
                       </div>
@@ -425,16 +432,16 @@ export default function GroupSettingsPage() {
                               placeholder="e.g. name@upi or 9876543210@ybl"
                               className="flex-1 h-6 px-2 rounded border-2 border-[#b9f542] bg-white dark:bg-[#1e1e1a] text-[11px] font-mono text-[#0a0a0a] dark:text-[#f0ede5] placeholder:text-[#4a4940]/40 dark:placeholder:text-[#a09880]/40 focus:outline-none shadow-[1px_1px_0_#b9f542]"
                             />
-                            <button onMouseDown={(e) => e.preventDefault()} onClick={commitUpiEdit} className="p-0.5 rounded text-[#4d6e08] dark:text-[#b9f542] hover:bg-[#f0ede5] dark:hover:bg-[#1a1a17] transition-colors shrink-0">
+                            <button aria-label="Save UPI ID" onMouseDown={(e) => e.preventDefault()} onClick={commitUpiEdit} className="p-0.5 rounded text-[#4d6e08] dark:text-[#b9f542] hover:bg-[#f0ede5] dark:hover:bg-[#1a1a17] transition-colors shrink-0">
                               <Check className="w-3.5 h-3.5" />
                             </button>
-                            <button onMouseDown={(e) => e.preventDefault()} onClick={cancelUpiEdit} className="p-0.5 rounded text-[#4a4940] dark:text-[#a09880] hover:bg-[#f0ede5] dark:hover:bg-[#1a1a17] transition-colors shrink-0">
+                            <button aria-label="Cancel" onMouseDown={(e) => e.preventDefault()} onClick={cancelUpiEdit} className="p-0.5 rounded text-[#4a4940] dark:text-[#a09880] hover:bg-[#f0ede5] dark:hover:bg-[#1a1a17] transition-colors shrink-0">
                               <X className="w-3.5 h-3.5" />
                             </button>
                           </div>
                         ) : m.upiId ? (
                           <div className="flex items-center gap-1">
-                            <button
+                            <button aria-label="Edit UPI ID"
                               onClick={() => startUpiEdit(m)}
                               className="flex items-center gap-1 text-[10px] font-mono text-[#88bc20] dark:text-[#b9f542] hover:underline underline-offset-2 transition-colors max-w-[180px]"
                               title="Edit UPI ID"
@@ -442,7 +449,7 @@ export default function GroupSettingsPage() {
                               <AtSign className="w-2.5 h-2.5 shrink-0" />
                               <span className="truncate">{m.upiId}</span>
                             </button>
-                            <button
+                            <button aria-label="Remove UPI ID"
                               onClick={() => clearUpi(m)}
                               className="p-0.5 rounded text-[#4a4940]/40 dark:text-[#a09880]/40 hover:text-[#ff5c3d] transition-colors"
                               title="Remove UPI ID"
@@ -466,14 +473,14 @@ export default function GroupSettingsPage() {
                   {/* Pencil + Trash — hidden during either edit mode */}
                   {editingId !== m.id && editingUpiId !== m.id && (
                     <div className="flex items-center gap-1 sm:opacity-0 sm:group-hover/row:opacity-100 transition-opacity pt-0.5">
-                      <button
+                      <button aria-label="Rename member"
                         onClick={() => startEdit(m)}
                         className="w-8 h-8 flex items-center justify-center rounded text-[#4a4940] dark:text-[#a09880] hover:text-[#0a0a0a] dark:hover:text-[#f0ede5] hover:bg-[#f0ede5] dark:hover:bg-[#1a1a17] transition-colors"
                         title="Rename"
                       >
                         <Pencil className="w-3.5 h-3.5" />
                       </button>
-                      <button
+                      <button aria-label="Remove member"
                         onClick={() => removeMember(m.id)}
                         className="w-8 h-8 flex items-center justify-center rounded text-[#4a4940] dark:text-[#a09880] hover:text-[#ff5c3d] hover:bg-[#ff5c3d]/10 transition-colors"
                         title="Remove"
@@ -502,13 +509,13 @@ export default function GroupSettingsPage() {
                     placeholder="Member name"
                     className="flex-1 h-8 px-2.5 rounded border-2 border-[#b9f542] bg-white dark:bg-[#1e1e1a] text-[13px] text-[#0a0a0a] dark:text-[#f0ede5] focus:outline-none shadow-[2px_2px_0_#b9f542]"
                   />
-                  <button
+                  <button aria-label="Add member"
                     onClick={() => { addMember(); setShowAddInput(false) }}
                     className="p-1 rounded text-[#4d6e08] dark:text-[#b9f542] hover:bg-[#f0ede5] dark:hover:bg-[#1a1a17] transition-colors"
                   >
                     <Check className="w-4 h-4" />
                   </button>
-                  <button
+                  <button aria-label="Cancel"
                     onClick={() => { setNewMemberName(''); setShowAddInput(false) }}
                     className="p-1 rounded text-[#4a4940] dark:text-[#a09880] hover:bg-[#f0ede5] dark:hover:bg-[#1a1a17] transition-colors"
                   >

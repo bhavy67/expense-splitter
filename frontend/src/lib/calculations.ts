@@ -1,4 +1,4 @@
-import type { Expense, Payment, Member, Balance, Debt } from '@/types'
+import type { Expense, Payment, Member, Balance, Debt, SplitEntry, ExpenseItem } from '@/types'
 
 export function calculateBalances(
   expenses: Expense[],
@@ -67,7 +67,7 @@ export function getTotalExpenses(expenses: Expense[]): number {
   return expenses.reduce((sum, e) => sum + e.amount, 0)
 }
 
-export function buildEqualSplits(amount: number, memberIds: string[]): import('@/types').SplitEntry[] {
+export function buildEqualSplits(amount: number, memberIds: string[]): SplitEntry[] {
   if (memberIds.length === 0) return []
   const share = Math.round((amount / memberIds.length) * 100) / 100
   const splits = memberIds.map((id) => ({ memberId: id, amount: share }))
@@ -75,4 +75,44 @@ export function buildEqualSplits(amount: number, memberIds: string[]): import('@
   const total = splits.reduce((s, e) => s + e.amount, 0)
   splits[0].amount = Math.round((splits[0].amount + (amount - total)) * 100) / 100
   return splits
+}
+
+// Each item is split equally among its members; per-member totals are summed
+// and the last one absorbs rounding so the splits always add up to the total.
+export function buildItemizedSplits(
+  items: { id: string; name: string; amount: number; memberIds: string[] }[]
+): { splits: SplitEntry[]; items: ExpenseItem[]; total: number } {
+  const perMember: Record<string, number> = {}
+  const outItems: ExpenseItem[] = []
+  let total = 0
+  for (const it of items) {
+    if (it.amount <= 0 || it.memberIds.length === 0) continue
+    const splits = buildEqualSplits(it.amount, it.memberIds)
+    outItems.push({ id: it.id, name: it.name || 'Item', amount: it.amount, splits })
+    for (const s of splits) perMember[s.memberId] = (perMember[s.memberId] ?? 0) + s.amount
+    total += it.amount
+  }
+  total = Math.round(total * 100) / 100
+  const splits = Object.entries(perMember)
+    .filter(([, a]) => a > 0.001)
+    .map(([memberId, a]) => ({ memberId, amount: Math.round(a * 100) / 100 }))
+  if (splits.length > 0) {
+    const sum = splits.reduce((s, e) => s + e.amount, 0)
+    const last = splits[splits.length - 1]
+    last.amount = Math.round((last.amount + total - sum) * 100) / 100
+  }
+  return { splits, items: outItems, total }
+}
+
+// A member who paid, owes, or appears in a payment can't be removed without
+// breaking balances (their share would vanish from the totals).
+export function isMemberInUse(memberId: string, expenses: Expense[], payments: Payment[]): boolean {
+  return (
+    expenses.some((e) =>
+      e.paidBy === memberId ||
+      e.splits.some((s) => s.memberId === memberId) ||
+      e.items?.some((it) => it.splits.some((s) => s.memberId === memberId))
+    ) ||
+    payments.some((p) => p.fromMemberId === memberId || p.toMemberId === memberId)
+  )
 }

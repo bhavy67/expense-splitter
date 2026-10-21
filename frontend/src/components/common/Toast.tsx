@@ -62,7 +62,7 @@ function ToastItem({ toast: t, onRemove }: { toast: Toast; onRemove: () => void 
     >
       <span className={c.iconColor}>{c.icon}</span>
       <p className="text-[12px] font-bold uppercase tracking-[0.06em] text-[#f0ede5] flex-1 leading-snug">{t.message}</p>
-      <button
+      <button aria-label="Dismiss notification"
         onClick={onRemove}
         className="text-[#f0ede5]/40 hover:text-[#f0ede5] transition-colors shrink-0"
       >
