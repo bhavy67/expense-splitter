@@ -1,6 +1,6 @@
 import { lazy, Suspense } from 'react'
 import { Routes, Route, useLocation } from 'react-router-dom'
-import { AnimatePresence } from 'framer-motion'
+import { AnimatePresence, MotionConfig } from 'framer-motion'
 import { ToastProvider } from '@/components/common/Toast'
 import { InstallPrompt } from '@/components/common/InstallPrompt'
 import { UpdateBanner } from '@/components/common/UpdateBanner'
@@ -25,7 +25,7 @@ export default function App() {
   const location = useLocation()
 
   return (
-    <>
+    <MotionConfig reducedMotion="user">
       <Suspense fallback={<PageLoader />}>
         <AnimatePresence mode="wait" initial={false}>
           <Routes location={location} key={location.pathname}>
@@ -42,6 +42,6 @@ export default function App() {
       <ToastProvider />
       <InstallPrompt />
       <UpdateBanner />
-    </>
+    </MotionConfig>
   )
 }

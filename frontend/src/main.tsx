@@ -7,6 +7,8 @@ import { setStorageErrorHandler } from '@/lib/storage'
 import { toast } from '@/components/common/Toast'
 
 setStorageErrorHandler(() => toast.error('Storage full — free up space to save data'))
+// All data is local — ask Chrome not to evict it when the device is low on space.
+navigator.storage?.persist?.().catch(() => {})
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

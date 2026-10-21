@@ -152,3 +152,17 @@ input[type=number] {
   background: #b9f542;
   color: #0a0a0a;
 }
+
+/* Keyboard focus ring everywhere (browser defaults vanish on the dark theme). */
+:focus-visible {
+  outline: 2px solid #b9f542;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

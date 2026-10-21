@@ -10,6 +10,7 @@ import {
   whatsappShareText,
 } from '@/lib/upi'
 import { savePayment, generateId } from '@/lib/storage'
+import { today } from '@/lib/utils'
 import { toast } from '@/components/common/Toast'
 import type { Debt, Group, Member } from '@/types'
 
@@ -144,15 +145,16 @@ export function UpiQrModal({ debt, group, members, onClose }: UpiQrModalProps) {
 
   function handleRecordPayment() {
     const now = new Date()
-    savePayment({
+    const saved = savePayment({
       id:             generateId(),
       groupId:        group.id,
       fromMemberId:   debt.from,
       toMemberId:     debt.to,
       amount:         debt.amount,
-      date:           now.toISOString().split('T')[0],
+      date:           today(),
       createdAt:      now.toISOString(),
     })
+    if (!saved) return
     toast.success(`₹${formatUpiAmount(debt.amount)} marked as paid — ${fromMember!.name} → ${toMember!.name}`)
     onClose()
   }
@@ -196,7 +198,7 @@ export function UpiQrModal({ debt, group, members, onClose }: UpiQrModalProps) {
               {toMember.name}
             </h2>
           </div>
-          <button
+          <button aria-label="Close"
             onClick={onClose}
             className="w-8 h-8 flex items-center justify-center rounded text-[#4a4940] dark:text-[#a09880] hover:text-[#0a0a0a] dark:hover:text-[#f0ede5] hover:bg-[#f0ede5] dark:hover:bg-[#1a1a17] transition-colors"
           >
@@ -259,7 +261,7 @@ export function UpiQrModal({ debt, group, members, onClose }: UpiQrModalProps) {
                   <span className="flex-1 text-[12px] font-mono text-[#0a0a0a] dark:text-[#f0ede5] truncate">
                     {toMember.upiId}
                   </span>
-                  <button
+                  <button aria-label="Copy UPI ID"
                     onClick={handleCopyUpiId}
                     className="p-1 rounded text-[#4a4940] dark:text-[#a09880] hover:text-[#0a0a0a] dark:hover:text-[#f0ede5] transition-colors shrink-0"
                     title="Copy UPI ID"

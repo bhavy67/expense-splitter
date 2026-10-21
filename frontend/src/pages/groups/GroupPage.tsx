@@ -65,14 +65,14 @@ export default function GroupPage() {
         showBack
         actions={
           <div className="flex items-center gap-1">
-            <button
+            <button aria-label="Add expense"
               onClick={() => navigate(`/g/${groupId}/expenses/new`)}
               className="p-1.5 rounded text-[#b9f542] hover:bg-white/10 transition-colors"
               title="Add expense"
             >
               <Plus className="w-5 h-5" />
             </button>
-            <button
+            <button aria-label="Group settings"
               onClick={() => navigate(`/g/${groupId}/settings`)}
               className="p-1.5 rounded text-[#f0ede5]/60 hover:text-[#f0ede5] hover:bg-white/10 transition-colors"
               title="Settings"
@@ -197,7 +197,7 @@ export default function GroupPage() {
                       className="flex-1 text-[12px] font-medium bg-transparent text-[#0a0a0a] dark:text-[#f0ede5] placeholder:text-[#4a4940]/40 dark:placeholder:text-[#a09880]/40 focus:outline-none"
                     />
                     {searchQuery && (
-                      <button onClick={() => setSearchQuery('')} className="shrink-0 text-[#4a4940] dark:text-[#a09880] hover:text-[#0a0a0a] dark:hover:text-[#f0ede5] transition-colors">
+                      <button aria-label="Clear search" onClick={() => setSearchQuery('')} className="shrink-0 text-[#4a4940] dark:text-[#a09880] hover:text-[#0a0a0a] dark:hover:text-[#f0ede5] transition-colors">
                         <X className="w-3.5 h-3.5" />
                       </button>
                     )}
@@ -354,7 +354,7 @@ export default function GroupPage() {
       </PageTransition>
 
       {/* Mobile FAB */}
-      <button
+      <button aria-label="Add expense"
         onClick={() => navigate(`/g/${groupId}/expenses/new`)}
         className="md:hidden fixed bottom-20 right-4 w-14 h-14 rounded bg-[#b9f542] flex items-center justify-center border-2 border-[#0a0a0a] shadow-[3px_3px_0_#0a0a0a] dark:shadow-[3px_3px_0_#f0ede5] transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-none z-30"
       >

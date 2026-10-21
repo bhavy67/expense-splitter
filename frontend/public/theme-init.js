@@ -4,4 +4,4 @@ try {
   var t = localStorage.getItem('splititt-theme');
   var d = (!t && window.matchMedia('(prefers-color-scheme: dark)').matches) || t === 'dark';
   if (d) document.documentElement.classList.add('dark');
-} catch (e) {}
+} catch {}

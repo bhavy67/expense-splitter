@@ -4,7 +4,7 @@ import { Button } from '@/components/common/Button'
 import { savePayment, generateId } from '@/lib/storage'
 import { formatCurrency } from '@/lib/currency'
 import { toast } from '@/components/common/Toast'
-import { cn } from '@/lib/utils'
+import { cn, today } from '@/lib/utils'
 import type { Member } from '@/types'
 
 interface Props {
@@ -25,7 +25,7 @@ export function RecordPaymentModal({
   const [toId, setToId] = useState(defaultTo ?? members[1]?.id ?? '')
   const [amount, setAmount] = useState(defaultAmount ? defaultAmount.toFixed(2) : '')
   const [note, setNote] = useState('')
-  const [date, setDate] = useState(new Date().toISOString().split('T')[0])
+  const [date, setDate] = useState(today())
 
   useEffect(() => {
     if (open) {
@@ -33,7 +33,7 @@ export function RecordPaymentModal({
       setToId(defaultTo ?? members[1]?.id ?? '')
       setAmount(defaultAmount ? defaultAmount.toFixed(2) : '')
       setNote('')
-      setDate(new Date().toISOString().split('T')[0])
+      setDate(today())
     }
   }, [open, defaultFrom, defaultTo, defaultAmount, members])
 
@@ -49,7 +49,7 @@ export function RecordPaymentModal({
     if (fromId === toId) { toast.error('From and To must be different members'); return }
     if (amt <= 0) { toast.error('Enter a valid amount'); return }
     const now = new Date().toISOString()
-    savePayment({
+    const saved = savePayment({
       id: generateId(),
       groupId,
       fromMemberId: fromId,
@@ -59,6 +59,7 @@ export function RecordPaymentModal({
       date,
       createdAt: now,
     })
+    if (!saved) return
     toast.success('Payment recorded')
     onClose()
   }
@@ -69,7 +70,7 @@ export function RecordPaymentModal({
       <div className="relative w-full sm:max-w-md bg-white dark:bg-[#1e1e1a] rounded-t sm:rounded border-2 border-[#0a0a0a] dark:border-[#f0ede5] shadow-[5px_5px_0_#0a0a0a] dark:shadow-[5px_5px_0_#b9f542] sm:mx-4 p-6 pb-8 sm:pb-6">
         <div className="flex items-center justify-between mb-5">
           <h2 className="text-base font-black uppercase tracking-[0.04em] text-[#0a0a0a] dark:text-[#f0ede5]">Record Payment</h2>
-          <button
+          <button aria-label="Close"
             onClick={onClose}
             className="p-1.5 rounded text-[#4a4940] dark:text-[#a09880] hover:bg-[#f0ede5] dark:hover:bg-[#1a1a17] transition-colors border border-[#0a0a0a] dark:border-[#f0ede5]/30"
           >

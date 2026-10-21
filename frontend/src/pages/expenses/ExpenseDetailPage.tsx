@@ -85,14 +85,14 @@ export default function ExpenseDetailPage() {
         showBack
         actions={
           <div className="flex items-center gap-1">
-            <button
+            <button aria-label="Edit expense"
               onClick={() => navigate(`/g/${groupId}/expenses/new?edit=${expenseId}`)}
               className="p-1.5 rounded text-[#b9f542] hover:bg-white/10 dark:hover:bg-white/5 transition-colors"
               title="Edit expense"
             >
               <Edit2 className="w-4 h-4" />
             </button>
-            <button
+            <button aria-label="Delete expense"
               onClick={() => setConfirmDelete(true)}
               className="p-1.5 rounded text-[#ff5c3d] hover:bg-[#ff5c3d]/10 transition-colors"
               title="Delete expense"
@@ -290,7 +290,7 @@ export default function ExpenseDetailPage() {
             alt="Receipt"
             className="max-w-full max-h-full object-contain rounded"
           />
-          <button
+          <button aria-label="Close receipt"
             className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/15 flex items-center justify-center text-white hover:bg-white/25 transition-colors"
             onClick={() => setReceiptFullscreen(false)}
           >

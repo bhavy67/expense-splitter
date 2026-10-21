@@ -1,27 +1,15 @@
 import type { ExpenseTemplate } from '@/types'
-import { generateId } from './storage'
-
-const KEY = 'splititt_templates'
-
-function read(): ExpenseTemplate[] {
-  try { return JSON.parse(localStorage.getItem(KEY) ?? '[]') } catch { return [] }
-}
-
-function write(list: ExpenseTemplate[]): void {
-  localStorage.setItem(KEY, JSON.stringify(list))
-  window.dispatchEvent(new CustomEvent('splititt:update', { detail: 'templates' }))
-}
+import { generateId, read, write } from './storage'
 
 export function getTemplates(): ExpenseTemplate[] {
-  return read()
+  return read<ExpenseTemplate[]>('templates', [])
 }
 
-export function saveTemplate(fields: Omit<ExpenseTemplate, 'id' | 'createdAt'>): ExpenseTemplate {
+export function saveTemplate(fields: Omit<ExpenseTemplate, 'id' | 'createdAt'>): boolean {
   const t: ExpenseTemplate = { ...fields, id: generateId(), createdAt: new Date().toISOString() }
-  write([t, ...read()])
-  return t
+  return write('templates', [t, ...getTemplates()])
 }
 
 export function deleteTemplate(id: string): void {
-  write(read().filter((t) => t.id !== id))
+  write('templates', getTemplates().filter((t) => t.id !== id))
 }

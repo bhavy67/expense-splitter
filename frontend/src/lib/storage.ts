@@ -6,7 +6,7 @@ export function setStorageErrorHandler(handler: WriteErrorHandler) { onWriteErro
 
 const P = 'splititt_'
 
-function read<T>(key: string, fallback: T): T {
+export function read<T>(key: string, fallback: T): T {
   try {
     const raw = localStorage.getItem(P + key)
     return raw ? (JSON.parse(raw) as T) : fallback
@@ -15,12 +15,16 @@ function read<T>(key: string, fallback: T): T {
   }
 }
 
-function write<T>(key: string, value: T): void {
+// Returns false when the write failed (usually storage full) — callers must
+// not report success or discard the user's input in that case.
+export function write<T>(key: string, value: T): boolean {
   try {
     localStorage.setItem(P + key, JSON.stringify(value))
     window.dispatchEvent(new CustomEvent('splititt:update', { detail: key }))
+    return true
   } catch (e) {
     onWriteError?.(e)
+    return false
   }
 }
 
@@ -38,12 +42,12 @@ export function getGroup(id: string): Group | null {
   return getGroups().find((g) => g.id === id) ?? null
 }
 
-export function saveGroup(group: Group): void {
+export function saveGroup(group: Group): boolean {
   const groups = getGroups()
   const idx = groups.findIndex((g) => g.id === group.id)
   if (idx >= 0) groups[idx] = group
   else groups.unshift(group)
-  write('groups', groups)
+  return write('groups', groups)
 }
 
 export function deleteGroup(id: string): void {
@@ -66,14 +70,14 @@ export function getExpense(groupId: string, id: string): Expense | null {
   return getExpenses(groupId).find((e) => e.id === id) ?? null
 }
 
-export function saveExpense(expense: Expense): void {
+export function saveExpense(expense: Expense): boolean {
   const all = read<Record<string, Expense[]>>('expenses', {})
   const list = all[expense.groupId] ?? []
   const idx = list.findIndex((e) => e.id === expense.id)
   if (idx >= 0) list[idx] = expense
   else list.unshift(expense)
   all[expense.groupId] = list
-  write('expenses', all)
+  return write('expenses', all)
 }
 
 export function deleteExpense(groupId: string, id: string): void {
@@ -88,12 +92,12 @@ export function getPayments(groupId: string): Payment[] {
   return read<Record<string, Payment[]>>('payments', {})[groupId] ?? []
 }
 
-export function savePayment(payment: Payment): void {
+export function savePayment(payment: Payment): boolean {
   const all = read<Record<string, Payment[]>>('payments', {})
   const list = all[payment.groupId] ?? []
   list.unshift(payment)
   all[payment.groupId] = list
-  write('payments', all)
+  return write('payments', all)
 }
 
 export function deletePayment(groupId: string, id: string): void {
