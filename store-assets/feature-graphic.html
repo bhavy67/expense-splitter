@@ -1,0 +1,53 @@
+<!doctype html>
+<!-- Play Store feature graphic source: open in Chrome at a 1024×500 viewport and screenshot. Uses the PNGs in this folder. -->
+<html>
+<head>
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,500;9..40,700;9..40,900&family=DM+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; box-sizing: border-box; }
+  html, body { width: 1024px; height: 500px; overflow: hidden; background: #0a0a0a; }
+  body { font-family: 'DM Sans', sans-serif; color: #f0ede5; position: relative; }
+
+  .grid { position: absolute; inset: 0; background-image:
+      linear-gradient(#f0ede50a 1px, transparent 1px), linear-gradient(90deg, #f0ede50a 1px, transparent 1px);
+    background-size: 32px 32px; }
+
+  .copy { position: absolute; left: 64px; top: 0; bottom: 0; width: 520px; display: flex; flex-direction: column; justify-content: center; }
+  .brand { display: flex; align-items: center; gap: 16px; }
+  .wordmark { font-weight: 900; font-size: 56px; letter-spacing: 0.02em; text-transform: uppercase; line-height: 1; }
+  .wordmark span { color: #b9f542; }
+  h1 { margin-top: 28px; font-weight: 900; font-size: 44px; line-height: 1.08; text-transform: uppercase; letter-spacing: 0.01em; }
+  h1 em { font-style: normal; color: #0a0a0a; background: #b9f542; padding: 0 10px; box-shadow: 5px 5px 0 #f0ede5; }
+  .chips { margin-top: 34px; display: flex; gap: 12px; }
+  .chip { font-family: 'DM Mono', monospace; font-weight: 500; font-size: 15px; text-transform: uppercase; letter-spacing: 0.06em;
+    padding: 9px 14px; border: 2px solid #f0ede5; border-radius: 4px; box-shadow: 3px 3px 0 #b9f542; }
+
+  .phone { position: absolute; width: 228px; height: 405px; border: 3px solid #f0ede5; border-radius: 22px; overflow: hidden;
+    background: #0a0a0a; box-shadow: 10px 10px 0 #b9f542; }
+  .phone img { width: 100%; display: block; }
+  .p1 { left: 610px; top: 62px; }
+  .p2 { left: 768px; top: 128px; box-shadow: 10px 10px 0 #f0ede5; border-color: #b9f542; }
+</style>
+</head>
+<body>
+  <div class="grid"></div>
+  <div class="copy">
+    <div class="brand">
+      <svg width="58" height="58" viewBox="0 0 32 32" fill="none">
+        <text x="16" y="24" text-anchor="middle" font-family="'DM Sans', Arial, sans-serif" font-weight="900" font-size="22" fill="#b9f542">₹</text>
+        <line x1="29" y1="3" x2="3" y2="29" stroke="#f0ede5" stroke-width="3" stroke-linecap="round"/>
+      </svg>
+      <div class="wordmark">Split<span>Itt</span></div>
+    </div>
+    <h1>Split expenses,<br><em>not friendships.</em></h1>
+    <div class="chips">
+      <div class="chip">No sign-up</div>
+      <div class="chip">Settle via UPI</div>
+      <div class="chip">Works offline</div>
+    </div>
+  </div>
+  <div class="phone p1"><img src="2-expenses.png" alt=""></div>
+  <div class="phone p2"><img src="3-settle-up.png" alt=""></div>
+</body>
+</html>

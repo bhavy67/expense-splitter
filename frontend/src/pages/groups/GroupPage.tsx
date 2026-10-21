@@ -353,13 +353,6 @@ export default function GroupPage() {
         </div>
       </PageTransition>
 
-      {/* Mobile FAB */}
-      <button aria-label="Add expense"
-        onClick={() => navigate(`/g/${groupId}/expenses/new`)}
-        className="md:hidden fixed bottom-20 right-4 w-14 h-14 rounded bg-[#b9f542] flex items-center justify-center border-2 border-[#0a0a0a] shadow-[3px_3px_0_#0a0a0a] dark:shadow-[3px_3px_0_#f0ede5] transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-none z-30"
-      >
-        <Plus className="w-6 h-6 text-[#0a0a0a]" />
-      </button>
     </AppShell>
   )
 }
