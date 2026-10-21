@@ -1,109 +1,46 @@
 # Deployment
 
-The app is split across two hosted pieces:
+SplitItt is a static Vite/React PWA in `frontend/`. There is no backend:
+all data lives in the browser's localStorage on the user's device.
 
-- **`frontend/`** — a static Vite/React SPA. Deploys to **Vercel**.
-- **Backend** — entirely **Supabase**: Postgres (schema + RLS in
-  `supabase/migrations/`), Supabase Auth (email/password), Supabase
-  Realtime (live group updates), and one Edge Function (`supabase/functions/expenses/`)
-  that owns expense writes (validation, split-building, the audit trail, and
-  triggering settlement recalculation). There is no separate server to host —
-  everything backend-side lives inside the Supabase project already
-  provisioned for this app (**"Expense Splitter"** — the Supabase project's
-  own name predates the SplitItt rebrand and hasn't been renamed;
-  `ekghmehgnotdrelhghpk`, `ap-south-1`).
-
-## 1. Supabase project setup
-
-The schema, RLS policies, RPC functions (`join_group`, `recalculate_settlements`,
-etc.), and the `expenses` Edge Function are already applied to the project.
-To reproduce this on a different project (or after a reset):
-
-```bash
-# from supabase/migrations/ — apply in order via the SQL editor, the
-# Supabase CLI (`supabase db push`), or the apply_migration MCP tool.
-20260828000001_init_schema.sql
-20260828000002_harden_function_privileges.sql
-
-# deploy the Edge Function (Supabase CLI: `supabase functions deploy expenses`)
-supabase/functions/expenses/index.ts
-```
-
-### Auth providers (manual — no API for this)
-
-In the Supabase dashboard, **Authentication → Providers**:
-
-- **Email**: enabled by default on new projects. Decide whether to require
-  email confirmation (Authentication → Providers → Email → "Confirm email")
-  — the frontend handles both cases (`useRegister` in `hooks/useAuth.ts`).
-  Email/password is currently the only sign-in method — Google sign-in was
-  removed (see git history if it's ever wanted back).
-
-Also set **Authentication → URL Configuration → Site URL** (and Redirect
-URLs, if used) to your deployed Vercel URL.
-
-### Service-role key (for the Edge Function)
-
-`SUPABASE_URL`, `SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY` are
-injected into Edge Functions automatically by Supabase — no manual env var
-setup needed there.
-
-## 2. Frontend (Vercel)
+## Vercel
 
 Deployed as project **`expense-splitter`** in the `bhavyladani-project`
 team, git-linked to `bhavy67/expense-splitter` (auto-deploys `main`).
-Live at https://expense-splitter-one-iota.vercel.app.
+Production domain: **https://splititt.bhavyladani.in**.
 
-**Getting `splititt.vercel.app`**: the app is branded SplitItt, but the
-Vercel *project* is still named `expense-splitter` — there's no API to
-rename a project or claim a specific `*.vercel.app` alias, only a dashboard
-action: **Project Settings → General → Project Name → `splititt`**. Vercel
-automatically re-provisions the default domain to match on rename (as long
-as `splititt.vercel.app` isn't already claimed by someone else), and the
-GitHub integration/auto-deploy keeps working untouched. Deliberately did
-*not* work around this by creating a second, separately-deployed project
-literally named `splititt` — Vercel project names are unique per team, so
-that would only squat the name and block the real (git-linked) fix.
+The Vercel project's Root Directory is the repo root, so the root
+`vercel.json` builds the subdirectory directly (`cd frontend && npm run build`,
+output `frontend/dist`). It also sets:
 
-This is a monorepo, and the Vercel project's **Root Directory** setting is
-unset (repo root) — rather than changing that setting, the root-level
-`vercel.json` tells Vercel how to build the subdirectory directly:
+- **SPA rewrite** — every unknown path serves `index.html`. Real files in
+  `public/` (e.g. `robots.txt`, `.well-known/assetlinks.json`) win over it.
+- **Security headers** — CSP, nosniff, referrer, permissions, frame-deny.
+  The CSP allows scripts from `'self'` only, which is why the theme
+  anti-flicker script lives in `public/theme-init.js` instead of inline.
+  If you add an external request (API, analytics, CDN), add its origin to
+  the CSP **and** update the About & Privacy page (`/privacy`).
+- **Cache headers** — `/assets/*` immutable; `sw.js`, `index.html`,
+  `manifest.webmanifest` always revalidate.
 
-```json
-{
-  "buildCommand": "cd frontend && npm install && npm run build",
-  "outputDirectory": "frontend/dist",
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
-}
-```
+No environment variables are needed.
 
-(`frontend/vercel.json` also exists, for the cleaner setup — set the
-project's Root Directory to `frontend` in the dashboard and it takes over
-instead; then the root `vercel.json` is simply unused.)
+## PWA updates
 
-**Config values**: `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` are
-committed in `frontend/.env.production` rather than set as Vercel project
-env vars — both are meant to be public (the anon key only grants what RLS
-allows; it ships in every client bundle regardless of where it's sourced
-from).
+`vite-plugin-pwa` runs in `prompt` mode: when a new deploy is detected
+(hourly, on tab focus, on reconnect) the app shows "A new version is ready
+→ Reload". Users with a stuck build can use **About & Privacy → Clear cache
+& reload** (clears service worker + caches, keeps their data).
 
-No CORS configuration is needed on the Supabase side — PostgREST and Edge
-Functions accept requests from any origin by default; access control is
-entirely RLS/JWT-based, not origin-based.
+## Icons
+
+`node frontend/scripts/gen-icons.mjs` regenerates every PNG icon, including
+the maskable one, from the mark defined in that script.
 
 ## Local development
 
-- `npm run dev` in `frontend/` — talks directly to the hosted Supabase
-  project via `VITE_SUPABASE_URL`/`VITE_SUPABASE_ANON_KEY` in a local
-  `.env` file (copy `.env.example`). There's no local backend process to
-  run.
-- To develop against a local Supabase stack instead: `supabase start`
-  (Supabase CLI), then point `.env` at the printed local URL/anon key, and
-  `supabase functions serve expenses` to run the Edge Function locally.
-
-## Regenerating types after a schema change
-
-`frontend/src/lib/database.types.ts` is generated from the live schema
-(`mcp__Supabase__generate_typescript_types`, or `supabase gen types
-typescript` via the CLI). Regenerate it after any migration that adds/changes
-tables, columns, or RPC function signatures.
+```bash
+cd frontend
+npm run dev                      # dev server
+npm run build && npm run preview # always check the production build too
+```

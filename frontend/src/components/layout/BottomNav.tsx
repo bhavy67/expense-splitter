@@ -1,11 +1,9 @@
 import { NavLink, useNavigate, useLocation } from 'react-router-dom'
-import { LayoutDashboard, Plus, Sun, Moon } from 'lucide-react'
+import { LayoutDashboard, Plus, Info } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { useThemeStore } from '@/store/theme'
 
 export function BottomNav() {
   const navigate = useNavigate()
-  const { theme, toggle } = useThemeStore()
   const { pathname } = useLocation()
 
   if (pathname.includes('/expenses/new')) return null
@@ -36,13 +34,20 @@ export function BottomNav() {
           <Plus className="w-6 h-6 text-[#0a0a0a]" strokeWidth={3} />
         </button>
 
-        <button
-          onClick={toggle}
-          className="flex flex-col items-center gap-0.5 px-5 py-2 min-h-[44px] justify-center text-[#4a4940]/50 dark:text-[#f0ede5]/40 hover:text-[#0a0a0a] dark:hover:text-[#f0ede5] transition-colors"
+        <NavLink
+          to="/privacy"
+          className={({ isActive }) =>
+            cn(
+              'flex flex-col items-center gap-0.5 px-5 py-2 min-h-[44px] justify-center transition-colors',
+              isActive
+                ? 'text-[#4d6e08] dark:text-[#b9f542]'
+                : 'text-[#4a4940]/50 dark:text-[#f0ede5]/40 hover:text-[#0a0a0a] dark:hover:text-[#f0ede5]'
+            )
+          }
         >
-          {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-          <span className="text-[10px] font-bold uppercase tracking-[0.1em]">Theme</span>
-        </button>
+          <Info className="w-5 h-5" />
+          <span className="text-[10px] font-bold uppercase tracking-[0.1em]">About</span>
+        </NavLink>
       </div>
     </nav>
   )
