@@ -1,0 +1,13 @@
+# Signing — never commit. Back up android.keystore + password in a password manager.
+*.keystore
+*.jks
+keystore.properties
+
+# Build output
+.gradle/
+build/
+app/build/
+local.properties
+*.apk
+*.aab
+*.idsig
