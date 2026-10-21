@@ -7,10 +7,6 @@
 node_modules/
 dist/
 
-# Supabase CLI (local dev)
-supabase/.branches
-supabase/.temp
-
 # IDE
 .vscode/
 .idea/
@@ -23,3 +19,4 @@ supabase/.temp
 
 # Redis
 dump.rdb
+brag-output*/

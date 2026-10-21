@@ -8,10 +8,11 @@ export default defineConfig({
     react(),
     tailwindcss(),
     VitePWA({
-      registerType: 'autoUpdate',
+      registerType: 'prompt', // UpdateBanner asks before reloading, so a half-filled form isn't lost
       includeAssets: ['favicon.svg', 'icon.svg', 'icons/*.png'],
       manifest: {
-        name: 'SplitItt',
+        id: '/',
+        name: 'SplitItt — Expense Splitter',
         short_name: 'SplitItt',
         description: 'Split group expenses with friends, roommates, and travel crews.',
         theme_color: '#0a0a0a',
@@ -19,7 +20,9 @@ export default defineConfig({
         display: 'standalone',
         start_url: '/',
         scope: '/',
-        orientation: 'portrait-primary',
+        lang: 'en-IN',
+        dir: 'ltr',
+        categories: ['finance', 'utilities'],
         icons: [
           {
             src: '/icons/icon-192.png',
@@ -32,7 +35,7 @@ export default defineConfig({
             type: 'image/png',
           },
           {
-            src: '/icons/icon-512.png',
+            src: '/icons/icon-maskable-512.png',
             sizes: '512x512',
             type: 'image/png',
             purpose: 'maskable',
@@ -42,17 +45,6 @@ export default defineConfig({
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
         runtimeCaching: [
-          {
-            // Supabase API — network-first with 4s timeout, then serve cache
-            urlPattern: /^https:\/\/[a-z]+\.supabase\.co\/.*/i,
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'supabase-api',
-              networkTimeoutSeconds: 4,
-              expiration: { maxEntries: 100, maxAgeSeconds: 60 * 60 * 24 },
-              cacheableResponse: { statuses: [0, 200] },
-            },
-          },
           {
             // Google Fonts — cache-first, long TTL
             urlPattern: /^https:\/\/fonts\.(googleapis|gstatic)\.com\/.*/i,

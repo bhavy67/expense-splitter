@@ -13,6 +13,7 @@
     <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png" />
 
     <!-- Apple / iOS PWA -->
+    <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="SplitItt" />
@@ -28,13 +29,7 @@
     <title>SplitItt — Split expenses, not friendships</title>
 
     <!-- Anti-flicker: apply dark class before first paint -->
-    <script>
-      try {
-        var t = localStorage.getItem('splititt-theme');
-        var d = (!t && window.matchMedia('(prefers-color-scheme: dark)').matches) || t === 'dark';
-        if (d) document.documentElement.classList.add('dark');
-      } catch(e) {}
-    </script>
+    <script src="/theme-init.js"></script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />

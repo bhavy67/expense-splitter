@@ -1,5 +1,5 @@
 import { Link, NavLink, useNavigate } from 'react-router-dom'
-import { LayoutDashboard, Plus, Sun, Moon } from 'lucide-react'
+import { LayoutDashboard, Plus, Sun, Moon, Info } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Logo } from '@/components/common/Logo'
 import { useThemeStore } from '@/store/theme'
@@ -85,6 +85,7 @@ export function Sidebar() {
       </div>
 
       <div className="pt-3 border-t-2 border-[#0a0a0a]/20 dark:border-[#b9f542]/30 flex flex-col gap-0.5 mt-2">
+        <NavItem to="/privacy" icon={<Info className="w-4 h-4" />} label="About & privacy" />
         <button
           onClick={toggle}
           className="flex items-center gap-3 px-3 py-2 rounded text-sm font-bold uppercase tracking-[0.06em] text-[#0a0a0a]/60 dark:text-[#f0ede5]/60 hover:bg-[#0a0a0a]/5 dark:hover:bg-white/10 hover:text-[#0a0a0a] dark:hover:text-[#f0ede5] transition-colors"

@@ -49,4 +49,13 @@ await render(makeSvg(512), join(out, 'icon-512.png'), 512)
 await render(makeSvg(192), join(out, 'icon-192.png'), 192)
 await render(makeSvg(180), join(out, 'apple-touch-icon.png'), 180)
 
+// Maskable: Android crops to a circle/squircle, so shrink the mark into the
+// inner ~65% (safe zone is a 80%-diameter circle) on a full-bleed background.
+const inner = Buffer.from(makeSvg(330))
+await sharp({ create: { width: 512, height: 512, channels: 4, background: '#0a0a0a' } })
+  .composite([{ input: inner, gravity: 'center' }])
+  .png({ compressionLevel: 9 })
+  .toFile(join(out, 'icon-maskable-512.png'))
+console.log(`✓ ${join(out, 'icon-maskable-512.png')} (512×512 maskable)`)
+
 console.log('All icons generated.')
