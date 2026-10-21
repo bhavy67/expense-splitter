@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "in.bhavyladani.splititt",
+      "sha256_cert_fingerprints": [
+        "3A:00:A4:03:E2:23:56:B3:20:2A:3D:9E:61:0F:40:21:93:01:04:17:EB:69:CB:E7:8E:F5:B7:60:18:0C:6F:66"
+      ]
+    }
+  }
+]
