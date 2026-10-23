@@ -6,9 +6,9 @@ import { TopBar } from '@/components/layout/TopBar'
 import { Button } from '@/components/common/Button'
 import { PageTransition } from '@/components/common/PageTransition'
 import { useGroup } from '@/hooks/useStore'
-import { saveExpense, getExpense, generateId } from '@/lib/storage'
+import { saveExpense, getExpense, getPayments, generateId } from '@/lib/storage'
 import { getTemplates, saveTemplate, deleteTemplate } from '@/lib/templates'
-import { buildEqualSplits, buildItemizedSplits } from '@/lib/calculations'
+import { buildEqualSplits, buildItemizedSplits, buildWeightedSplits, buildExactSplits, MAX_AMOUNT } from '@/lib/calculations'
 import { formatCurrency } from '@/lib/currency'
 import { toast } from '@/components/common/Toast'
 import { cn, today } from '@/lib/utils'
@@ -242,40 +242,22 @@ export default function AddExpensePage() {
 
     if (splitType === 'shares') {
       if (amt <= 0) { toast.error('Enter an amount'); return null }
-      const filtered = group!.members.filter(m => (shareVals[m.id] ?? 0) > 0)
-      if (filtered.length === 0) { toast.error('Assign at least one share'); return null }
-      const total = filtered.reduce((s, m) => s + shareVals[m.id], 0)
-      const splits = filtered.map(m => ({
-        memberId: m.id,
-        amount: Math.round((shareVals[m.id] / total) * amt * 100) / 100,
-        shares: shareVals[m.id],
-      }))
-      const sum = splits.reduce((s, e) => s + e.amount, 0)
-      splits[splits.length - 1].amount = Math.round((splits[splits.length - 1].amount + amt - sum) * 100) / 100
-      return { splits }
+      const splits = buildWeightedSplits(amt, group!.members.map(m => ({ memberId: m.id, weight: shareVals[m.id] ?? 0 })))
+      if (splits.length === 0) { toast.error('Assign at least one share'); return null }
+      return { splits: splits.map(s => ({ ...s, shares: shareVals[s.memberId] })) }
     }
 
     if (splitType === 'percentage') {
       if (amt <= 0) { toast.error('Enter an amount'); return null }
       if (Math.abs(pctTotal - 100) > 0.01) { toast.error(`Percentages must total 100% (currently ${pctTotal.toFixed(1)}%)`); return null }
-      const splits = group!.members
-        .filter(m => (pctVals[m.id] ?? 0) > 0)
-        .map(m => ({
-          memberId: m.id,
-          amount: Math.round((pctVals[m.id] / 100) * amt * 100) / 100,
-          percentage: pctVals[m.id],
-        }))
-      const sum = splits.reduce((s, e) => s + e.amount, 0)
-      if (splits.length > 0) splits[splits.length - 1].amount = Math.round((splits[splits.length - 1].amount + amt - sum) * 100) / 100
-      return { splits }
+      const splits = buildWeightedSplits(amt, group!.members.map(m => ({ memberId: m.id, weight: pctVals[m.id] ?? 0 })))
+      return { splits: splits.map(s => ({ ...s, percentage: pctVals[s.memberId] })) }
     }
 
     if (splitType === 'exact') {
       if (amt <= 0) { toast.error('Enter an amount'); return null }
       if (Math.abs(exactRemain) > 0.01) { toast.error(`Amounts must total ${formatCurrency(amt, currency)} — ${exactRemain > 0 ? formatCurrency(exactRemain, currency) + ' remaining' : formatCurrency(-exactRemain, currency) + ' over'}`); return null }
-      const splits = group!.members
-        .filter(m => parseFloat(exactVals[m.id] || '0') > 0)
-        .map(m => ({ memberId: m.id, amount: parseFloat(exactVals[m.id]) }))
+      const splits = buildExactSplits(amt, group!.members.map(m => ({ memberId: m.id, amount: parseFloat(exactVals[m.id] || '0') || 0 })))
       if (splits.length === 0) { toast.error('Assign amounts to at least one member'); return null }
       return { splits }
     }
@@ -300,6 +282,7 @@ export default function AddExpensePage() {
 
     const finalAmount = splitType === 'itemized' ? itemizedTotal : amt
     if (finalAmount <= 0) { toast.error('Amount must be greater than 0'); return }
+    if (finalAmount > MAX_AMOUNT) { toast.error(`Amount can't exceed ${formatCurrency(MAX_AMOUNT, group!.currency)}`); return }
 
     const now = new Date().toISOString()
     const expense: Expense = {
@@ -321,7 +304,10 @@ export default function AddExpensePage() {
     }
 
     if (!saveExpense(expense)) return // storage full: the error toast is shown; keep the form so nothing is lost
-    toast.success(existing ? 'Expense updated' : 'Expense added')
+    // Recorded payments aren't touched by an edit, so settled balances can shift.
+    toast.success(existing
+      ? getPayments(groupId!).length > 0 ? 'Expense updated — recorded payments are unchanged, check balances' : 'Expense updated'
+      : 'Expense added')
     navigate(existing ? `/g/${groupId}/expenses/${expense.id}` : `/g/${groupId}`)
   }
 
@@ -609,7 +595,7 @@ export default function AddExpensePage() {
                             inputMode="decimal"
                             min="0"
                             max="100"
-                            step="0.1"
+                            step="0.01"
                             value={pct}
                             onChange={e => setPctVals(p => ({ ...p, [m.id]: parseFloat(e.target.value) || 0 }))}
                             className="h-8 w-16 px-2 rounded border-2 border-[#0a0a0a] dark:border-[#f0ede5]/50 bg-white dark:bg-[#1a1a17] text-[13px] font-mono text-[#0a0a0a] dark:text-[#f0ede5] focus:outline-none focus:border-[#b9f542] text-right"
@@ -840,7 +826,7 @@ export default function AddExpensePage() {
             type="button"
             variant="secondary"
             className="flex-1"
-            onClick={() => navigate(-1)}
+            onClick={() => window.history.state?.idx > 0 ? navigate(-1) : navigate(`/g/${groupId}`)}
           >
             Cancel
           </Button>

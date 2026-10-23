@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
-import { Plus } from 'lucide-react'
+import { useState, useEffect, useRef } from 'react'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { Plus, Upload } from 'lucide-react'
 import { motion, type Variants } from 'framer-motion'
 import { AppShell } from '@/components/layout/AppShell'
 import { TopBar } from '@/components/layout/TopBar'
@@ -9,7 +9,8 @@ import { Button } from '@/components/common/Button'
 import { EmptyState } from '@/components/common/EmptyState'
 import { PageTransition } from '@/components/common/PageTransition'
 import { useGroups } from '@/hooks/useStore'
-import { getExpenses } from '@/lib/storage'
+import { getExpenses, importGroupData, isGroupExport } from '@/lib/storage'
+import { toast } from '@/components/common/Toast'
 import { getTotalExpenses } from '@/lib/calculations'
 import { formatCurrency } from '@/lib/currency'
 import type { Group } from '@/types'
@@ -85,6 +86,28 @@ export default function DashboardPage() {
   const [searchParams, setSearchParams] = useSearchParams()
   const [showCreate, setShowCreate] = useState(searchParams.get('new') === '1')
   const groups = useGroups()
+  const navigate = useNavigate()
+  const fileRef = useRef<HTMLInputElement>(null)
+
+  async function handleImport(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    e.target.value = ''
+    if (!file) return
+    let data: unknown
+    try { data = JSON.parse(await file.text()) } catch { data = null }
+    if (!isGroupExport(data)) { toast.error("That isn't a SplitItt backup file"); return }
+    const group = importGroupData(data)
+    if (!group) return // storage full: the error toast is already shown
+    toast.success(`"${group.name}" restored`)
+    navigate(`/g/${group.id}`)
+  }
+
+  const importButton = (size?: 'sm') => (
+    <Button size={size} variant="secondary" onClick={() => fileRef.current?.click()}>
+      <Upload className={size ? 'w-3.5 h-3.5' : 'w-4 h-4'} />
+      Import
+    </Button>
+  )
 
   useEffect(() => {
     if (searchParams.get('new') === '1') {
@@ -97,12 +120,13 @@ export default function DashboardPage() {
     <AppShell>
       <TopBar
         title="My Groups"
-        actions={
+        actions={<>
+          {importButton('sm')}
           <Button size="sm" onClick={() => setShowCreate(true)}>
             <Plus className="w-3.5 h-3.5" />
             New
           </Button>
-        }
+        </>}
       />
 
       <PageTransition>
@@ -117,6 +141,7 @@ export default function DashboardPage() {
               </p>
             </div>
             <div className="hidden md:flex items-center gap-2">
+              {importButton()}
               <Button onClick={() => setShowCreate(true)}>
                 <Plus className="w-4 h-4" />
                 New group
@@ -136,10 +161,13 @@ export default function DashboardPage() {
               title="No groups yet"
               description="No accounts needed — just create a group, add names, and start splitting."
               action={
-                <Button onClick={() => setShowCreate(true)}>
-                  <Plus className="w-4 h-4" />
-                  Create first group
-                </Button>
+                <div className="flex flex-wrap justify-center gap-2">
+                  <Button onClick={() => setShowCreate(true)}>
+                    <Plus className="w-4 h-4" />
+                    Create first group
+                  </Button>
+                  {importButton()}
+                </div>
               }
             />
           ) : (
@@ -155,6 +183,7 @@ export default function DashboardPage() {
         </div>
       </PageTransition>
 
+      <input ref={fileRef} type="file" accept="application/json,.json" className="hidden" onChange={handleImport} />
       <CreateGroupModal open={showCreate} onClose={() => setShowCreate(false)} />
     </AppShell>
   )

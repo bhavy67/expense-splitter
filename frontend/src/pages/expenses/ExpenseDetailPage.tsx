@@ -7,7 +7,7 @@ import { Button } from '@/components/common/Button'
 import { ConfirmModal } from '@/components/common/ConfirmModal'
 import { PageTransition } from '@/components/common/PageTransition'
 import { useGroup } from '@/hooks/useStore'
-import { getExpense, deleteExpense } from '@/lib/storage'
+import { getExpense, deleteExpense, getPayments } from '@/lib/storage'
 import { formatCurrency } from '@/lib/currency'
 import { toast } from '@/components/common/Toast'
 import { CATEGORY_EMOJIS } from '@/components/expenses/ExpenseCard'
@@ -272,7 +272,7 @@ export default function ExpenseDetailPage() {
       {confirmDelete && (
         <ConfirmModal
           title={`Delete "${expense.title}"?`}
-          description="All split data will be lost and balances will be recalculated. This cannot be undone."
+          description={`All split data will be lost and balances will be recalculated.${getPayments(groupId!).length > 0 ? ' Recorded payments are kept, so someone who already settled may end up owed money.' : ''} This cannot be undone.`}
           confirmLabel="Delete expense"
           danger
           onConfirm={handleDelete}

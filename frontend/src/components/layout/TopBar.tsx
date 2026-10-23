@@ -16,7 +16,8 @@ export function TopBar({ title, showBack, actions }: TopBarProps) {
     <header className="md:hidden sticky top-0 z-30 flex items-center h-14 px-3 bg-[#fafaf7] dark:bg-[#0d0d0d] border-b-2 border-[#0a0a0a] dark:border-[#b9f542] gap-2">
       {showBack && (
         <button aria-label="Go back"
-          onClick={() => navigate(-1)}
+          // Opened from a shared link there's no history to go back to — go home instead.
+          onClick={() => window.history.state?.idx > 0 ? navigate(-1) : navigate('/')}
           className="w-10 h-10 flex items-center justify-center rounded text-[#0a0a0a] dark:text-[#f0ede5] hover:bg-[#0a0a0a]/10 dark:hover:bg-white/10 transition-colors -ml-2"
         >
           <ArrowLeft className="w-5 h-5" />

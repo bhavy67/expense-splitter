@@ -1,6 +1,6 @@
 # SplitItt — Split expenses, not friendships
 
-> **Live:** [splititt.vercel.app](https://splititt.vercel.app)
+> **Live:** [splititt.bhavyladani.in](https://splititt.bhavyladani.in)
 
 A fast, offline-capable expense splitter for groups — trips, flatmates, dinners, and beyond. No account required to get started.
 
