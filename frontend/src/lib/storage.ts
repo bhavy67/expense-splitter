@@ -93,10 +93,13 @@ export function getPayments(groupId: string): Payment[] {
 }
 
 export function savePayment(payment: Payment): boolean {
+  return savePayments([payment])
+}
+
+// One write for the whole batch, so "Settle all" can't half-succeed when storage is full.
+export function savePayments(payments: Payment[]): boolean {
   const all = read<Record<string, Payment[]>>('payments', {})
-  const list = all[payment.groupId] ?? []
-  list.unshift(payment)
-  all[payment.groupId] = list
+  for (const p of payments) (all[p.groupId] ??= []).unshift(p)
   return write('payments', all)
 }
 
@@ -128,51 +131,59 @@ export function exportGroupData(groupId: string): GroupExport | null {
   }
 }
 
-export function importGroupData(data: GroupExport): Group {
+// Shape check for a user-picked backup file — anything else is rejected before it touches storage.
+export function isGroupExport(d: unknown): d is GroupExport {
+  const x = d as GroupExport
+  return !!x && x.version === 1 && !!x.group && typeof x.group.name === 'string' &&
+    Array.isArray(x.group.members) && Array.isArray(x.expenses) && Array.isArray(x.payments)
+}
+
+// Returns null if storage is full. The group is written last, so a failed
+// import never shows up as a half-filled group.
+export function importGroupData(data: GroupExport): Group | null {
   const idMap: Record<string, string> = {}
   const newGroupId = generateId()
-  idMap[data.group.id] = newGroupId
 
   const newMembers = data.group.members.map((m) => {
     const newId = generateId()
     idMap[m.id] = newId
     return { ...m, id: newId }
   })
+  const remap = (id: string) => idMap[id] ?? id
+  const now = new Date().toISOString()
+
+  const allExpenses = read<Record<string, Expense[]>>('expenses', {})
+  allExpenses[newGroupId] = data.expenses.map((expense) => ({
+    ...expense,
+    id: generateId(),
+    groupId: newGroupId,
+    paidBy: remap(expense.paidBy),
+    splits: expense.splits.map((s) => ({ ...s, memberId: remap(s.memberId) })),
+    items: expense.items?.map((item) => ({
+      ...item,
+      id: generateId(),
+      splits: item.splits.map((s) => ({ ...s, memberId: remap(s.memberId) })),
+    })),
+  }))
+  if (!write('expenses', allExpenses)) return null
+
+  const allPayments = read<Record<string, Payment[]>>('payments', {})
+  allPayments[newGroupId] = data.payments.map((payment) => ({
+    ...payment,
+    id: generateId(),
+    groupId: newGroupId,
+    fromMemberId: remap(payment.fromMemberId),
+    toMemberId: remap(payment.toMemberId),
+  }))
+  if (!write('payments', allPayments)) return null
 
   const newGroup: Group = {
     ...data.group,
     id: newGroupId,
     members: newMembers,
     name: `${data.group.name} (imported)`,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+    createdAt: now,
+    updatedAt: now,
   }
-  saveGroup(newGroup)
-
-  for (const expense of data.expenses) {
-    saveExpense({
-      ...expense,
-      id: generateId(),
-      groupId: newGroupId,
-      paidBy: idMap[expense.paidBy] ?? expense.paidBy,
-      splits: expense.splits.map((s) => ({ ...s, memberId: idMap[s.memberId] ?? s.memberId })),
-      items: expense.items?.map((item) => ({
-        ...item,
-        id: generateId(),
-        splits: item.splits.map((s) => ({ ...s, memberId: idMap[s.memberId] ?? s.memberId })),
-      })),
-    })
-  }
-
-  for (const payment of data.payments) {
-    savePayment({
-      ...payment,
-      id: generateId(),
-      groupId: newGroupId,
-      fromMemberId: idMap[payment.fromMemberId] ?? payment.fromMemberId,
-      toMemberId: idMap[payment.toMemberId] ?? payment.toMemberId,
-    })
-  }
-
-  return newGroup
+  return saveGroup(newGroup) ? newGroup : null
 }

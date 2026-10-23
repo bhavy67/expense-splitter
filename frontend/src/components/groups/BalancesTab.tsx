@@ -7,7 +7,7 @@ import { Button } from '@/components/common/Button'
 import { ConfirmModal } from '@/components/common/ConfirmModal'
 import { RecordPaymentModal } from './RecordPaymentModal'
 import { UpiQrModal } from '@/components/upi/UpiQrModal'
-import { deletePayment, savePayment, generateId } from '@/lib/storage'
+import { deletePayment, savePayments, generateId } from '@/lib/storage'
 import { calculateBalances, simplifyDebts } from '@/lib/calculations'
 import { formatCurrency } from '@/lib/currency'
 import { isUpiSupportedCurrency } from '@/lib/upi'
@@ -41,19 +41,17 @@ export function BalancesTab({ group, expenses, payments }: Props) {
   const [upiDebt, setUpiDebt] = useState<Debt | null>(null)
 
   function doSettleAll() {
-    const now = new Date()
-    for (const debt of debts) {
-      const saved = savePayment({
-        id: generateId(),
-        groupId: group.id,
-        fromMemberId: debt.from,
-        toMemberId: debt.to,
-        amount: debt.amount,
-        date: today(),
-        createdAt: now.toISOString(),
-      })
-      if (!saved) { setConfirmConfig(null); return }
-    }
+    const now = new Date().toISOString()
+    const saved = savePayments(debts.map((debt) => ({
+      id: generateId(),
+      groupId: group.id,
+      fromMemberId: debt.from,
+      toMemberId: debt.to,
+      amount: debt.amount,
+      date: today(),
+      createdAt: now,
+    })))
+    if (!saved) { setConfirmConfig(null); return }
     toast.success(`${debts.length} payment${debts.length > 1 ? 's' : ''} recorded — all settled!`)
     setConfirmConfig(null)
   }
@@ -129,7 +127,7 @@ export function BalancesTab({ group, expenses, payments }: Props) {
         <div className="flex items-center gap-3 px-3 py-2.5 rounded border border-[#b9f542]/40 bg-[#b9f542]/10">
           <AtSign className="w-4 h-4 text-[#4d6e08] dark:text-[#b9f542] shrink-0" />
           <p className="flex-1 text-[11px] font-mono text-[#4d6e08] dark:text-[#b9f542]">
-            Add UPI IDs to enable one-tap QR payments
+            Add UPI IDs to show a payment QR for each person
           </p>
           <button
             onClick={() => navigate(`/g/${group.id}/settings`)}

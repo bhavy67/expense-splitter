@@ -43,7 +43,7 @@ export default function AboutPage() {
           <p className="text-xs font-medium text-[#4a4940] dark:text-[#a09880] mt-0.5">Last updated {UPDATED}</p>
 
           <Section title="The short version">
-            <p>SplitItt has no accounts and no servers. Everything you enter stays on this device. We don't collect, sell or share any of your data, and there are no ads or analytics.</p>
+            <p>SplitItt has no accounts and no backend that stores your data. Everything you enter stays on this device. We don't collect, sell or share any of your data, and there are no ads or analytics.</p>
           </Section>
 
           <Section title="What's stored, and where">

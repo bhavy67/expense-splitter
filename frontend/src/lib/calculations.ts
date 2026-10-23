@@ -77,6 +77,33 @@ export function buildEqualSplits(amount: number, memberIds: string[]): SplitEntr
   return splits
 }
 
+// Above this, doubles start losing paise. ₹100 crore is far beyond any real split.
+export const MAX_AMOUNT = 1_000_000_000
+
+const paise = (n: number) => Math.round(n * 100) / 100
+
+// Shares and percentages: each member gets weight/total of the amount; the last
+// one absorbs rounding so the splits always add up to the amount.
+export function buildWeightedSplits(amount: number, weights: { memberId: string; weight: number }[]): SplitEntry[] {
+  const used = weights.filter((w) => w.weight > 0)
+  const total = used.reduce((s, w) => s + w.weight, 0)
+  const splits = used.map((w) => ({ memberId: w.memberId, amount: paise((w.weight / total) * amount) }))
+  return absorbRemainder(splits, amount)
+}
+
+// Exact amounts: rounded to paise; the last one absorbs the (≤ ₹0.01) slack the form allows.
+export function buildExactSplits(amount: number, entries: { memberId: string; amount: number }[]): SplitEntry[] {
+  return absorbRemainder(entries.filter((e) => e.amount > 0).map((e) => ({ memberId: e.memberId, amount: paise(e.amount) })), amount)
+}
+
+function absorbRemainder(splits: SplitEntry[], amount: number): SplitEntry[] {
+  if (splits.length === 0) return splits
+  const sum = splits.reduce((s, e) => s + e.amount, 0)
+  const last = splits[splits.length - 1]
+  last.amount = paise(last.amount + amount - sum)
+  return splits
+}
+
 // Each item is split equally among its members; per-member totals are summed
 // and the last one absorbs rounding so the splits always add up to the total.
 export function buildItemizedSplits(

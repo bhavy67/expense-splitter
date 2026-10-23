@@ -3,6 +3,7 @@ import { X } from 'lucide-react'
 import { Button } from '@/components/common/Button'
 import { savePayment, generateId } from '@/lib/storage'
 import { formatCurrency } from '@/lib/currency'
+import { MAX_AMOUNT } from '@/lib/calculations'
 import { toast } from '@/components/common/Toast'
 import { cn, today } from '@/lib/utils'
 import type { Member } from '@/types'
@@ -48,6 +49,7 @@ export function RecordPaymentModal({
     if (!fromId || !toId) { toast.error('Select both members'); return }
     if (fromId === toId) { toast.error('From and To must be different members'); return }
     if (amt <= 0) { toast.error('Enter a valid amount'); return }
+    if (amt > MAX_AMOUNT) { toast.error(`Amount can't exceed ${formatCurrency(MAX_AMOUNT, currency)}`); return }
     const now = new Date().toISOString()
     const saved = savePayment({
       id: generateId(),

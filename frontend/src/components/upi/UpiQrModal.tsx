@@ -129,6 +129,11 @@ export function UpiQrModal({ debt, group, members, onClose }: UpiQrModalProps) {
       return
     }
     window.location.href = upiLink
+    // No UPI app installed: Chrome silently ignores the link and we keep focus.
+    // ponytail: focus heuristic, can misfire on very slow devices; harmless (info toast only).
+    setTimeout(() => {
+      if (!document.hidden && document.hasFocus()) toast.info('No UPI app opened — scan the QR or copy the UPI ID')
+    }, 1500)
   }
 
   function handleWhatsApp() {
