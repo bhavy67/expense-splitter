@@ -1,84 +1,81 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
-import { Plus, Upload } from 'lucide-react'
-import { motion, type Variants } from 'framer-motion'
+import { Plus, Upload, ChevronRight, Users } from 'lucide-react'
 import { AppShell } from '@/components/layout/AppShell'
 import { TopBar } from '@/components/layout/TopBar'
 import { CreateGroupModal } from '@/components/groups/CreateGroupModal'
-import { Button } from '@/components/common/Button'
+import { Button } from '@/components/ui/Button'
+import { IconButton } from '@/components/ui/IconButton'
+import { Card } from '@/components/ui/Card'
+import { IconTile } from '@/components/ui/IconTile'
+import { AvatarStack } from '@/components/ui/Avatar'
+import { Money } from '@/components/ui/Money'
 import { EmptyState } from '@/components/common/EmptyState'
 import { PageTransition } from '@/components/common/PageTransition'
 import { useGroups } from '@/hooks/useStore'
-import { getExpenses, importGroupData, isGroupExport } from '@/lib/storage'
+import { getExpenses, getPayments, importGroupData, isGroupExport } from '@/lib/storage'
 import { toast } from '@/components/common/Toast'
-import { getTotalExpenses } from '@/lib/calculations'
-import { formatCurrency } from '@/lib/currency'
+import { calculateBalances, getTotalExpenses, simplifyDebts } from '@/lib/calculations'
+import { GROUP_TYPE_ICONS } from '@/lib/icons'
 import type { Group } from '@/types'
 
-const GROUP_ICONS: Record<string, string> = {
-  travel: '✈️', roommates: '🏠', friends: '👯', dinner: '🍽️', other: '👥',
+function plural(n: number, word: string) {
+  return `${n} ${word}${n !== 1 ? 's' : ''}`
 }
 
-const listVariants: Variants = {
-  hidden: { opacity: 0 },
-  show:   { opacity: 1, transition: { staggerChildren: 0.06 } },
-}
-
-const cardVariants: Variants = {
-  hidden: { opacity: 0, y: 14 },
-  show:   { opacity: 1, y: 0, transition: { duration: 0.28, ease: 'easeOut' } },
-}
-
-function GroupCard({ group }: { group: Group }) {
-  const expenses = getExpenses(group.id)
-  const total = getTotalExpenses(expenses)
+function GroupCard({ group, index }: { group: Group; index: number }) {
+  const total = getTotalExpenses(getExpenses(group.id))
 
   return (
-    <motion.div variants={cardVariants}>
-      <Link
-        to={`/g/${group.id}`}
-        className="block bg-white dark:bg-[#1e1e1a] rounded border-2 border-[#0a0a0a] dark:border-[#f0ede5] p-4 shadow-[3px_3px_0_#0a0a0a] dark:shadow-[3px_3px_0_#b9f542] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-100 group"
-      >
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex items-center gap-3 min-w-0">
-            <div className="w-10 h-10 rounded bg-[#0a0a0a] dark:bg-[#b9f542] flex items-center justify-center text-xl shrink-0">
-              {GROUP_ICONS[group.type] ?? '👥'}
-            </div>
-            <div className="min-w-0">
-              <h3 className="font-black uppercase tracking-[0.04em] text-[#0a0a0a] dark:text-[#f0ede5] truncate group-hover:text-[#b9f542] transition-colors">
-                {group.name}
-              </h3>
-              <p className="text-xs font-medium text-[#4a4940] dark:text-[#a09880] mt-0.5">
-                {group.members.length} member{group.members.length !== 1 ? 's' : ''}
-                {total > 0 && ` · ${formatCurrency(total, group.currency)} total`}
-              </p>
-            </div>
-          </div>
-          {expenses.length > 0 && (
-            <span className="shrink-0 text-[10px] font-medium bg-[#f0ede5] dark:bg-[#1a1a17] text-[#4a4940] dark:text-[#c8bfb0] border border-[#0a0a0a] dark:border-[#f0ede5]/30 px-2 py-0.5 rounded uppercase tracking-wider whitespace-nowrap">
-              {expenses.length} expense{expenses.length !== 1 ? 's' : ''}
-            </span>
-          )}
+    <Card
+      as={Link}
+      to={`/g/${group.id}`}
+      variant="interactive"
+      className="p-4 animate-[fade-up_200ms_var(--ease-out)_both]"
+      style={{ animationDelay: `${Math.min(index, 8) * 40}ms` }}
+    >
+      <div className="flex items-center gap-3">
+        <IconTile icon={GROUP_TYPE_ICONS[group.type] ?? GROUP_TYPE_ICONS.other} />
+        <div className="min-w-0 flex-1">
+          <h2 className="truncate text-title">{group.name}</h2>
+          <p className="truncate text-body-sm text-fg-muted">
+            {plural(group.members.length, 'member')}
+            {total > 0 && <> · <Money amount={total} currency={group.currency} size="sm" className="text-fg-muted" /> spent</>}
+          </p>
         </div>
+        <ChevronRight className="size-4 shrink-0 text-fg-subtle" aria-hidden />
+      </div>
+      <AvatarStack names={group.members.map((m) => m.name)} className="mt-3 pl-1.5" />
+    </Card>
+  )
+}
 
-        {/* Member dots */}
-        <div className="flex items-center gap-1 mt-3">
-          {group.members.slice(0, 6).map((m) => (
-            <div
-              key={m.id}
-              className="w-5 h-5 rounded-full flex items-center justify-center text-white text-[10px] font-bold ring-1 ring-white dark:ring-[#1e1e1a]"
-              style={{ background: m.color }}
-              title={m.name}
-            >
-              {m.name[0]?.toUpperCase()}
-            </div>
-          ))}
-          {group.members.length > 6 && (
-            <span className="text-xs font-medium text-[#4a4940] dark:text-[#a09880] ml-1">+{group.members.length - 6}</span>
-          )}
+// Presentation-only summary built from existing helpers (no new lib/ logic).
+function SummaryStrip({ groups }: { groups: Group[] }) {
+  const currencies = new Set(groups.map((g) => g.currency))
+  const singleCurrency = currencies.size === 1 ? groups[0].currency : null
+  const totalSpent = singleCurrency
+    ? groups.reduce((s, g) => s + getTotalExpenses(getExpenses(g.id)), 0)
+    : 0
+  const pending = groups.filter((g) =>
+    simplifyDebts(calculateBalances(getExpenses(g.id), getPayments(g.id), g.members)).length > 0
+  ).length
+
+  const stats: { label: string; value: React.ReactNode }[] = [
+    { label: 'Groups', value: groups.length },
+    ...(singleCurrency ? [{ label: 'Total spent', value: <Money amount={totalSpent} currency={singleCurrency} className="whitespace-normal" /> }] : []),
+    { label: 'To settle', value: pending === 0 ? 'None' : plural(pending, 'group') },
+  ]
+
+  return (
+    <Card variant="inset" className="mb-6 grid grid-flow-col auto-cols-fr divide-x divide-border">
+      {stats.map((s) => (
+        <div key={s.label} className="min-w-0 px-3 py-3">
+          <p className="text-caption text-fg-muted">{s.label}</p>
+          <p className="text-body font-semibold tabular-nums [overflow-wrap:anywhere]">{s.value}</p>
         </div>
-      </Link>
-    </motion.div>
+      ))}
+    </Card>
   )
 }
 
@@ -102,13 +99,6 @@ export default function DashboardPage() {
     navigate(`/g/${group.id}`)
   }
 
-  const importButton = (size?: 'sm') => (
-    <Button size={size} variant="secondary" onClick={() => fileRef.current?.click()}>
-      <Upload className={size ? 'w-3.5 h-3.5' : 'w-4 h-4'} />
-      Import
-    </Button>
-  )
-
   useEffect(() => {
     if (searchParams.get('new') === '1') {
       setShowCreate(true)
@@ -116,34 +106,34 @@ export default function DashboardPage() {
     }
   }, [searchParams, setSearchParams])
 
+  const openImport = () => fileRef.current?.click()
+
   return (
     <AppShell>
       <TopBar
-        title="My Groups"
-        actions={<>
-          {importButton('sm')}
-          <Button size="sm" onClick={() => setShowCreate(true)}>
-            <Plus className="w-3.5 h-3.5" />
-            New
-          </Button>
-        </>}
+        title="Groups"
+        largeTitle
+        actions={
+          <IconButton aria-label="Import a backup" onClick={openImport}>
+            <Upload />
+          </IconButton>
+        }
       />
 
       <PageTransition>
-        <div className="max-w-2xl mx-auto px-4 py-6 md:py-8">
-          <div className="flex items-center justify-between mb-6">
+        <div className="mx-auto max-w-[640px] px-4 pt-4 pb-8 md:py-8">
+          <div className="mb-5 flex items-end justify-between gap-3">
             <div>
-              <h1 className="text-xl font-black uppercase tracking-[0.04em] text-[#0a0a0a] dark:text-[#f0ede5]">My Groups</h1>
-              <p className="text-xs font-medium text-[#4a4940] dark:text-[#a09880] mt-0.5">
-                {groups.length === 0
-                  ? 'Create a group to start splitting instantly'
-                  : `${groups.length} group${groups.length !== 1 ? 's' : ''}`}
-              </p>
+              <h1 className="text-title-lg">Groups</h1>
+              {groups.length > 0 && <p className="text-body-sm text-fg-muted">{plural(groups.length, 'group')}</p>}
             </div>
             <div className="hidden md:flex items-center gap-2">
-              {importButton()}
-              <Button onClick={() => setShowCreate(true)}>
-                <Plus className="w-4 h-4" />
+              <Button variant="secondary" size="sm" onClick={openImport}>
+                <Upload className="size-4" />
+                Import
+              </Button>
+              <Button size="sm" onClick={() => setShowCreate(true)}>
+                <Plus className="size-4" />
                 New group
               </Button>
             </div>
@@ -151,34 +141,26 @@ export default function DashboardPage() {
 
           {groups.length === 0 ? (
             <EmptyState
-              icon={
-                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round"
-                    d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z"
-                  />
-                </svg>
-              }
-              title="No groups yet"
-              description="No accounts needed — just create a group, add names, and start splitting."
+              icon={<Users />}
+              title="Split your first expense"
+              description="No accounts needed. Create a group, add names and start splitting."
               action={
-                <div className="flex flex-wrap justify-center gap-2">
+                <div className="flex flex-col items-center gap-2">
                   <Button onClick={() => setShowCreate(true)}>
-                    <Plus className="w-4 h-4" />
-                    Create first group
+                    <Plus className="size-4" />
+                    Create a group
                   </Button>
-                  {importButton()}
+                  <Button variant="ghost" onClick={openImport}>Restore from backup</Button>
                 </div>
               }
             />
           ) : (
-            <motion.div
-              variants={listVariants}
-              initial="hidden"
-              animate="show"
-              className="flex flex-col gap-3"
-            >
-              {groups.map((g) => <GroupCard key={g.id} group={g} />)}
-            </motion.div>
+            <>
+              <SummaryStrip groups={groups} />
+              <div className="flex flex-col gap-3">
+                {groups.map((g, i) => <GroupCard key={g.id} group={g} index={i} />)}
+              </div>
+            </>
           )}
         </div>
       </PageTransition>
