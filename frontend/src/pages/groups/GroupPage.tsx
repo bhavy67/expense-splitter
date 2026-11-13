@@ -208,7 +208,7 @@ export default function GroupPage() {
                       )}
                       {groupByDate(filteredExpenses).map(([date, list]) => (
                         <section key={date}>
-                          <SectionHeader as="h3" title={<span className="text-body-sm font-medium text-fg-muted">{dateLabel(date)}</span>} className="min-h-8" />
+                          <SectionHeader title={<span className="text-body-sm font-medium text-fg-muted">{dateLabel(date)}</span>} className="min-h-8" />
                           <Card className="overflow-hidden">
                             {list.map((expense) => (
                               <ExpenseCard

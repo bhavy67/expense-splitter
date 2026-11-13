@@ -15,6 +15,7 @@ interface TopBarProps {
 export function TopBar({ title, showBack, actions, largeTitle }: TopBarProps) {
   const navigate = useNavigate()
   const { theme, toggle } = useThemeStore()
+  const Title = largeTitle ? 'p' : 'h1'
 
   return (
     <header className="topbar md:hidden sticky top-0 z-30 flex h-14 items-center gap-1 border-b border-border bg-bg/85 px-2 backdrop-blur">
@@ -27,9 +28,13 @@ export function TopBar({ title, showBack, actions, largeTitle }: TopBarProps) {
           <ArrowLeft />
         </IconButton>
       )}
-      <h1 className={cn('min-w-0 flex-1 truncate text-[17px] font-semibold text-fg', !showBack && 'pl-2', largeTitle && 'topbar-title-large')}>
+      {/* With largeTitle the page renders its own <h1>, so this copy stays out of the outline. */}
+      <Title
+        aria-hidden={largeTitle || undefined}
+        className={cn('min-w-0 flex-1 truncate text-[17px] font-semibold text-fg', !showBack && 'pl-2', largeTitle && 'topbar-title-large')}
+      >
         {title}
-      </h1>
+      </Title>
       {actions}
       <IconButton aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'} onClick={toggle}>
         {theme === 'dark' ? <Sun /> : <Moon />}

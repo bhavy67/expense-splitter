@@ -4,7 +4,8 @@ import { ToastProvider } from '@/components/common/Toast'
 import { InstallPrompt } from '@/components/common/InstallPrompt'
 import { UpdateBanner } from '@/components/common/UpdateBanner'
 
-const DashboardPage     = lazy(() => import('@/pages/dashboard/DashboardPage'))
+// The landing route loads eagerly: one less round trip before first content.
+import DashboardPage from '@/pages/dashboard/DashboardPage'
 const GroupPage         = lazy(() => import('@/pages/groups/GroupPage'))
 const GroupSettingsPage = lazy(() => import('@/pages/groups/GroupSettingsPage'))
 const AddExpensePage    = lazy(() => import('@/pages/expenses/AddExpensePage'))
