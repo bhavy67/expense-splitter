@@ -1,6 +1,5 @@
-import { useEffect, useState } from 'react'
-import { X, CheckCircle2, AlertCircle, Info } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { useEffect, useRef, useState } from 'react'
+import { X, CircleCheck, CircleAlert, Info } from 'lucide-react'
 
 type ToastType = 'success' | 'error' | 'info'
 
@@ -26,22 +25,10 @@ export const toast = {
   info:    (message: string) => emit('info', message),
 }
 
-const config: Record<ToastType, { icon: React.ReactNode; accent: string; iconColor: string }> = {
-  success: {
-    icon: <CheckCircle2 className="w-4 h-4 shrink-0" />,
-    accent: 'border-l-4 border-[#b9f542]',
-    iconColor: 'text-[#b9f542]',
-  },
-  error: {
-    icon: <AlertCircle className="w-4 h-4 shrink-0" />,
-    accent: 'border-l-4 border-[#ff5c3d]',
-    iconColor: 'text-[#ff5c3d]',
-  },
-  info: {
-    icon: <Info className="w-4 h-4 shrink-0" />,
-    accent: 'border-l-4 border-[#f59e0b]',
-    iconColor: 'text-[#f59e0b]',
-  },
+const icons: Record<ToastType, React.ReactNode> = {
+  success: <CircleCheck className="size-4 shrink-0" aria-hidden />,
+  error: <CircleAlert className="size-4 shrink-0" aria-hidden />,
+  info: <Info className="size-4 shrink-0" aria-hidden />,
 }
 
 function ToastItem({ toast: t, onRemove }: { toast: Toast; onRemove: () => void }) {
@@ -50,23 +37,20 @@ function ToastItem({ toast: t, onRemove }: { toast: Toast; onRemove: () => void 
     return () => clearTimeout(timer)
   }, [onRemove])
 
-  const c = config[t.type]
-
   return (
     <div
-      className={cn(
-        'flex items-center gap-3 rounded bg-[#0a0a0a] dark:bg-[#1e1e1a] border-2 border-[#0a0a0a] dark:border-[#f0ede5] shadow-[3px_3px_0_#b9f542] px-4 py-3 w-full',
-        c.accent
-      )}
-      style={{ animation: 'toast-slide-down 0.2s ease-out both' }}
+      role={t.type === 'error' ? 'alert' : 'status'}
+      className="flex w-full items-center gap-3 rounded-md bg-inverse-bg px-4 py-3 text-inverse-fg shadow-float"
+      style={{ animation: 'toast-slide-down 0.2s var(--ease-out) both' }}
     >
-      <span className={c.iconColor}>{c.icon}</span>
-      <p className="text-[12px] font-bold uppercase tracking-[0.06em] text-[#f0ede5] flex-1 leading-snug">{t.message}</p>
-      <button aria-label="Dismiss notification"
+      {icons[t.type]}
+      <p className="flex-1 text-body-sm font-medium">{t.message}</p>
+      <button
+        aria-label="Dismiss notification"
         onClick={onRemove}
-        className="text-[#f0ede5]/40 hover:text-[#f0ede5] transition-colors shrink-0"
+        className="-m-3 flex size-11 shrink-0 items-center justify-center opacity-60 transition-opacity hover:opacity-100"
       >
-        <X className="w-3.5 h-3.5" />
+        <X className="size-4" />
       </button>
     </div>
   )
@@ -74,6 +58,7 @@ function ToastItem({ toast: t, onRemove }: { toast: Toast; onRemove: () => void 
 
 export function ToastProvider() {
   const [toasts, setToasts] = useState<Toast[]>([])
+  const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const listener: ToastListener = (t) => setToasts((prev) => [...prev, t])
@@ -81,15 +66,29 @@ export function ToastProvider() {
     return () => { listeners.delete(listener) }
   }, [])
 
+  // A manual popover lives in the top layer, so toasts can sit above an open
+  // <dialog>. Re-showing on every new toast moves it above a dialog opened since.
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    if (el.matches(':popover-open')) el.hidePopover()
+    if (toasts.length) el.showPopover()
+  }, [toasts.length])
+
   const remove = (id: string) => setToasts((prev) => prev.filter((t) => t.id !== id))
 
-  if (!toasts.length) return null
-
   return (
-    <div className="fixed top-0 left-1/2 -translate-x-1/2 z-[9999] flex flex-col gap-2 items-center w-full max-w-sm px-4" style={{ paddingTop: 'max(1rem, env(safe-area-inset-top))' }}>
-      {toasts.map((t) => (
-        <ToastItem key={t.id} toast={t} onRemove={() => remove(t.id)} />
-      ))}
+    <div
+      ref={ref}
+      popover="manual"
+      className="fixed inset-x-0 top-0 bottom-auto m-0 mx-auto h-auto w-full max-w-sm overflow-visible border-0 bg-transparent p-0 px-4"
+      style={{ paddingTop: 'max(1rem, env(safe-area-inset-top))' }}
+    >
+      <div className="flex flex-col items-center gap-2">
+        {toasts.map((t) => (
+          <ToastItem key={t.id} toast={t} onRemove={() => remove(t.id)} />
+        ))}
+      </div>
     </div>
   )
 }
