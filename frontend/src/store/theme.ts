@@ -17,7 +17,7 @@ function applyTheme(theme: Theme) {
   root.classList.toggle('dark', theme === 'dark')
   try { localStorage.setItem('splititt-theme', theme) } catch {}
   const meta = document.querySelector('meta[name="theme-color"]')
-  if (meta) meta.setAttribute('content', theme === 'dark' ? '#0d0d0d' : '#fafaf7')
+  if (meta) meta.setAttribute('content', theme === 'dark' ? '#0A0A0A' : '#FFFFFF')
 }
 
 const initial = getInitial()
