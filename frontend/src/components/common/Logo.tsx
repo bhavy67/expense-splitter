@@ -4,8 +4,8 @@ import { cn } from '@/lib/utils'
 // The mark: a ₹ drawn as strokes (no <text>, so it renders the same everywhere) with a
 // division slash cutting the bar ends and the leg. currentColor only.
 // Same geometry as scripts/gen-icons.mjs (public/*.svg and the PNG icons).
-export const RUPEE_PATHS = ['M6 7 H21', 'M6 12.5 H21', 'M6 7 H11.5 A5.5 5.5 0 0 1 11.5 18 H6 L15.6 25.5']
-export const SLASH_PATH = 'M25 4 L15.5 28'
+const RUPEE_PATHS = ['M6 7 H21', 'M6 12.5 H21', 'M6 7 H11.5 A5.5 5.5 0 0 1 11.5 18 H6 L15.6 25.5']
+const SLASH_PATH = 'M25 4 L15.5 28'
 
 interface LogoMarkProps {
   size?: number
@@ -32,7 +32,7 @@ export function Logo({ size = 28, className }: LogoMarkProps) {
   return (
     <span className={cn('inline-flex items-center gap-2 text-fg', className)}>
       <LogoMark size={size} />
-      <span className="leading-none font-semibold tracking-[-0.02em]" style={{ fontSize: size * 0.68 }}>SplitItt</span>
+      <span className="leading-none font-semibold" style={{ fontSize: size * 0.68, letterSpacing: '-0.02em' }}>SplitItt</span>
     </span>
   )
 }

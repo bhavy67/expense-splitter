@@ -71,18 +71,21 @@ Weights override with `font-medium`/`font-semibold` where needed. These sizes ar
 - **Spacing:** Tailwind's 4px scale. Page gutter 16px (`px-4`), card padding 16px, list rows ≥ 56px tall.
 - **Radius:** `rounded-sm` 6px · `rounded-md` 10px (inputs, buttons, icon tiles) · `rounded-lg` 14px (cards) · `rounded-xl` 20px (sheets, modals) · `rounded-full` (pills, avatars).
 - **Elevation:** one shadow, `shadow-float`, for floating layers only. Dark mode adds a 1px `border` ring into the same token because shadows don't read on black.
-- **Motion:** `ease-out` = `cubic-bezier(0.2, 0.8, 0.2, 1)`. 120ms press/hover · 200ms sheet/modal · 280ms page. `prefers-reduced-motion` disables all of it.
+- **Motion:** `ease-out` = `cubic-bezier(0.2, 0.8, 0.2, 1)`. 120ms press/hover · 200ms sheet/modal/page. All CSS (no animation library): `page-in` (opacity + 6px, enter only), `fade-up` (lists, 8px, staggered by inline delay), dialog transitions with `allow-discrete`. `prefers-reduced-motion` disables all of it.
+- **TopBar scroll effects:** the hairline appears and the `largeTitle` fades in via CSS scroll-driven animations (`animation-timeline: scroll()`); without support both are simply always shown.
 - **Focus:** `:focus-visible` → 2px `focus` outline, 2px offset.
 
 ## Iconography
 
-Lucide only, `strokeWidth` 1.75, 20px in tiles, 16px inline. Emojis are being removed; the maps live in `src/lib/icons.ts` (`CATEGORY_ICONS`, `GROUP_TYPE_ICONS`). `member.color` stays in data but the UI ignores it (avatars are monochrome initials) until a colour phase.
+Lucide only, `strokeWidth` 1.75, 20px in tiles, 16px inline. No emoji in the UI; the maps live in `src/lib/icons.ts` (`CATEGORY_ICONS`, `CATEGORY_LABELS`, `GROUP_TYPE_ICONS`). `member.color` stays in data but the UI ignores it (avatars are monochrome initials) until a colour phase.
+
+**Logo:** a ₹ drawn as strokes with a division slash cutting the bar ends and leg (`components/common/Logo.tsx`, `currentColor` only; wordmark "SplitItt" Inter 600, -0.02em). `scripts/gen-icons.mjs` is the single source for `public/icon.svg`, `public/favicon.svg` and `public/icons/*.png` (white mark on `#0A0A0A`).
 
 ## Component inventory (`src/components/ui/`)
 
 | Component | Notes |
 |---|---|
-| `Button` | `variant`: primary (inverse) · secondary (surface + `border-strong`) · ghost · danger (secondary look + `text-negative`; destructive actions always sit behind `ConfirmModal`). `size`: sm 36 · md 44 · lg 52 · icon 44². `loading`, `fullWidth`. Icons go in `children`. Old path `components/common/Button` re-exports it. |
+| `Button` | `variant`: primary (inverse) · secondary (surface + `border-strong`) · ghost · danger (secondary look + `text-negative`; destructive actions always sit behind `ConfirmModal`). `size`: sm 36 · md 44 · lg 52 · icon 44². `loading`, `fullWidth`. Icons go in `children`. |
 | `IconButton` | 40px visual inside a 44px hit area, `aria-label` required by the type. |
 | `Field` | Label + control + hint/error, wires `id`, `aria-describedby`, `aria-invalid` into its child. |
 | `Input`, `Textarea`, `Select` | 44px, `bg-surface-subtle`, `border-border-input`, focus `border-fg`. |
@@ -101,18 +104,41 @@ Lucide only, `strokeWidth` 1.75, 20px in tiles, 16px inline. Emojis are being re
 | `SectionHeader` | Title, optional count, optional trailing action. |
 | `Skeleton` | `surface-muted` pulse block. |
 | `common/Toast` | Inverse bar + `shadow-float` + icon. Rendered in a `popover="manual"` container so it sits above an open modal. |
-| `common/ConfirmModal`, `common/EmptyState` | Restyled on tokens; `ConfirmModal` is built on `Modal`. |
+| `common/ConfirmModal`, `common/EmptyState` | Restyled on tokens; `ConfirmModal` is built on `Sheet`. |
+| `common/InstallPrompt`, `common/UpdateBanner` | Compact inverse bars with `shadow-float`, consistent with Toast. |
 
 ### Patterns
 
 - **Disabled-looking but tappable submit:** on long forms the primary CTA gets `aria-disabled` + `opacity-50` until the form is ready, but stays clickable so validation can explain what's missing (toast). Never rely on a truly `disabled` button to communicate a reason.
 - **Validation status lines** use text + icon (`Check` / `CircleAlert`), e.g. "₹240.00 left to assign" / "100% assigned".
 - **Disclosure:** secondary form fields go in a native `<details>` ("More details"), open by default when editing or when they already hold data.
+- **Share bars:** rankings (categories, who paid, budget) use a 6px `bg-fg` bar on a `bg-surface-muted` track next to the amount and %. Colour-free and scannable.
+- **Charts:** Recharts bars use `fill="currentColor"` inside a `text-fg` card; ticks and gridlines are coloured with descendant selectors (`[&_.recharts-cartesian-axis-tick-value]:fill-fg-subtle`, `[&_.recharts-cartesian-grid_line]:stroke-border`), so charts follow the theme without re-mounting. Emphasis is opacity (current month 100%, others 35%), not hue.
+- **Owe / owed:** sign (+/−) + word ("owes", "gets back", "settled up") + arrow icon (`ArrowUpRight` / `ArrowDownLeft` / `Check`), with screen-reader text such as "Aman owes Riya". Weight: owes 600, gets back 500.
 
 ### Hex allowlist
 
-Only these may contain hex literals: `lib/memberColors.ts` (persisted `member.color` user data) and the QR code's `bgColor`/`fgColor` in `UpiQrModal` (always black-on-white so scanners work in both themes).
+`grep -rnE "#[0-9a-fA-F]{3,8}\b" src --include=*.tsx --include=*.ts` may only match:
+
+- `lib/memberColors.ts`: persisted `member.color` user data, not styling.
+- `components/upi/UpiQrModal.tsx`: the QR's `bgColor`/`fgColor`, always black-on-white so scanners work in both themes.
+- `store/theme.ts` (and `public/theme-init.js`): the `<meta name="theme-color">` values, which must be literal colours; they mirror `--bg`.
+
+Emoji allowlist: the 🙏 in the WhatsApp reminder text in `lib/upi.ts`. It's outgoing message text, not UI.
 
 ## Dev kitchen sink
 
 `/__ui` renders every primitive in every state with a theme toggle. Registered only when `import.meta.env.DEV`, so it is not in the production bundle.
+
+## Phase 5: introducing colour
+
+The system is built so colour is a token change, not a redesign. Rule: **colour only adds to the existing sign / word / icon / weight cues; it never replaces them.** A greyscale screenshot must still say who owes whom.
+
+1. **Semantic tokens** (in `index.css`, both `:root` and `.dark`): point `--positive`, `--negative` and `--warning` at real hues, and `--accent` at the brand colour. Check contrast against `bg`, `surface` and `surface-subtle`: ≥ 4.5:1 for text, ≥ 3:1 for icons and bars. Dark mode needs its own, lighter values.
+   - `Money tone="positive|negative"`, the Balances arrows and the `danger` Button already use these tokens, so they pick colour up with no component changes.
+2. **Accent:** add `--accent-fg` (text on accent) and decide where accent replaces inverse: primary Button, selected Chip, the active tab pill, focus ring. Change those primitives only.
+3. **Data palette:** add `--chart-1` … `--chart-8` and expose them via `@theme inline`. Map categories to them in one place (next to `CATEGORY_ICONS` in `lib/icons.ts`). Keep the ranked bar list; colour the bars, not the layout.
+4. **Member colours:** `member.color` is already stored for every member. `Avatar` accepts `color` and ignores it today; to use it, tint the avatar background (e.g. `color-mix(in oklab, <color> 18%, var(--surface))`) and keep initials in `fg` for contrast.
+5. **Brand assets:** recolour the mark in `scripts/gen-icons.mjs` and `Logo.tsx`, regenerate icons, update manifest `theme_color` and the Android TWA colours, then ship a Play release.
+6. Re-run the greyscale check (CSS `filter: grayscale(1)`) and the contrast checks after every colour change.
+

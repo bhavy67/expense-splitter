@@ -4,6 +4,7 @@ import { Moon, Sun, Trash2, Plus, Search, ArrowDownLeft, ArrowUpRight, Check } f
 import { useThemeStore } from '@/store/theme'
 import { cn } from '@/lib/utils'
 import { CATEGORY_ICONS, GROUP_TYPE_ICONS } from '@/lib/icons'
+import { MEMBER_COLORS } from '@/lib/memberColors'
 import { AppShell } from '@/components/layout/AppShell'
 import { Button } from '@/components/ui/Button'
 import { IconButton } from '@/components/ui/IconButton'
@@ -195,7 +196,7 @@ export default function KitchenSinkPage() {
             <Avatar name="Riya Shah" size={20} />
             <Avatar name="Riya Shah" size={28} />
             <Avatar name="Riya Shah" size={36} />
-            <Avatar name="Riya Shah" size={48} color="#ff0000" />
+            <Avatar name="Riya Shah" size={48} color={MEMBER_COLORS[0]} />
             <AvatarStack names={NAMES} />
           </div>
           <div className="flex flex-wrap gap-2">
