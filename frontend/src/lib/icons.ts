@@ -29,8 +29,3 @@ export const CATEGORY_LABELS: Record<ExpenseCategory, string> = {
   entertainment: 'Fun', shopping: 'Shopping', medical: 'Medical', other: 'Other',
 }
 
-// Legacy emoji map, still used by AnalyticsTab and ExpenseDetailPage. Remove in Phase 4.
-export const CATEGORY_EMOJIS: Record<string, string> = {
-  food: '🍔', travel: '✈️', accommodation: '🏨', utilities: '⚡',
-  entertainment: '🎭', shopping: '🛍️', medical: '💊', other: '📦',
-}
