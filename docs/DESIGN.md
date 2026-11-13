@@ -94,17 +94,24 @@ Lucide only, `strokeWidth` 1.75, 20px in tiles, 16px inline. Emojis are being re
 | `Badge` | 22px pill, `caption`, `surface-muted`. |
 | `Chip`, `ChipGroup` | 36px pill toggle (`aria-pressed`); selected = inverse. Group scrolls horizontally, `role="group"`. |
 | `SegmentedTabs` | **Panel switching only** (Expenses / Balances / Stats): `tablist`/`tab`/`tabpanel`, arrow/Home/End keys, equal-width segments with a sliding pill. |
-| `Dialog`, `Modal`, `Sheet` | Native `<dialog>` + `showModal()`: browser handles inert background, Escape, focus return, top layer. `Sheet` = bottom sheet on mobile, centred at `sm:`. Backdrop click closes. |
-| `StickyActionBar` | Fixed bottom CTA bar. Sits at `calc(var(--bottom-nav-h) + safe-area)`; `AppShell` owns `--bottom-nav-h` (0 when the nav is hidden). The bar never imports `BottomNav`. |
+| `SegmentedControl` | Same look, for **picking a value** (split mode): `radiogroup`/`radio` + `aria-checked`. Both live in `SegmentedTabs.tsx` and share one implementation. |
+| `Dialog`, `Modal`, `Sheet` | Native `<dialog>` + `showModal()`: browser handles inert background, Escape, focus return, top layer. `Sheet` = bottom sheet on mobile, centred at `sm:`. Backdrop click closes. `footer` pins a CTA below the scroll area (with safe-area padding); point it at the form with `form="…"`. Put `data-autofocus` on the field that should get initial focus (React's `autoFocus` loses to `showModal()`). |
+| `StickyActionBar` | Fixed bottom CTA bar. Pads its content by `calc(var(--bottom-nav-h) + safe-area)` and starts at `var(--sidebar-w)`; `AppShell` owns both variables (0 when the nav / sidebar is hidden). The bar never imports `BottomNav` or `Sidebar`. Pages that use it add bottom padding ≥ the bar height. |
 | `Money` | `formatCurrency` + `tabular-nums`; `tone` neutral/positive/negative, `showSign`, `size`. |
 | `SectionHeader` | Title, optional count, optional trailing action. |
 | `Skeleton` | `surface-muted` pulse block. |
 | `common/Toast` | Inverse bar + `shadow-float` + icon. Rendered in a `popover="manual"` container so it sits above an open modal. |
 | `common/ConfirmModal`, `common/EmptyState` | Restyled on tokens; `ConfirmModal` is built on `Modal`. |
 
-### Planned, not built yet
+### Patterns
 
-- **`SegmentedControl`** (Phase 3 split-mode picker: Equally / Shares / % / Exact / Items). Same look as `SegmentedTabs` but it's a value picker, not panel switching, so it must be `role="radiogroup"` + `role="radio"` / `aria-checked`. Build it as a sibling, don't overload `SegmentedTabs`.
+- **Disabled-looking but tappable submit:** on long forms the primary CTA gets `aria-disabled` + `opacity-50` until the form is ready, but stays clickable so validation can explain what's missing (toast). Never rely on a truly `disabled` button to communicate a reason.
+- **Validation status lines** use text + icon (`Check` / `CircleAlert`), e.g. "₹240.00 left to assign" / "100% assigned".
+- **Disclosure:** secondary form fields go in a native `<details>` ("More details"), open by default when editing or when they already hold data.
+
+### Hex allowlist
+
+Only these may contain hex literals: `lib/memberColors.ts` (persisted `member.color` user data) and the QR code's `bgColor`/`fgColor` in `UpiQrModal` (always black-on-white so scanners work in both themes).
 
 ## Dev kitchen sink
 
