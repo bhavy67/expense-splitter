@@ -1,12 +1,7 @@
-<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <style>
-    .rupee { fill: #4d6e08; }
-    .slash { stroke: #0a0a0a; }
-    @media (prefers-color-scheme: dark) {
-      .rupee { fill: #b9f542; }
-      .slash { stroke: #f0ede5; }
-    }
-  </style>
-  <text x="16" y="24" text-anchor="middle" font-family="Arial, 'Helvetica Neue', sans-serif" font-weight="900" font-size="22" class="rupee">₹</text>
-  <line x1="29" y1="3" x2="3" y2="29" stroke-width="3" stroke-linecap="round" class="slash"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+  <rect width="32" height="32" rx="7" fill="#0A0A0A"/>
+  <g transform="translate(2.24 2.24) scale(0.86)">
+  <mask id="cut"><rect width="32" height="32" fill="#fff"/><path d="M25 4 L15.5 28" stroke="#000" stroke-width="5" stroke-linecap="round"/></mask>
+  <g mask="url(#cut)" fill="none" stroke="#FFFFFF" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 7 H21"/><path d="M6 12.5 H21"/><path d="M6 7 H11.5 A5.5 5.5 0 0 1 11.5 18 H6 L15.6 25.5"/></g>
+  <path d="M25 4 L15.5 28" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round"/></g>
 </svg>

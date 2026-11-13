@@ -1,50 +1,47 @@
 <!doctype html>
-<!-- Play Store feature graphic source: open in Chrome at a 1024×500 viewport and screenshot. Uses the PNGs in this folder. -->
+<!-- Play Store feature graphic source: open in Chrome at a 1024×500 viewport and screenshot. Uses the PNGs in this folder
+     (retake 2-expenses.png and 3-settle-up.png from the monochrome UI first). Mark geometry matches frontend/scripts/gen-icons.mjs. -->
 <html>
 <head>
 <meta charset="utf-8">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,500;9..40,700;9..40,900&family=DM+Mono:wght@500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   * { margin: 0; box-sizing: border-box; }
-  html, body { width: 1024px; height: 500px; overflow: hidden; background: #0a0a0a; }
-  body { font-family: 'DM Sans', sans-serif; color: #f0ede5; position: relative; }
+  html, body { width: 1024px; height: 500px; overflow: hidden; background: #0A0A0A; }
+  body { font-family: 'Inter', sans-serif; color: #F5F5F5; position: relative; -webkit-font-smoothing: antialiased; }
 
-  .grid { position: absolute; inset: 0; background-image:
-      linear-gradient(#f0ede50a 1px, transparent 1px), linear-gradient(90deg, #f0ede50a 1px, transparent 1px);
-    background-size: 32px 32px; }
+  .copy { position: absolute; left: 72px; top: 0; bottom: 0; width: 500px; display: flex; flex-direction: column; justify-content: center; }
+  .brand { display: flex; align-items: center; gap: 14px; }
+  .wordmark { font-weight: 600; font-size: 44px; letter-spacing: -0.02em; line-height: 1; }
+  h1 { margin-top: 36px; font-weight: 600; font-size: 52px; line-height: 1.05; letter-spacing: -0.03em; }
+  h1 span { color: #A3A3A3; }
+  .points { margin-top: 32px; display: flex; gap: 10px; }
+  .point { font-size: 16px; font-weight: 500; padding: 9px 16px; border: 1px solid #333333; border-radius: 999px; color: #F5F5F5; }
 
-  .copy { position: absolute; left: 64px; top: 0; bottom: 0; width: 520px; display: flex; flex-direction: column; justify-content: center; }
-  .brand { display: flex; align-items: center; gap: 16px; }
-  .wordmark { font-weight: 900; font-size: 56px; letter-spacing: 0.02em; text-transform: uppercase; line-height: 1; }
-  .wordmark span { color: #b9f542; }
-  h1 { margin-top: 28px; font-weight: 900; font-size: 44px; line-height: 1.08; text-transform: uppercase; letter-spacing: 0.01em; }
-  h1 em { font-style: normal; color: #0a0a0a; background: #b9f542; padding: 0 10px; box-shadow: 5px 5px 0 #f0ede5; }
-  .chips { margin-top: 34px; display: flex; gap: 12px; }
-  .chip { font-family: 'DM Mono', monospace; font-weight: 500; font-size: 15px; text-transform: uppercase; letter-spacing: 0.06em;
-    padding: 9px 14px; border: 2px solid #f0ede5; border-radius: 4px; box-shadow: 3px 3px 0 #b9f542; }
-
-  .phone { position: absolute; width: 228px; height: 405px; border: 3px solid #f0ede5; border-radius: 22px; overflow: hidden;
-    background: #0a0a0a; box-shadow: 10px 10px 0 #b9f542; }
+  .phone { position: absolute; width: 228px; height: 405px; border: 1px solid #333333; border-radius: 28px; overflow: hidden;
+    background: #111111; box-shadow: 0 24px 60px rgb(0 0 0 / 0.6); }
   .phone img { width: 100%; display: block; }
-  .p1 { left: 610px; top: 62px; }
-  .p2 { left: 768px; top: 128px; box-shadow: 10px 10px 0 #f0ede5; border-color: #b9f542; }
+  .p1 { left: 620px; top: 58px; }
+  .p2 { left: 772px; top: 120px; }
 </style>
 </head>
 <body>
-  <div class="grid"></div>
   <div class="copy">
     <div class="brand">
-      <svg width="58" height="58" viewBox="0 0 32 32" fill="none">
-        <text x="16" y="24" text-anchor="middle" font-family="'DM Sans', Arial, sans-serif" font-weight="900" font-size="22" fill="#b9f542">₹</text>
-        <line x1="29" y1="3" x2="3" y2="29" stroke="#f0ede5" stroke-width="3" stroke-linecap="round"/>
+      <svg width="52" height="52" viewBox="0 0 32 32" fill="none">
+        <mask id="cut"><rect width="32" height="32" fill="#fff"/><path d="M25 4 L15.5 28" stroke="#000" stroke-width="5" stroke-linecap="round"/></mask>
+        <g mask="url(#cut)" stroke="#F5F5F5" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 7 H21"/><path d="M6 12.5 H21"/><path d="M6 7 H11.5 A5.5 5.5 0 0 1 11.5 18 H6 L15.6 25.5"/>
+        </g>
+        <path d="M25 4 L15.5 28" stroke="#F5F5F5" stroke-width="2.4" stroke-linecap="round"/>
       </svg>
-      <div class="wordmark">Split<span>Itt</span></div>
+      <div class="wordmark">SplitItt</div>
     </div>
-    <h1>Split expenses,<br><em>not friendships.</em></h1>
-    <div class="chips">
-      <div class="chip">No sign-up</div>
-      <div class="chip">Settle via UPI</div>
-      <div class="chip">Works offline</div>
+    <h1>Split expenses,<br><span>not friendships.</span></h1>
+    <div class="points">
+      <div class="point">No sign-up</div>
+      <div class="point">Settle via UPI</div>
+      <div class="point">Works offline</div>
     </div>
   </div>
   <div class="phone p1"><img src="2-expenses.png" alt=""></div>

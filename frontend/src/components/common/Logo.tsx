@@ -1,4 +1,11 @@
+import { useId } from 'react'
 import { cn } from '@/lib/utils'
+
+// The mark: a ₹ drawn as strokes (no <text>, so it renders the same everywhere) with a
+// division slash cutting the bar ends and the leg. currentColor only.
+// Same geometry as scripts/gen-icons.mjs (public/*.svg and the PNG icons).
+export const RUPEE_PATHS = ['M6 7 H21', 'M6 12.5 H21', 'M6 7 H11.5 A5.5 5.5 0 0 1 11.5 18 H6 L15.6 25.5']
+export const SLASH_PATH = 'M25 4 L15.5 28'
 
 interface LogoMarkProps {
   size?: number
@@ -6,64 +13,26 @@ interface LogoMarkProps {
 }
 
 export function LogoMark({ size = 32, className }: LogoMarkProps) {
+  const mask = useId()
   return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 32 32"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      className={cn('shrink-0', className)}
-      aria-hidden="true"
-    >
-      {/* ₹ centered — electric lime in dark, deep olive in light (contrast-safe) */}
-      <text
-        x="16"
-        y="24"
-        textAnchor="middle"
-        fontFamily="'DM Sans', 'Arial', sans-serif"
-        fontWeight="900"
-        fontSize="22"
-        className="fill-[#4d6e08] dark:fill-[#b9f542]"
-      >
-        ₹
-      </text>
-
-      {/* 45° slash through center — cuts the ₹; near-black in light, cream in dark */}
-      <line
-        x1="29"
-        y1="3"
-        x2="3"
-        y2="29"
-        strokeWidth="3"
-        strokeLinecap="round"
-        className="stroke-[#0a0a0a] dark:stroke-[#f0ede5]"
-      />
+    <svg width={size} height={size} viewBox="0 0 32 32" fill="none" aria-hidden="true" className={cn('shrink-0', className)}>
+      <mask id={mask}>
+        <rect width="32" height="32" fill="white" />
+        <path d={SLASH_PATH} stroke="black" strokeWidth="5" strokeLinecap="round" />
+      </mask>
+      <g mask={`url(#${mask})`} stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round">
+        {RUPEE_PATHS.map((d) => <path key={d} d={d} />)}
+      </g>
+      <path d={SLASH_PATH} stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
     </svg>
   )
 }
 
-interface LogoProps extends LogoMarkProps {
-  wordmarkClassName?: string
-  light?: boolean
-}
-
-export function Logo({ size = 28, className, wordmarkClassName, light }: LogoProps) {
+export function Logo({ size = 28, className }: LogoMarkProps) {
   return (
-    <span className={cn('inline-flex items-center gap-2.5', className)}>
+    <span className={cn('inline-flex items-center gap-2 text-fg', className)}>
       <LogoMark size={size} />
-      <span
-        className={cn(
-          'font-black uppercase tracking-[0.04em] leading-none',
-          light
-            ? 'text-[#f0ede5]'
-            : 'text-[#0a0a0a] dark:text-[#f0ede5]',
-          wordmarkClassName
-        )}
-        style={{ fontSize: size * 0.6 }}
-      >
-        Split<span className={light ? 'text-[#b9f542]' : 'text-[#4d6e08] dark:text-[#b9f542]'}>Itt</span>
-      </span>
+      <span className="leading-none font-semibold tracking-[-0.02em]" style={{ fontSize: size * 0.68 }}>SplitItt</span>
     </span>
   )
 }

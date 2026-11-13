@@ -15,8 +15,8 @@ export default defineConfig({
         name: 'SplitItt — Expense Splitter',
         short_name: 'SplitItt',
         description: 'Split group expenses with friends, roommates, and travel crews.',
-        theme_color: '#0a0a0a',
-        background_color: '#0a0a0a',
+        theme_color: '#0A0A0A', // matches the dark app icon and the TWA splash (android/twa-manifest.json)
+        background_color: '#0A0A0A',
         display: 'standalone',
         start_url: '/',
         scope: '/',

@@ -113,14 +113,4 @@ See [`DEPLOYMENT.md`](./DEPLOYMENT.md) for full infrastructure details.
 
 ## Design system
 
-Neo-brutalist — thick borders, solid offset shadows, electric lime accent, uppercase mono labels.
-
-| Token | Value |
-|---|---|
-| Accent | `#b9f542` (electric lime) |
-| Accent dark | `#4d6e08` (dark olive, light mode) |
-| Background light | `#fafaf7` |
-| Background dark | `#0d0d0d` |
-| Border | `#0a0a0a` / `#f0ede5` |
-| Error / danger | `#ff5c3d` |
-| Font | DM Sans + DM Mono |
+Monochrome: one neutral grey ramp, Inter (self-hosted), hairlines instead of shadows, and meaning carried by sign + word + icon rather than colour. Tokens live in `frontend/src/index.css` and the shared components in `frontend/src/components/ui/`. The full spec, including how to introduce colour later, is in [docs/DESIGN.md](docs/DESIGN.md).
