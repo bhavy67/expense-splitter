@@ -11,14 +11,16 @@ const out = join(pub, 'icons')
 
 const BG = '#0A0A0A'
 const FG = '#FFFFFF'
-const RUPEE = ['M6 7 H21', 'M6 12.5 H21', 'M6 7 H11.5 A5.5 5.5 0 0 1 11.5 18 H6 L15.6 25.5']
-const SLASH = 'M25 4 L15.5 28'
-
-// The mark on a 32-unit grid, white on the dark tile.
+// A banknote snapped in two (see src/components/common/Logo.tsx), on a 32-unit grid.
+const note = `<rect x="3" y="8.5" width="26" height="15" rx="3" fill="${FG}" mask="url(#m)"/>`
 const mark = `
-  <mask id="cut"><rect width="32" height="32" fill="#fff"/><path d="${SLASH}" stroke="#000" stroke-width="5" stroke-linecap="round"/></mask>
-  <g mask="url(#cut)" fill="none" stroke="${FG}" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">${RUPEE.map((d) => `<path d="${d}"/>`).join('')}</g>
-  <path d="${SLASH}" stroke="${FG}" stroke-width="2.4" stroke-linecap="round"/>`
+  <defs>
+    <mask id="m"><rect width="32" height="32" fill="#fff"/><circle cx="16" cy="16" r="3.8" fill="#000"/><circle cx="7.4" cy="12.2" r="1.1" fill="#000"/><circle cx="24.6" cy="19.8" r="1.1" fill="#000"/></mask>
+    <clipPath id="l"><path d="M0 0 H15.3 V32 H0 Z"/></clipPath>
+    <clipPath id="r"><path d="M16.7 0 H32 V32 H16.7 Z"/></clipPath>
+  </defs>
+  <g clip-path="url(#l)" transform="translate(-1.6 0) rotate(-8 9 16)">${note}</g>
+  <g clip-path="url(#r)" transform="translate(1.6 0) rotate(8 23 16)">${note}</g>`
 
 // scale: how much of the canvas the 32-unit mark occupies (1 = edge to edge)
 function svg({ size, scale, radius = 0 }) {
@@ -46,8 +48,8 @@ await png(svg({ size: 512, scale: 0.78 }), 'icon-512.png', 512)
 await png(svg({ size: 192, scale: 0.78 }), 'icon-192.png', 192)
 await png(svg({ size: 180, scale: 0.78 }), 'apple-touch-icon.png', 180)
 // Maskable: the safe zone is the centre circle of 80% diameter (radius 205px at 512).
-// The mark's furthest point (slash tip) is 0.50 of its box from the centre, so at 70%
-// it reaches 180px: inside the safe zone with margin.
+// The note's furthest corner is ~0.50 of its box from the centre, so at 70% it reaches
+// ~180px: inside the safe zone with margin.
 await png(svg({ size: 512, scale: 0.7 }), 'icon-maskable-512.png', 512)
 
 console.log('All icons generated.')

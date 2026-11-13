@@ -79,7 +79,7 @@ Weights override with `font-medium`/`font-semibold` where needed. These sizes ar
 
 Lucide only, `strokeWidth` 1.75, 20px in tiles, 16px inline. No emoji in the UI; the maps live in `src/lib/icons.ts` (`CATEGORY_ICONS`, `CATEGORY_LABELS`, `GROUP_TYPE_ICONS`). `member.color` stays in data but the UI ignores it (avatars are monochrome initials) until a colour phase.
 
-**Logo:** a ₹ drawn as strokes with a division slash cutting the bar ends and leg (`components/common/Logo.tsx`, `currentColor` only; wordmark "SplitItt" Inter 600, -0.02em). `scripts/gen-icons.mjs` is the single source for `public/icon.svg`, `public/favicon.svg` and `public/icons/*.png` (white mark on `#0A0A0A`).
+**Logo:** a banknote snapped in two ("split the bill"): each half keeps half of the centre coin and one corner dot, tilted apart in a V (`components/common/Logo.tsx`, `currentColor` only; `LogoMark tight` crops to the note for inline use; wordmark "SplitItt" Inter 600, -0.02em). `scripts/gen-icons.mjs` is the single source for `public/icon.svg`, `public/favicon.svg` and `public/icons/*.png` (white mark on `#0A0A0A`; maskable mark reaches 178px of the 205px safe radius).
 
 ## Component inventory (`src/components/ui/`)
 
