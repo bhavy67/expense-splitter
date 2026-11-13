@@ -1,6 +1,29 @@
 import { NavLink, useNavigate, useLocation } from 'react-router-dom'
-import { LayoutDashboard, Plus, Info } from 'lucide-react'
+import { House, Plus, Info } from 'lucide-react'
 import { cn, hidesBottomNav } from '@/lib/utils'
+
+function Tab({ to, end, icon: Icon, label }: { to: string; end?: boolean; icon: React.ElementType; label: string }) {
+  return (
+    <NavLink
+      to={to}
+      end={end}
+      className={({ isActive }) =>
+        cn(
+          'relative flex h-full min-w-16 flex-col items-center justify-center gap-1 transition-colors duration-[120ms]',
+          isActive ? 'text-fg' : 'text-fg-subtle hover:text-fg'
+        )
+      }
+    >
+      {({ isActive }) => (
+        <>
+          {isActive && <span className="absolute top-0 h-0.5 w-8 rounded-full bg-fg" aria-hidden />}
+          <Icon className="size-5" strokeWidth={isActive ? 2.25 : 1.75} />
+          <span className="text-[11px] font-medium">{label}</span>
+        </>
+      )}
+    </NavLink>
+  )
+}
 
 export function BottomNav() {
   const navigate = useNavigate()
@@ -11,45 +34,17 @@ export function BottomNav() {
   const groupId = pathname.match(/^\/g\/([^/]+)/)?.[1]
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#fafaf7] dark:bg-[#0d0d0d] border-t-2 border-[#0a0a0a] dark:border-[#b9f542] pb-safe">
-      <div className="flex items-center justify-around px-4 h-16">
-        <NavLink
-          to="/"
-          end
-          className={({ isActive }) =>
-            cn(
-              'flex flex-col items-center gap-0.5 px-5 py-2 min-h-[44px] justify-center transition-colors',
-              isActive
-                ? 'text-[#4d6e08] dark:text-[#b9f542]'
-                : 'text-[#4a4940]/50 dark:text-[#f0ede5]/40 hover:text-[#0a0a0a] dark:hover:text-[#f0ede5]'
-            )
-          }
-        >
-          <LayoutDashboard className="w-5 h-5" />
-          <span className="text-[10px] font-bold uppercase tracking-[0.1em]">Home</span>
-        </NavLink>
-
-        <button aria-label={groupId ? 'Add expense' : 'New group'}
+    <nav className="md:hidden fixed inset-x-0 bottom-0 z-40 border-t border-border bg-bg/90 pb-safe backdrop-blur">
+      <div className="flex h-16 items-center justify-around px-4">
+        <Tab to="/" end icon={House} label="Home" />
+        <button
+          aria-label={groupId ? 'Add expense' : 'New group'}
           onClick={() => navigate(groupId ? `/g/${groupId}/expenses/new` : '/?new=1')}
-          className="w-12 h-12 rounded bg-[#b9f542] flex items-center justify-center border-2 border-[#0a0a0a] shadow-[3px_3px_0_#0a0a0a] dark:shadow-[3px_3px_0_#b9f542] -mt-5 transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
+          className="flex size-12 items-center justify-center rounded-full bg-inverse-bg text-inverse-fg shadow-float transition-transform duration-[120ms] ease-out active:scale-95"
         >
-          <Plus className="w-6 h-6 text-[#0a0a0a]" strokeWidth={3} />
+          <Plus className="size-6" strokeWidth={2} />
         </button>
-
-        <NavLink
-          to="/privacy"
-          className={({ isActive }) =>
-            cn(
-              'flex flex-col items-center gap-0.5 px-5 py-2 min-h-[44px] justify-center transition-colors',
-              isActive
-                ? 'text-[#4d6e08] dark:text-[#b9f542]'
-                : 'text-[#4a4940]/50 dark:text-[#f0ede5]/40 hover:text-[#0a0a0a] dark:hover:text-[#f0ede5]'
-            )
-          }
-        >
-          <Info className="w-5 h-5" />
-          <span className="text-[10px] font-bold uppercase tracking-[0.1em]">About</span>
-        </NavLink>
+        <Tab to="/privacy" icon={Info} label="About" />
       </div>
     </nav>
   )

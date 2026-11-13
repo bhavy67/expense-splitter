@@ -13,9 +13,9 @@ export function AppShell({ children }: AppShellProps) {
   const navH = hidesBottomNav(pathname) ? '[--bottom-nav-h:0px]' : '[--bottom-nav-h:4rem] md:[--bottom-nav-h:0px]'
 
   return (
-    <div className={cn('flex h-[100dvh] bg-[#fafaf7] dark:bg-[#0d0d0d] overflow-hidden', navH)}>
+    <div className={cn('flex h-[100dvh] overflow-hidden bg-bg text-fg', navH)}>
       <Sidebar />
-      <main className="flex-1 overflow-y-auto overscroll-none pb-nav-safe md:pb-0 bg-[#fafaf7] dark:bg-[#0d0d0d]" style={{ WebkitOverflowScrolling: 'touch' }}>
+      <main className="flex-1 overflow-y-auto overscroll-none pb-nav-safe md:pb-0 bg-bg" style={{ WebkitOverflowScrolling: 'touch' }}>
         {children}
       </main>
       <BottomNav />

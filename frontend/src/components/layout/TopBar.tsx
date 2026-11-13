@@ -1,39 +1,39 @@
 import { ArrowLeft, Sun, Moon } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useThemeStore } from '@/store/theme'
+import { IconButton } from '@/components/ui/IconButton'
+import { cn } from '@/lib/utils'
 
 interface TopBarProps {
   title: string
   showBack?: boolean
   actions?: React.ReactNode
+  /** The page shows its own title-lg heading; fade this title in only once that scrolls away. */
+  largeTitle?: boolean
 }
 
-export function TopBar({ title, showBack, actions }: TopBarProps) {
+export function TopBar({ title, showBack, actions, largeTitle }: TopBarProps) {
   const navigate = useNavigate()
   const { theme, toggle } = useThemeStore()
 
   return (
-    <header className="md:hidden sticky top-0 z-30 flex items-center h-14 px-3 bg-[#fafaf7] dark:bg-[#0d0d0d] border-b-2 border-[#0a0a0a] dark:border-[#b9f542] gap-2">
+    <header className="topbar md:hidden sticky top-0 z-30 flex h-14 items-center gap-1 border-b border-border bg-bg/85 px-2 backdrop-blur">
       {showBack && (
-        <button aria-label="Go back"
+        <IconButton
+          aria-label="Go back"
           // Opened from a shared link there's no history to go back to — go home instead.
           onClick={() => window.history.state?.idx > 0 ? navigate(-1) : navigate('/')}
-          className="w-10 h-10 flex items-center justify-center rounded text-[#0a0a0a] dark:text-[#f0ede5] hover:bg-[#0a0a0a]/10 dark:hover:bg-white/10 transition-colors -ml-2"
         >
-          <ArrowLeft className="w-5 h-5" />
-        </button>
+          <ArrowLeft />
+        </IconButton>
       )}
-      <h1 className="flex-1 text-[13px] font-black text-[#0a0a0a] dark:text-[#f0ede5] uppercase tracking-[0.06em] truncate">{title}</h1>
-      <div className="flex items-center gap-1">
-        {actions && <div className="flex items-center gap-1.5">{actions}</div>}
-        <button
-          onClick={toggle}
-          className="w-10 h-10 flex items-center justify-center rounded text-[#4a4940] dark:text-[#f0ede5]/60 hover:text-[#0a0a0a] dark:hover:text-[#b9f542] hover:bg-[#0a0a0a]/10 dark:hover:bg-white/10 transition-colors"
-          aria-label="Toggle theme"
-        >
-          {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-        </button>
-      </div>
+      <h1 className={cn('min-w-0 flex-1 truncate text-[17px] font-semibold text-fg', !showBack && 'pl-2', largeTitle && 'topbar-title-large')}>
+        {title}
+      </h1>
+      {actions}
+      <IconButton aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'} onClick={toggle}>
+        {theme === 'dark' ? <Sun /> : <Moon />}
+      </IconButton>
     </header>
   )
 }

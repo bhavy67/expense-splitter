@@ -176,6 +176,36 @@ summary {
   to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
+/* List stagger (opacity + 8px) — delay set inline per item */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ── TopBar: hairline appears once the page scrolls; with `largeTitle` the
+   title fades in after the in-page title-lg heading has scrolled away.
+   Scroll-driven CSS; browsers without support show both all the time. ──── */
+@keyframes topbar-hairline {
+  from { border-bottom-color: transparent; }
+  to   { border-bottom-color: var(--border); }
+}
+@keyframes topbar-title-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@supports (animation-timeline: scroll()) {
+  .topbar {
+    animation: topbar-hairline linear both;
+    animation-timeline: scroll();
+    animation-range: 0 8px;
+  }
+  .topbar-title-large {
+    animation: topbar-title-in linear both;
+    animation-timeline: scroll();
+    animation-range: 40px 72px;
+  }
+}
+
 /* Hide scrollbars while keeping scroll functional */
 @utility scrollbar-none {
   scrollbar-width: none;
