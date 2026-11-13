@@ -1,6 +1,5 @@
 import { lazy, Suspense } from 'react'
 import { Routes, Route, useLocation } from 'react-router-dom'
-import { AnimatePresence, MotionConfig } from 'framer-motion'
 import { ToastProvider } from '@/components/common/Toast'
 import { InstallPrompt } from '@/components/common/InstallPrompt'
 import { UpdateBanner } from '@/components/common/UpdateBanner'
@@ -27,24 +26,22 @@ export default function App() {
   const location = useLocation()
 
   return (
-    <MotionConfig reducedMotion="user">
+    <>
       <Suspense fallback={<PageLoader />}>
-        <AnimatePresence mode="wait" initial={false}>
-          <Routes location={location} key={location.pathname}>
-            <Route path="/"                                    element={<DashboardPage />} />
-            <Route path="/g/:groupId"                          element={<GroupPage />} />
-            <Route path="/g/:groupId/expenses/new"             element={<AddExpensePage />} />
-            <Route path="/g/:groupId/expenses/:expenseId"      element={<ExpenseDetailPage />} />
-            <Route path="/g/:groupId/settings"                 element={<GroupSettingsPage />} />
-            <Route path="/privacy"                             element={<AboutPage />} />
-            {KitchenSinkPage && <Route path="/__ui"            element={<KitchenSinkPage />} />}
-            <Route path="*"                                    element={<NotFoundPage />} />
-          </Routes>
-        </AnimatePresence>
+        <Routes location={location} key={location.pathname}>
+          <Route path="/"                                    element={<DashboardPage />} />
+          <Route path="/g/:groupId"                          element={<GroupPage />} />
+          <Route path="/g/:groupId/expenses/new"             element={<AddExpensePage />} />
+          <Route path="/g/:groupId/expenses/:expenseId"      element={<ExpenseDetailPage />} />
+          <Route path="/g/:groupId/settings"                 element={<GroupSettingsPage />} />
+          <Route path="/privacy"                             element={<AboutPage />} />
+          {KitchenSinkPage && <Route path="/__ui"            element={<KitchenSinkPage />} />}
+          <Route path="*"                                    element={<NotFoundPage />} />
+        </Routes>
       </Suspense>
       <ToastProvider />
       <InstallPrompt />
       <UpdateBanner />
-    </MotionConfig>
+    </>
   )
 }

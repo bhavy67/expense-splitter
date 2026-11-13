@@ -4,16 +4,16 @@ import { useState } from 'react'
 import { RefreshCw } from 'lucide-react'
 import { AppShell } from '@/components/layout/AppShell'
 import { TopBar } from '@/components/layout/TopBar'
-import { Button } from '@/components/common/Button'
+import { Button } from '@/components/ui/Button'
 import { PageTransition } from '@/components/common/PageTransition'
 
 const UPDATED = '21 October 2026'
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="mt-8">
-      <h2 className="text-sm font-black uppercase tracking-[0.08em] text-[#0a0a0a] dark:text-[#f0ede5] mb-2">{title}</h2>
-      <div className="text-sm leading-relaxed text-[#4a4940] dark:text-[#c8bfb0] space-y-2">{children}</div>
+    <section className="mt-10">
+      <h2 className="mb-2 text-title">{title}</h2>
+      <div className="space-y-3 text-[15px] leading-6 text-fg-muted">{children}</div>
     </section>
   )
 }
@@ -36,11 +36,11 @@ export default function AboutPage() {
 
   return (
     <AppShell>
-      <TopBar title="About & Privacy" showBack />
+      <TopBar title="About & privacy" showBack largeTitle />
       <PageTransition>
-        <div className="max-w-2xl mx-auto px-4 py-6 md:py-8">
-          <h1 className="text-xl font-black uppercase tracking-[0.04em] text-[#0a0a0a] dark:text-[#f0ede5]">About & Privacy</h1>
-          <p className="text-xs font-medium text-[#4a4940] dark:text-[#a09880] mt-0.5">Last updated {UPDATED}</p>
+        <article className="mx-auto max-w-[640px] px-4 pt-4 pb-12 md:py-10">
+          <h1 className="text-title-lg">About & privacy</h1>
+          <p className="mt-1 text-body-sm text-fg-subtle">Last updated {UPDATED}</p>
 
           <Section title="The short version">
             <p>SplitItt has no accounts and no backend that stores your data. Everything you enter stays on this device. We don't collect, sell or share any of your data, and there are no ads or analytics.</p>
@@ -71,7 +71,7 @@ export default function AboutPage() {
           <Section title="Contact">
             <p>
               Questions or problems:{' '}
-              <a className="underline font-bold text-[#0a0a0a] dark:text-[#b9f542]" href="https://github.com/bhavy67/expense-splitter/issues" target="_blank" rel="noreferrer">
+              <a className="font-medium text-fg underline underline-offset-4" href="https://github.com/bhavy67/expense-splitter/issues" target="_blank" rel="noreferrer">
                 open an issue on GitHub
               </a>.
             </p>
@@ -85,11 +85,11 @@ export default function AboutPage() {
               loading={clearing}
               onClick={() => { setClearing(true); clearCacheAndReload() }}
             >
-              <RefreshCw className="w-4 h-4" />
+              <RefreshCw className="size-4" />
               Clear cache & reload
             </Button>
           </Section>
-        </div>
+        </article>
       </PageTransition>
     </AppShell>
   )

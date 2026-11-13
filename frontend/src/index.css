@@ -176,6 +176,12 @@ summary {
   to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
+/* Page enter (opacity + 6px) */
+@keyframes page-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: none; }
+}
+
 /* List stagger (opacity + 8px) — delay set inline per item */
 @keyframes fade-up {
   from { opacity: 0; transform: translateY(8px); }
