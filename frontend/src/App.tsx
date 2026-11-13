@@ -12,6 +12,8 @@ const AddExpensePage    = lazy(() => import('@/pages/expenses/AddExpensePage'))
 const ExpenseDetailPage = lazy(() => import('@/pages/expenses/ExpenseDetailPage'))
 const AboutPage         = lazy(() => import('@/pages/about/AboutPage'))
 const NotFoundPage      = lazy(() => import('@/pages/NotFoundPage'))
+// Dev-only kitchen sink; `import.meta.env.DEV` is false in builds, so the chunk is dropped.
+const KitchenSinkPage   = import.meta.env.DEV ? lazy(() => import('@/pages/dev/KitchenSinkPage')) : null
 
 function PageLoader() {
   return (
@@ -35,6 +37,7 @@ export default function App() {
             <Route path="/g/:groupId/expenses/:expenseId"      element={<ExpenseDetailPage />} />
             <Route path="/g/:groupId/settings"                 element={<GroupSettingsPage />} />
             <Route path="/privacy"                             element={<AboutPage />} />
+            {KitchenSinkPage && <Route path="/__ui"            element={<KitchenSinkPage />} />}
             <Route path="*"                                    element={<NotFoundPage />} />
           </Routes>
         </AnimatePresence>
