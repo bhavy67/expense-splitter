@@ -1,85 +1,39 @@
 import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { ArrowLeft, Trash2, Plus, Check, X, Pencil, Download, AtSign } from 'lucide-react'
+import { ArrowLeft, Trash2, Plus, Check, X, Pencil, Download, FileSpreadsheet, AtSign, BookMarked } from 'lucide-react'
 import { AppShell } from '@/components/layout/AppShell'
 import { TopBar } from '@/components/layout/TopBar'
-import { Button } from '@/components/common/Button'
+import { Button } from '@/components/ui/Button'
+import { IconButton } from '@/components/ui/IconButton'
+import { Card } from '@/components/ui/Card'
+import { ListRow } from '@/components/ui/ListRow'
+import { Avatar } from '@/components/ui/Avatar'
+import { Chip } from '@/components/ui/Chip'
+import { Field, Input, Textarea } from '@/components/ui/Field'
+import { SectionHeader } from '@/components/ui/SectionHeader'
 import { ConfirmModal } from '@/components/common/ConfirmModal'
+import { EmptyState } from '@/components/common/EmptyState'
 import { PageTransition } from '@/components/common/PageTransition'
 import { useGroup, useExpenses, usePayments } from '@/hooks/useStore'
 import { saveGroup, deleteGroup, generateId, exportGroupData } from '@/lib/storage'
+import { getTemplates, deleteTemplate } from '@/lib/templates'
+import { downloadExpensesCSV } from '@/lib/export'
 import { toast } from '@/components/common/Toast'
 import { isValidUpiId } from '@/lib/upi'
 import { isMemberInUse } from '@/lib/calculations'
-import { cn } from '@/lib/utils'
+import { GROUP_TYPE_ICONS } from '@/lib/icons'
+import { GROUP_TYPE_LABELS, MEMBER_COLORS } from '@/lib/memberColors'
 import type { GroupType, Member } from '@/types'
 
 type ConfirmConfig = { title: string; description?: string; confirmLabel: string; danger?: boolean; onConfirm: () => void }
 
-const MEMBER_COLORS = [
-  '#6366f1', '#8b5cf6', '#ec4899', '#f97316',
-  '#10b981', '#3b82f6', '#f59e0b', '#ef4444',
-  '#14b8a6', '#a855f7',
-]
-
-const GROUP_TYPES: { value: GroupType; label: string; icon: string }[] = [
-  { value: 'travel',    label: 'Trip',    icon: '✈️' },
-  { value: 'roommates', label: 'Home',    icon: '🏠' },
-  { value: 'friends',   label: 'Friends', icon: '👯' },
-  { value: 'dinner',    label: 'Dinner',  icon: '🍽️' },
-  { value: 'other',     label: 'Other',   icon: '👥' },
-]
-
-
-function SectionCard({ title, children, className }: { title?: string; children: React.ReactNode; className?: string }) {
+function Section({ title, description, children }: { title: string; description?: string; children: React.ReactNode }) {
   return (
-    <div className={cn('bg-white dark:bg-[#1e1e1a] rounded border-2 border-[#0a0a0a] dark:border-[#f0ede5] p-4', className)}>
-      {title && <p className="text-[11px] font-mono font-bold uppercase tracking-[0.12em] text-[#4a4940] dark:text-[#a09880] mb-4">{title}</p>}
+    <section>
+      <SectionHeader title={title} />
+      {description && <p className="-mt-1 mb-3 text-body-sm text-fg-muted">{description}</p>}
       {children}
-    </div>
-  )
-}
-
-// Inline color picker popover
-function ColorPicker({ color, onChange }: { color: string; onChange: (c: string) => void }) {
-  const [open, setOpen] = useState(false)
-  const ref = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    if (!open) return
-    function handler(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
-    }
-    document.addEventListener('mousedown', handler)
-    return () => document.removeEventListener('mousedown', handler)
-  }, [open])
-
-  return (
-    <div className="relative" ref={ref}>
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        className="w-7 h-7 rounded-full ring-2 ring-white dark:ring-[#1e1e1a] ring-offset-1 ring-offset-white dark:ring-offset-[#1e1e1a] transition-transform hover:scale-110 shrink-0"
-        style={{ background: color }}
-        title="Change color"
-      />
-      {open && (
-        <div className="absolute left-0 top-9 z-20 bg-white dark:bg-[#1e1e1a] border-2 border-[#0a0a0a] dark:border-[#f0ede5] rounded shadow-[3px_3px_0_#0a0a0a] dark:shadow-[3px_3px_0_#b9f542] p-2 grid grid-cols-5 gap-1.5 max-[400px]:left-auto max-[400px]:right-0">
-          {MEMBER_COLORS.map((c) => (
-            <button
-              key={c}
-              type="button"
-              onClick={() => { onChange(c); setOpen(false) }}
-              className={cn(
-                'w-6 h-6 rounded-full transition-transform hover:scale-110',
-                c === color && 'ring-2 ring-offset-1 ring-[#b9f542]'
-              )}
-              style={{ background: c }}
-            />
-          ))}
-        </div>
-      )}
-    </div>
+    </section>
   )
 }
 
@@ -90,6 +44,7 @@ export default function GroupSettingsPage() {
   const expenses = useExpenses(groupId!)
   const payments = usePayments(groupId!)
   const [confirmConfig, setConfirmConfig] = useState<ConfirmConfig | null>(null)
+  const [templates, setTemplates] = useState(() => getTemplates())
 
   // Group info state
   const [name, setName] = useState(group?.name ?? '')
@@ -132,9 +87,8 @@ export default function GroupSettingsPage() {
   if (!group) {
     return (
       <AppShell>
-        <div className="flex items-center justify-center min-h-[100dvh] text-[#4a4940] dark:text-[#a09880]">
-          Group not found
-        </div>
+        <TopBar title="Settings" showBack />
+        <EmptyState title="Group not found" description="It may have been deleted on this device." />
       </AppShell>
     )
   }
@@ -213,10 +167,6 @@ export default function GroupSettingsPage() {
     toast.info(`UPI ID removed for ${m.name}`)
   }
 
-  function changeColor(memberId: string, color: string) {
-    persistMembers(members.map((m) => m.id === memberId ? { ...m, color } : m))
-  }
-
   function removeMember(memberId: string) {
     const member = members.find((m) => m.id === memberId)
     if (isMemberInUse(memberId, expenses, payments)) {
@@ -278,73 +228,50 @@ export default function GroupSettingsPage() {
     })
   }
 
+  const withUpi = members.filter((m) => m.upiId).length
+
   return (
     <AppShell>
-      <TopBar title="Settings" showBack />
+      <TopBar title="Settings" showBack largeTitle />
 
       <PageTransition>
-        <div className="max-w-2xl mx-auto px-4 py-6 flex flex-col gap-4">
-          {/* Desktop back */}
-          <button
-            onClick={() => navigate(`/g/${groupId}`)}
-            className="hidden md:flex items-center gap-2 text-[11px] font-mono uppercase tracking-wider text-[#4a4940] dark:text-[#a09880] hover:text-[#0a0a0a] dark:hover:text-[#f0ede5] transition-colors self-start"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Back to {group.name}
-          </button>
+        <div className="mx-auto flex max-w-[640px] flex-col gap-8 px-4 pt-4 pb-10 md:py-8">
+          <div>
+            <Button variant="ghost" size="sm" onClick={() => navigate(`/g/${groupId}`)} className="mb-2 -ml-3 hidden md:inline-flex">
+              <ArrowLeft className="size-4" />
+              Back to group
+            </Button>
+            <h1 className="text-title-lg">Settings</h1>
+            <p className="truncate text-body-sm text-fg-muted">{group.name}</p>
+          </div>
 
-          <h1 className="text-xl font-black uppercase tracking-[0.04em] text-[#0a0a0a] dark:text-[#f0ede5]">Group settings</h1>
-
-          {/* ── Group info ─────────────────────────────────────────────────── */}
-          <SectionCard title="Group info">
-            <div className="flex flex-col gap-4">
+          {/* ── General ───────────────────────────────────────────────────── */}
+          <Section title="General">
+            <Card className="flex flex-col gap-4 p-4">
+              <Field label="Name">
+                <Input value={name} onChange={(e) => setName(e.target.value)} />
+              </Field>
               <div>
-                <label className="block font-mono text-[10px] uppercase tracking-[0.12em] text-[#4a4940] dark:text-[#a09880] mb-1.5">Name</label>
-                <input
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="w-full h-10 px-3 rounded border-2 border-[#0a0a0a] dark:border-[#f0ede5]/50 bg-white dark:bg-[#1a1a17] text-[#0a0a0a] dark:text-[#f0ede5] text-[13px] font-medium focus:outline-none focus:border-[#b9f542] focus:shadow-[2px_2px_0_#b9f542] transition-all"
-                />
-              </div>
-
-              <div>
-                <label className="block font-mono text-[10px] uppercase tracking-[0.12em] text-[#4a4940] dark:text-[#a09880] mb-1.5">Type</label>
-                <div className="flex gap-2 flex-wrap">
-                  {GROUP_TYPES.map((t) => (
-                    <button
-                      key={t.value}
-                      type="button"
-                      onClick={() => setType(t.value)}
-                      className={cn(
-                        type === t.value
-                          ? 'flex items-center gap-1.5 px-3 py-1.5 rounded border-2 border-[#0a0a0a] bg-[#b9f542] text-[#0a0a0a] text-[12px] font-bold uppercase tracking-wider transition-all shadow-[2px_2px_0_#0a0a0a] dark:shadow-[2px_2px_0_#f0ede5] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none'
-                          : 'flex items-center gap-1.5 px-3 py-1.5 rounded border-2 border-[#0a0a0a] dark:border-[#f0ede5]/30 text-[#4a4940] dark:text-[#a09880] text-[12px] font-medium uppercase tracking-wider transition-colors hover:border-[#0a0a0a] dark:hover:border-[#f0ede5]'
-                      )}
-                    >
-                      <span>{t.icon}</span>
-                      <span>{t.label}</span>
-                    </button>
-                  ))}
+                <p className="mb-1.5 text-caption text-fg-muted">Type</p>
+                <div role="group" aria-label="Group type" className="flex flex-wrap gap-2">
+                  {(Object.keys(GROUP_TYPE_LABELS) as GroupType[]).map((t) => {
+                    const Icon = GROUP_TYPE_ICONS[t]
+                    return (
+                      <Chip key={t} selected={type === t} onClick={() => setType(t)}>
+                        <Icon />
+                        {GROUP_TYPE_LABELS[t]}
+                      </Chip>
+                    )
+                  })}
                 </div>
               </div>
-
-              <div>
-                <label className="block font-mono text-[10px] uppercase tracking-[0.12em] text-[#4a4940] dark:text-[#a09880] mb-1.5">
-                  Description <span className="font-normal">(optional)</span>
-                </label>
-                <textarea
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  rows={2}
-                  placeholder="What's this group for?"
-                  className="w-full px-3 py-2 rounded border-2 border-[#0a0a0a] dark:border-[#f0ede5]/50 bg-white dark:bg-[#1a1a17] text-[#0a0a0a] dark:text-[#f0ede5] text-[13px] font-medium resize-none focus:outline-none focus:border-[#b9f542] focus:shadow-[2px_2px_0_#b9f542] transition-all"
-                />
-              </div>
-
+              <Field label="Description (optional)">
+                <Textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={2} placeholder="What's this group for?" className="resize-none" />
+              </Field>
               {infoChanged && (
                 <div className="flex gap-2">
                   <Button size="sm" onClick={saveInfo}>
-                    <Check className="w-3.5 h-3.5" />
+                    <Check className="size-4" />
                     Save changes
                   </Button>
                   <Button
@@ -359,147 +286,89 @@ export default function GroupSettingsPage() {
                   </Button>
                 </div>
               )}
-            </div>
-          </SectionCard>
+            </Card>
+          </Section>
 
-          {/* ── Members ────────────────────────────────────────────────────── */}
-          <SectionCard title="Members">
-            {/* UPI completion indicator */}
-            {members.length > 0 && (() => {
-              const withUpi = members.filter((m) => m.upiId).length
-              if (withUpi === 0) return (
-                <p className="text-[10px] font-mono text-[#4a4940]/60 dark:text-[#a09880]/60 mb-3 -mt-1">
-                  No UPI IDs set — tap "+ Add UPI ID" below a member's name
-                </p>
-              )
-              if (withUpi === members.length) return (
-                <p className="text-[10px] font-mono text-[#22c55e] mb-3 -mt-1">
-                  All {members.length} members have UPI IDs ✓
-                </p>
-              )
-              return (
-                <p className="text-[10px] font-mono text-[#88bc20] dark:text-[#b9f542] mb-3 -mt-1">
-                  {withUpi} of {members.length} members have UPI IDs
-                </p>
-              )
-            })()}
-            <div className="flex flex-col gap-1">
+          {/* ── Members ───────────────────────────────────────────────────── */}
+          <Section
+            title="Members"
+            description={
+              members.length === 0 ? undefined
+              : withUpi === 0 ? 'No UPI IDs yet. Add one to show a payment QR for that person.'
+              : withUpi === members.length ? `All ${members.length} members have a UPI ID.`
+              : `${withUpi} of ${members.length} members have a UPI ID.`
+            }
+          >
+            <Card className="overflow-hidden">
               {members.map((m) => (
-                <div
-                  key={m.id}
-                  className="flex items-start gap-3 py-2 px-1 rounded hover:bg-[#f0ede5] dark:hover:bg-[#1a1a17] group/row transition-colors"
-                >
-                  {/* Color dot — stays top-aligned */}
-                  <div className="pt-1 shrink-0">
-                    <ColorPicker color={m.color} onChange={(c) => changeColor(m.id, c)} />
-                  </div>
-
-                  {/* Content column: name row + independent UPI row */}
-                  <div className="flex-1 min-w-0">
-                    {/* ── Name row ── */}
+                <div key={m.id} className="flex items-start gap-3 border-b border-border px-4 py-3">
+                  <Avatar name={m.name} className="mt-0.5" />
+                  <div className="min-w-0 flex-1">
                     {editingId === m.id ? (
-                      <div className="flex items-center gap-2">
-                        <input
+                      <div className="flex items-center gap-1">
+                        <Input
                           ref={editInputRef}
+                          aria-label={`Rename ${m.name}`}
                           value={editingName}
                           onChange={(e) => setEditingName(e.target.value)}
                           onKeyDown={(e) => { if (e.key === 'Enter') commitEdit(); if (e.key === 'Escape') cancelEdit() }}
-                          className="flex-1 h-8 px-2.5 rounded border-2 border-[#b9f542] bg-white dark:bg-[#1e1e1a] text-[13px] text-[#0a0a0a] dark:text-[#f0ede5] focus:outline-none shadow-[2px_2px_0_#b9f542]"
+                          className="h-10"
                         />
-                        <button aria-label="Save name" onMouseDown={(e) => e.preventDefault()} onClick={commitEdit} className="p-1 rounded text-[#4d6e08] dark:text-[#b9f542] hover:bg-[#f0ede5] dark:hover:bg-[#1a1a17] transition-colors">
-                          <Check className="w-4 h-4" />
-                        </button>
-                        <button aria-label="Cancel" onMouseDown={(e) => e.preventDefault()} onClick={cancelEdit} className="p-1 rounded text-[#4a4940] dark:text-[#a09880] hover:bg-[#f0ede5] dark:hover:bg-[#1a1a17] transition-colors">
-                          <X className="w-4 h-4" />
-                        </button>
+                        <IconButton aria-label="Save name" onMouseDown={(e) => e.preventDefault()} onClick={commitEdit}><Check /></IconButton>
+                        <IconButton aria-label="Cancel" onMouseDown={(e) => e.preventDefault()} onClick={cancelEdit}><X /></IconButton>
                       </div>
                     ) : (
-                      <span className="block text-[13px] font-medium text-[#0a0a0a] dark:text-[#f0ede5] truncate leading-6">{m.name}</span>
+                      <p className="truncate text-body font-medium leading-10">{m.name}</p>
                     )}
 
-                    {/* ── UPI row (always independent) ── */}
                     {editingId !== m.id && (
-                      <div className="mt-0.5 flex items-center">
-                        {editingUpiId === m.id ? (
-                          <div className="flex items-center gap-1.5 flex-1 min-w-0">
-                            <AtSign className="w-3 h-3 text-[#88bc20] dark:text-[#b9f542] shrink-0" />
-                            <input
-                              ref={upiInputRef}
-                              value={editingUpiValue}
-                              onChange={(e) => setEditingUpiValue(e.target.value)}
-                              onKeyDown={(e) => { if (e.key === 'Enter') commitUpiEdit(); if (e.key === 'Escape') cancelUpiEdit() }}
-                              onBlur={cancelUpiEdit}
-                              placeholder="e.g. name@upi or 9876543210@ybl"
-                              className="flex-1 h-6 px-2 rounded border-2 border-[#b9f542] bg-white dark:bg-[#1e1e1a] text-[11px] font-mono text-[#0a0a0a] dark:text-[#f0ede5] placeholder:text-[#4a4940]/40 dark:placeholder:text-[#a09880]/40 focus:outline-none shadow-[1px_1px_0_#b9f542]"
-                            />
-                            <button aria-label="Save UPI ID" onMouseDown={(e) => e.preventDefault()} onClick={commitUpiEdit} className="p-0.5 rounded text-[#4d6e08] dark:text-[#b9f542] hover:bg-[#f0ede5] dark:hover:bg-[#1a1a17] transition-colors shrink-0">
-                              <Check className="w-3.5 h-3.5" />
-                            </button>
-                            <button aria-label="Cancel" onMouseDown={(e) => e.preventDefault()} onClick={cancelUpiEdit} className="p-0.5 rounded text-[#4a4940] dark:text-[#a09880] hover:bg-[#f0ede5] dark:hover:bg-[#1a1a17] transition-colors shrink-0">
-                              <X className="w-3.5 h-3.5" />
-                            </button>
-                          </div>
-                        ) : m.upiId ? (
-                          <div className="flex items-center gap-1">
-                            <button aria-label="Edit UPI ID"
-                              onClick={() => startUpiEdit(m)}
-                              className="flex items-center gap-1 text-[10px] font-mono text-[#88bc20] dark:text-[#b9f542] hover:underline underline-offset-2 transition-colors max-w-[180px]"
-                              title="Edit UPI ID"
-                            >
-                              <AtSign className="w-2.5 h-2.5 shrink-0" />
-                              <span className="truncate">{m.upiId}</span>
-                            </button>
-                            <button aria-label="Remove UPI ID"
-                              onClick={() => clearUpi(m)}
-                              className="p-0.5 rounded text-[#4a4940]/40 dark:text-[#a09880]/40 hover:text-[#ff5c3d] transition-colors"
-                              title="Remove UPI ID"
-                            >
-                              <X className="w-2.5 h-2.5" />
-                            </button>
-                          </div>
-                        ) : (
-                          <button
-                            onClick={() => startUpiEdit(m)}
-                            className="flex items-center gap-1 text-[10px] font-mono text-[#4a4940]/50 dark:text-[#a09880]/50 hover:text-[#88bc20] dark:hover:text-[#b9f542] transition-colors"
-                          >
-                            <Plus className="w-2.5 h-2.5" />
-                            Add UPI ID
-                          </button>
-                        )}
-                      </div>
+                      editingUpiId === m.id ? (
+                        <div className="flex items-center gap-1">
+                          <Input
+                            ref={upiInputRef}
+                            aria-label={`UPI ID for ${m.name}`}
+                            value={editingUpiValue}
+                            onChange={(e) => setEditingUpiValue(e.target.value)}
+                            onKeyDown={(e) => { if (e.key === 'Enter') commitUpiEdit(); if (e.key === 'Escape') cancelUpiEdit() }}
+                            onBlur={cancelUpiEdit}
+                            placeholder="name@upi or 9876543210@ybl"
+                            className="h-10 font-mono text-body-sm"
+                          />
+                          <IconButton aria-label="Save UPI ID" onMouseDown={(e) => e.preventDefault()} onClick={commitUpiEdit}><Check /></IconButton>
+                          <IconButton aria-label="Cancel" onMouseDown={(e) => e.preventDefault()} onClick={cancelUpiEdit}><X /></IconButton>
+                        </div>
+                      ) : m.upiId ? (
+                        <div className="-ml-2 flex min-w-0 items-center">
+                          <Button variant="ghost" size="sm" onClick={() => startUpiEdit(m)} aria-label={`Edit UPI ID for ${m.name}`} className="min-w-0 shrink px-2 font-normal text-fg-muted">
+                            <AtSign className="size-3.5 shrink-0" />
+                            <span className="truncate font-mono">{m.upiId}</span>
+                          </Button>
+                          <IconButton aria-label={`Remove UPI ID for ${m.name}`} onClick={() => clearUpi(m)} className="text-fg-muted"><X /></IconButton>
+                        </div>
+                      ) : (
+                        <Button variant="ghost" size="sm" onClick={() => startUpiEdit(m)} className="-ml-2 px-2 font-normal text-fg-muted">
+                          <Plus className="size-3.5" />
+                          Add UPI ID
+                        </Button>
+                      )
                     )}
                   </div>
 
-                  {/* Pencil + Trash — hidden during either edit mode */}
                   {editingId !== m.id && editingUpiId !== m.id && (
-                    <div className="flex items-center gap-1 sm:opacity-0 sm:group-hover/row:opacity-100 transition-opacity pt-0.5">
-                      <button aria-label="Rename member"
-                        onClick={() => startEdit(m)}
-                        className="w-8 h-8 flex items-center justify-center rounded text-[#4a4940] dark:text-[#a09880] hover:text-[#0a0a0a] dark:hover:text-[#f0ede5] hover:bg-[#f0ede5] dark:hover:bg-[#1a1a17] transition-colors"
-                        title="Rename"
-                      >
-                        <Pencil className="w-3.5 h-3.5" />
-                      </button>
-                      <button aria-label="Remove member"
-                        onClick={() => removeMember(m.id)}
-                        className="w-8 h-8 flex items-center justify-center rounded text-[#4a4940] dark:text-[#a09880] hover:text-[#ff5c3d] hover:bg-[#ff5c3d]/10 transition-colors"
-                        title="Remove"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
+                    <div className="-mr-2 flex shrink-0 items-center">
+                      <IconButton aria-label={`Rename ${m.name}`} onClick={() => startEdit(m)}><Pencil /></IconButton>
+                      <IconButton aria-label={`Remove ${m.name}`} onClick={() => removeMember(m.id)}><Trash2 /></IconButton>
                     </div>
                   )}
                 </div>
               ))}
 
-              {/* Add member row */}
               {showAddInput ? (
-                <div className="flex items-center gap-2 mt-1 py-1 px-1">
-                  <div className="w-7 h-7 rounded-full shrink-0 bg-[#f0ede5] dark:bg-[#1a1a17] border-2 border-dashed border-[#0a0a0a]/20 dark:border-[#f0ede5]/20 flex items-center justify-center text-[#4a4940] dark:text-[#a09880] text-xs font-bold">
-                    {newMemberName[0]?.toUpperCase() ?? '+'}
-                  </div>
-                  <input
+                <div className="flex items-center gap-1 px-4 py-3">
+                  <Avatar name={newMemberName || '+'} className="mr-2" />
+                  <Input
                     ref={addInputRef}
+                    aria-label="New member name"
                     value={newMemberName}
                     onChange={(e) => setNewMemberName(e.target.value)}
                     onKeyDown={(e) => {
@@ -507,55 +376,70 @@ export default function GroupSettingsPage() {
                       if (e.key === 'Escape') { setNewMemberName(''); setShowAddInput(false) }
                     }}
                     placeholder="Member name"
-                    className="flex-1 h-8 px-2.5 rounded border-2 border-[#b9f542] bg-white dark:bg-[#1e1e1a] text-[13px] text-[#0a0a0a] dark:text-[#f0ede5] focus:outline-none shadow-[2px_2px_0_#b9f542]"
+                    className="h-10"
                   />
-                  <button aria-label="Add member"
-                    onClick={() => { addMember(); setShowAddInput(false) }}
-                    className="p-1 rounded text-[#4d6e08] dark:text-[#b9f542] hover:bg-[#f0ede5] dark:hover:bg-[#1a1a17] transition-colors"
-                  >
-                    <Check className="w-4 h-4" />
-                  </button>
-                  <button aria-label="Cancel"
-                    onClick={() => { setNewMemberName(''); setShowAddInput(false) }}
-                    className="p-1 rounded text-[#4a4940] dark:text-[#a09880] hover:bg-[#f0ede5] dark:hover:bg-[#1a1a17] transition-colors"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
+                  <IconButton aria-label="Add member" onClick={() => { addMember(); setShowAddInput(false) }}><Check /></IconButton>
+                  <IconButton aria-label="Cancel" onClick={() => { setNewMemberName(''); setShowAddInput(false) }}><X /></IconButton>
                 </div>
               ) : (
-                <button
+                <ListRow
+                  as="button"
                   onClick={() => setShowAddInput(true)}
-                  className="flex items-center gap-2 text-[12px] font-bold uppercase tracking-wider text-[#88bc20] hover:text-[#6b9418] px-1 py-2 transition-colors mt-1 self-start"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                  Add member
-                </button>
+                  leading={<span className="flex size-9 items-center justify-center rounded-full border border-dashed border-border-strong"><Plus className="size-4" /></span>}
+                  title="Add member"
+                />
               )}
+            </Card>
+          </Section>
+
+          {/* ── Templates (shared by all groups) ──────────────────────────── */}
+          {templates.length > 0 && (
+            <Section title="Expense templates" description="Shared by all your groups.">
+              <Card className="overflow-hidden">
+                {templates.map((t) => (
+                  <ListRow
+                    key={t.id}
+                    divider
+                    className="pr-2"
+                    leading={<BookMarked className="size-5 text-fg-muted" aria-hidden />}
+                    title={t.name}
+                    subtitle={t.title}
+                    trailing={
+                      <IconButton aria-label={`Delete template ${t.name}`} onClick={() => { deleteTemplate(t.id); setTemplates(getTemplates()) }}>
+                        <Trash2 />
+                      </IconButton>
+                    }
+                  />
+                ))}
+              </Card>
+            </Section>
+          )}
+
+          {/* ── Data ──────────────────────────────────────────────────────── */}
+          <Section title="Data" description="Export this group's expenses, or download a backup you can restore later.">
+            <div className="flex flex-wrap gap-2">
+              <Button variant="secondary" size="sm" onClick={() => downloadExpensesCSV(group, expenses)} disabled={expenses.length === 0}>
+                <FileSpreadsheet className="size-4" />
+                Export CSV
+              </Button>
+              <Button variant="secondary" size="sm" onClick={handleExport}>
+                <Download className="size-4" />
+                Download backup
+              </Button>
             </div>
-          </SectionCard>
+          </Section>
 
-          {/* ── Export ─────────────────────────────────────────────────────── */}
-          <SectionCard title="Backup">
-            <p className="text-[11px] font-mono text-[#4a4940] dark:text-[#a09880] mb-4">
-              Export this group (with all expenses) to a JSON file.
-            </p>
-            <Button variant="secondary" size="sm" onClick={handleExport}>
-              <Download className="w-3.5 h-3.5" />
-              Export group
-            </Button>
-          </SectionCard>
-
-          {/* ── Danger zone ─────────────────────────────────────────────────── */}
-          <SectionCard className="border-[#ff5c3d]/40">
-            <p className="text-[11px] font-mono font-bold uppercase tracking-[0.12em] text-[#ff5c3d] mb-1">Danger zone</p>
-            <p className="text-xs text-[#4a4940] dark:text-[#a09880] mb-3">
+          {/* ── Danger zone ───────────────────────────────────────────────── */}
+          <section className="border-t border-border pt-6">
+            <h2 className="text-title">Delete group</h2>
+            <p className="mt-1 mb-3 text-body-sm text-fg-muted">
               Permanently deletes this group and all its expenses. This cannot be undone.
             </p>
             <Button variant="danger" size="sm" onClick={handleDelete}>
-              <Trash2 className="w-3.5 h-3.5" />
+              <Trash2 className="size-4" />
               Delete group
             </Button>
-          </SectionCard>
+          </section>
         </div>
       </PageTransition>
 
