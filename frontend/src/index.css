@@ -3,48 +3,126 @@
 /* Class-based dark mode — toggled by adding `.dark` to <html> */
 @variant dark (&:where(.dark, .dark *));
 
-@theme {
-  /* ── SplitItt Neo-Brutalist — electric lime brand (aliased as indigo) ── */
-  --color-indigo-50:  #f7ffe6;
-  --color-indigo-100: #edffcc;
-  --color-indigo-200: #d9ff99;
-  --color-indigo-300: #c3f566;
-  --color-indigo-400: #b9f542;
-  --color-indigo-500: #a3db2e;
-  --color-indigo-600: #88bc20;
-  --color-indigo-700: #6b9418;
-  --color-indigo-800: #4d6b10;
-  --color-indigo-900: #2e4009;
-  --color-indigo-950: #172004;
-
-  /* ── Fonts ─────────────────────────────────────────────────────────── */
-  --font-sans: 'DM Sans', ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --font-mono: 'DM Mono', ui-monospace, 'Courier New', monospace;
-
-  /* ── Border radius — compressed for neo-brutalist feel ─────────────── */
-  --radius-sm:  2px;
-  --radius:     4px;
-  --radius-md:  4px;
-  --radius-lg:  4px;
-  --radius-xl:  4px;
-  --radius-2xl: 6px;
-  --radius-3xl: 8px;
-
-  /* ── Shadows — solid offset, no blur ───────────────────────────────── */
-  --shadow-sm:  2px 2px 0 #0a0a0a;
-  --shadow:     3px 3px 0 #0a0a0a;
-  --shadow-md:  4px 4px 0 #0a0a0a;
-  --shadow-lg:  5px 5px 0 #0a0a0a;
-  --shadow-xl:  6px 6px 0 #0a0a0a;
+/* ── Inter Variable, self-hosted. Only latin + latin-ext (₹ U+20B9 is in
+   latin-ext); copied from @fontsource-variable/inter/wght.css, which bundles
+   all 7 subsets and has no per-subset entry point. ─────────────────────── */
+@font-face {
+  font-family: 'Inter Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url(@fontsource-variable/inter/files/inter-latin-ext-wght-normal.woff2) format('woff2-variations');
+  unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Inter Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url(@fontsource-variable/inter/files/inter-latin-wght-normal.woff2) format('woff2-variations');
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
 }
 
-/* Dark mode shadows use lime offset */
+/* ── Semantic tokens. Values documented in docs/DESIGN.md. ────────────── */
+:root {
+  --bg: #FFFFFF;
+  --surface: #FFFFFF;
+  --surface-subtle: #F7F7F7;
+  --surface-muted: #EFEFEF;
+  --fg: #0A0A0A;
+  --fg-muted: #4D4D4D;
+  --fg-subtle: #707070;
+  --border: #EBEBEB;
+  --border-strong: #D4D4D4;
+  --border-input: #8F8F8F;
+  --inverse-bg: #0A0A0A;
+  --inverse-fg: #FFFFFF;
+  --focus: #0A0A0A;
+  --overlay: rgb(0 0 0 / 0.4);
+  /* Colour hooks — neutral today, see DESIGN.md */
+  --positive: var(--fg);
+  --negative: var(--fg);
+  --warning: var(--fg-muted);
+  --accent: var(--fg);
+
+  --shadow-float-value: 0 8px 24px rgb(0 0 0 / 0.08), 0 1px 2px rgb(0 0 0 / 0.04);
+
+  /* Set by AppShell (0 when BottomNav is hidden); read by StickyActionBar */
+  --bottom-nav-h: 0px;
+}
+
 .dark {
-  --shadow-sm:  2px 2px 0 #b9f542;
-  --shadow:     3px 3px 0 #b9f542;
-  --shadow-md:  4px 4px 0 #b9f542;
-  --shadow-lg:  5px 5px 0 #b9f542;
-  --shadow-xl:  6px 6px 0 #b9f542;
+  --bg: #0A0A0A;
+  --surface: #111111;
+  --surface-subtle: #171717;
+  --surface-muted: #1F1F1F;
+  --fg: #F5F5F5;
+  --fg-muted: #A3A3A3;
+  --fg-subtle: #808080;
+  --border: #232323;
+  --border-strong: #333333;
+  --border-input: #6B6B6B;
+  --inverse-bg: #F5F5F5;
+  --inverse-fg: #0A0A0A;
+  --focus: #F5F5F5;
+  --overlay: rgb(0 0 0 / 0.6);
+  /* Shadows barely show on black, so the float layer also gets a hairline ring */
+  --shadow-float-value: 0 8px 24px rgb(0 0 0 / 0.5), 0 1px 2px rgb(0 0 0 / 0.4), 0 0 0 1px var(--border);
+}
+
+/* Expose tokens as utilities (bg-surface, text-fg-muted, border-border…).
+   `inline` makes utilities reference the variables, so they follow .dark. */
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-subtle: var(--surface-subtle);
+  --color-surface-muted: var(--surface-muted);
+  --color-fg: var(--fg);
+  --color-fg-muted: var(--fg-muted);
+  --color-fg-subtle: var(--fg-subtle);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-border-input: var(--border-input);
+  --color-inverse-bg: var(--inverse-bg);
+  --color-inverse-fg: var(--inverse-fg);
+  --color-focus: var(--focus);
+  --color-overlay: var(--overlay);
+  --color-positive: var(--positive);
+  --color-negative: var(--negative);
+  --color-warning: var(--warning);
+  --color-accent: var(--accent);
+  --shadow-float: var(--shadow-float-value);
+}
+
+@theme {
+  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  /* Type scale — weights 400/500/600 only */
+  --text-display: 2rem;
+  --text-display--line-height: 2.375rem;
+  --text-display--letter-spacing: -0.02em;
+  --text-display--font-weight: 600;
+  --text-title-lg: 1.5rem;
+  --text-title-lg--line-height: 1.875rem;
+  --text-title-lg--letter-spacing: -0.015em;
+  --text-title-lg--font-weight: 600;
+  --text-title: 1.125rem;
+  --text-title--line-height: 1.5rem;
+  --text-title--font-weight: 600;
+  --text-body: 0.9375rem;
+  --text-body--line-height: 1.375rem;
+  --text-body-sm: 0.8125rem;
+  --text-body-sm--line-height: 1.125rem;
+  --text-caption: 0.75rem;
+  --text-caption--line-height: 1rem;
+  --text-caption--font-weight: 500;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 * {
@@ -63,13 +141,9 @@ body {
   margin: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #fafaf7;
-  color: #0a0a0a;
-}
-
-.dark body {
-  background-color: #0d0d0d;
-  color: #f0ede5;
+  background-color: var(--bg);
+  color: var(--fg);
+  font-feature-settings: "cv11"; /* single-storey a */
 }
 
 #root {
@@ -95,16 +169,6 @@ label,
 select,
 summary {
   cursor: pointer;
-}
-
-@keyframes avatar-pulse {
-  0%, 100% { box-shadow: 0 0 0 0px var(--avatar-glow); }
-  50% { box-shadow: 0 0 0 6px var(--avatar-glow); }
-}
-
-@keyframes avatar-float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-3px); }
 }
 
 @keyframes toast-slide-down {
@@ -139,24 +203,48 @@ input[type=number] {
   -moz-appearance: textfield;
 }
 
-.avatar-animated {
-  animation: avatar-pulse 3s ease-in-out infinite, avatar-float 4s ease-in-out infinite;
-}
-
 ::selection {
-  background: #b9f542;
-  color: #0a0a0a;
+  background: var(--fg);
+  color: var(--bg);
 }
 
-.dark ::selection {
-  background: #b9f542;
-  color: #0a0a0a;
-}
-
-/* Keyboard focus ring everywhere (browser defaults vanish on the dark theme). */
 :focus-visible {
-  outline: 2px solid #b9f542;
+  outline: 2px solid var(--focus);
   outline-offset: 2px;
+}
+
+/* ── Dialog (components/ui/Dialog.tsx). Open/close fade + slide; the close
+   transition runs because display/overlay are allow-discrete. ──────────── */
+dialog.ui-dialog,
+dialog.ui-dialog::backdrop {
+  transition:
+    opacity 200ms var(--ease-out),
+    overlay 200ms allow-discrete,
+    display 200ms allow-discrete;
+  opacity: 0;
+}
+dialog.ui-dialog::backdrop {
+  background: var(--overlay);
+}
+dialog.ui-dialog[open],
+dialog.ui-dialog[open]::backdrop {
+  opacity: 1;
+}
+dialog.ui-dialog .ui-dialog-panel {
+  transition: transform 200ms var(--ease-out);
+  transform: var(--dialog-from);
+}
+dialog.ui-dialog[open] .ui-dialog-panel {
+  transform: none;
+}
+@starting-style {
+  dialog.ui-dialog[open],
+  dialog.ui-dialog[open]::backdrop {
+    opacity: 0;
+  }
+  dialog.ui-dialog[open] .ui-dialog-panel {
+    transform: var(--dialog-from);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -164,5 +252,10 @@ input[type=number] {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+  dialog.ui-dialog,
+  dialog.ui-dialog::backdrop,
+  dialog.ui-dialog .ui-dialog-panel {
+    transition: none !important;
   }
 }
