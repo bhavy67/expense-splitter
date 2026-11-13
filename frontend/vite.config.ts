@@ -44,18 +44,6 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
-        runtimeCaching: [
-          {
-            // Google Fonts — cache-first, long TTL
-            urlPattern: /^https:\/\/fonts\.(googleapis|gstatic)\.com\/.*/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'google-fonts',
-              expiration: { maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 * 365 },
-              cacheableResponse: { statuses: [0, 200] },
-            },
-          },
-        ],
       },
     }),
   ],
