@@ -23,3 +23,14 @@ export const GROUP_TYPE_ICONS: Record<GroupType, LucideIcon> = {
   dinner: UtensilsCrossed,
   other: Shapes,
 }
+
+export const CATEGORY_LABELS: Record<ExpenseCategory, string> = {
+  food: 'Food', travel: 'Travel', accommodation: 'Stay', utilities: 'Bills',
+  entertainment: 'Fun', shopping: 'Shopping', medical: 'Medical', other: 'Other',
+}
+
+// Legacy emoji map, still used by AnalyticsTab and ExpenseDetailPage. Remove in Phase 4.
+export const CATEGORY_EMOJIS: Record<string, string> = {
+  food: '🍔', travel: '✈️', accommodation: '🏨', utilities: '⚡',
+  entertainment: '🎭', shopping: '🛍️', medical: '💊', other: '📦',
+}

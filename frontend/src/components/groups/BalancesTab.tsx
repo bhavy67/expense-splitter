@@ -1,18 +1,25 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ChevronDown, ChevronUp, ArrowRight, CheckCircle2, PlusCircle, Zap, QrCode, AtSign } from 'lucide-react'
+import { ArrowRight, ArrowDownLeft, ArrowUpRight, Check, PlusCircle, QrCode, AtSign, Scale, Trash2, MessageCircle } from 'lucide-react'
 import { AnimatePresence } from 'framer-motion'
 import { whatsappRemindText } from '@/lib/upi'
-import { Button } from '@/components/common/Button'
+import { Button } from '@/components/ui/Button'
+import { IconButton } from '@/components/ui/IconButton'
+import { Card } from '@/components/ui/Card'
+import { ListRow } from '@/components/ui/ListRow'
+import { Avatar } from '@/components/ui/Avatar'
+import { IconTile } from '@/components/ui/IconTile'
+import { Money } from '@/components/ui/Money'
+import { SectionHeader } from '@/components/ui/SectionHeader'
+import { EmptyState } from '@/components/common/EmptyState'
 import { ConfirmModal } from '@/components/common/ConfirmModal'
 import { RecordPaymentModal } from './RecordPaymentModal'
 import { UpiQrModal } from '@/components/upi/UpiQrModal'
 import { deletePayment, savePayments, generateId } from '@/lib/storage'
 import { calculateBalances, simplifyDebts } from '@/lib/calculations'
-import { formatCurrency } from '@/lib/currency'
 import { isUpiSupportedCurrency } from '@/lib/upi'
 import { toast } from '@/components/common/Toast'
-import { cn, today } from '@/lib/utils'
+import { today } from '@/lib/utils'
 import type { Debt, Group, Expense, Payment } from '@/types'
 
 type ConfirmConfig = { title: string; description?: string; confirmLabel: string; danger?: boolean; onConfirm: () => void }
@@ -91,301 +98,204 @@ export function BalancesTab({ group, expenses, payments }: Props) {
   const totalPaid = payments.reduce((s, p) => s + p.amount, 0)
   const isSettled = debts.length === 0
 
+  const pendingTotal = debts.reduce((s, d) => s + d.amount, 0)
+  const recordPayment = () => setPaymentTarget({ fromId: group.members[0]?.id, toId: group.members[1]?.id })
+
   if (expenses.length === 0) {
     return (
-      <div className="bg-white dark:bg-[#1e1e1a] rounded border-2 border-[#0a0a0a] dark:border-[#f0ede5] p-8 text-center">
-        <div className="w-14 h-14 rounded-full bg-[#f0ede5] dark:bg-[#1a1a17] border-2 border-[#0a0a0a] dark:border-[#f0ede5]/30 flex items-center justify-center mx-auto mb-3 text-3xl">
-          ⚖️
-        </div>
-        <p className="text-sm font-mono font-bold text-[#0a0a0a] dark:text-[#f0ede5] uppercase tracking-[0.08em] mb-1">No expenses yet</p>
-        <p className="text-sm text-[#4a4940] dark:text-[#c8bfb0]">
-          Add expenses first to see who owes what
-        </p>
-      </div>
+      <EmptyState
+        icon={<Scale />}
+        title="No expenses yet"
+        description="Add expenses first to see who owes what."
+      />
     )
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-6">
 
-      {/* Summary strip */}
-      <div className="grid grid-cols-3 gap-3">
+      {/* Summary */}
+      <Card variant="inset" className="grid grid-cols-3 divide-x divide-border">
         {[
-          { label: 'Total spent', value: formatCurrency(totalExpenses, group.currency), color: 'text-[#0a0a0a] dark:text-[#f0ede5]' },
-          { label: 'Settled', value: formatCurrency(totalPaid, group.currency), color: 'text-[#22c55e]' },
-          { label: 'Pending', value: debts.length > 0 ? `${debts.length} txn${debts.length > 1 ? 's' : ''}` : 'All clear', color: debts.length > 0 ? 'text-[#f59e0b]' : 'text-[#22c55e]' },
+          { label: 'Total', amount: totalExpenses },
+          { label: 'Settled', amount: totalPaid },
+          { label: 'Pending', amount: pendingTotal },
         ].map((s) => (
-          <div key={s.label} className="bg-white dark:bg-[#1e1e1a] rounded border-2 border-[#0a0a0a] dark:border-[#f0ede5] p-3 text-center shadow-[2px_2px_0_#0a0a0a] dark:shadow-[2px_2px_0_#b9f542]">
-            <p className={cn('text-sm font-mono font-bold', s.color)}>{s.value}</p>
-            <p className="text-[10px] font-medium uppercase tracking-wider text-[#4a4940] dark:text-[#a09880] mt-0.5">{s.label}</p>
+          <div key={s.label} className="min-w-0 px-3 py-3">
+            <p className="text-caption text-fg-muted">{s.label}</p>
+            <Money amount={s.amount} currency={group.currency} className="block font-semibold whitespace-normal [overflow-wrap:anywhere]" />
           </div>
         ))}
-      </div>
+      </Card>
 
       {/* UPI setup nudge — only when INR + debts exist + zero members have UPI IDs */}
       {isInr && !isSettled && group.members.every((m) => !m.upiId) && (
-        <div className="flex items-center gap-3 px-3 py-2.5 rounded border border-[#b9f542]/40 bg-[#b9f542]/10">
-          <AtSign className="w-4 h-4 text-[#4d6e08] dark:text-[#b9f542] shrink-0" />
-          <p className="flex-1 text-[11px] font-mono text-[#4d6e08] dark:text-[#b9f542]">
-            Add UPI IDs to show a payment QR for each person
-          </p>
-          <button
-            onClick={() => navigate(`/g/${group.id}/settings`)}
-            className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#4d6e08] dark:text-[#b9f542] hover:underline underline-offset-2 shrink-0"
-          >
-            Set up →
-          </button>
-        </div>
+        <Card variant="inset" className="flex items-center gap-3 py-1.5 pr-1.5 pl-3">
+          <AtSign className="size-4 shrink-0 text-fg-muted" aria-hidden />
+          <p className="flex-1 text-body-sm text-fg-muted">Add UPI IDs to show a payment QR for each person</p>
+          <Button variant="ghost" size="sm" onClick={() => navigate(`/g/${group.id}/settings`)}>Set up</Button>
+        </Card>
       )}
 
-      {/* Who owes who */}
-      <div className="bg-white dark:bg-[#1e1e1a] border-2 border-[#0a0a0a] dark:border-[#f0ede5] rounded overflow-hidden">
-        <div className="bg-[#0a0a0a] dark:bg-[#1a1a17] px-4 py-2.5 flex items-center justify-between">
-          <p className="text-xs font-bold uppercase tracking-[0.1em] text-[#f0ede5]">
-            Who pays who
-          </p>
-          <div className="flex items-center gap-3">
-            {!isSettled && debts.length > 1 && (
-              <button
-                onClick={() => setConfirmConfig({
-                  title: 'Settle all debts?',
-                  description: `This will record ${debts.length} payment${debts.length > 1 ? 's' : ''} to clear all outstanding balances at once.`,
-                  confirmLabel: 'Settle all',
-                  onConfirm: doSettleAll,
-                })}
-                className="flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-[#b9f542] hover:text-[#a3db2e] transition-colors"
-              >
-                <Zap className="w-3 h-3" />
-                Settle all
-              </button>
-            )}
-            <button
-              onClick={() => setPaymentTarget({ fromId: group.members[0]?.id, toId: group.members[1]?.id })}
-              className="flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-[#f0ede5]/60 hover:text-[#f0ede5] transition-colors"
+      {/* Suggested settlements */}
+      <section>
+        <SectionHeader
+          title="Settle up"
+          count={debts.length || undefined}
+          action={!isSettled && debts.length > 1 && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setConfirmConfig({
+                title: 'Settle all debts?',
+                description: `This will record ${debts.length} payment${debts.length > 1 ? 's' : ''} to clear all outstanding balances at once.`,
+                confirmLabel: 'Settle all',
+                onConfirm: doSettleAll,
+              })}
             >
-              <PlusCircle className="w-3 h-3" />
-              Record
-            </button>
-          </div>
-        </div>
+              Settle all
+            </Button>
+          )}
+        />
 
         {isSettled ? (
-          <div className="flex items-center justify-center gap-2 py-8 text-[#22c55e]">
-            <CheckCircle2 className="w-5 h-5" />
-            <span className="text-sm font-mono font-bold uppercase tracking-[0.08em]">All settled!</span>
-          </div>
+          <Card className="flex flex-col items-center gap-3 px-4 py-8 text-center">
+            <IconTile icon={Check} size="lg" />
+            <p className="text-title">Everyone's settled up</p>
+          </Card>
         ) : (
-          <div>
+          <div className="flex flex-col gap-3">
             {debts.map((debt, i) => {
               const from = memberMap[debt.from]
               const to = memberMap[debt.to]
               if (!from || !to) return null
+              const canUpi = isInr && !!to.upiId
               return (
-                <div
-                  key={i}
-                  className="flex flex-wrap items-center gap-x-3 gap-y-2.5 px-4 py-3.5 border-b border-[#0a0a0a]/10 dark:border-[#f0ede5]/10 last:border-0"
-                >
-                  {/* From */}
-                  <div className="flex items-center gap-1.5 min-w-0">
-                    <div
-                      className="w-7 h-7 rounded-full flex items-center justify-center text-white text-[10px] font-bold shrink-0"
-                      style={{ background: from.color }}
-                    >
-                      {from.name[0]?.toUpperCase()}
-                    </div>
-                    <span className="text-sm font-mono font-medium text-[#0a0a0a] dark:text-[#f0ede5] truncate max-w-[70px]">
-                      {from.name}
-                    </span>
+                <Card key={i} className="flex flex-col gap-3 p-4">
+                  <p className="flex min-w-0 items-center gap-2 text-body font-medium">
+                    <span className="truncate">{from.name}</span>
+                    <ArrowRight className="size-4 shrink-0 text-fg-muted" aria-hidden />
+                    <span className="sr-only"> owes </span>
+                    <span className="truncate">{to.name}</span>
+                  </p>
+                  {/* Amount + actions on their own line so names never get squeezed at 360px */}
+                  <div className="flex flex-wrap items-center justify-end gap-2">
+                    <Money amount={debt.amount} currency={group.currency} size="lg" className="mr-auto font-semibold" />
+                    {canUpi ? (
+                      <Button variant="secondary" size="sm" onClick={() => handleUpiClick(debt)}>
+                        <QrCode className="size-4" />
+                        Pay via UPI
+                      </Button>
+                    ) : (
+                      <Button variant="secondary" size="sm" onClick={() => handleRemindWhatsApp(debt)} title={`Remind ${to.name} via WhatsApp`}>
+                        <MessageCircle className="size-4" />
+                        Remind
+                      </Button>
+                    )}
+                    <Button size="sm" onClick={() => setPaymentTarget({ fromId: debt.from, toId: debt.to, amount: debt.amount })}>
+                      Settle
+                    </Button>
                   </div>
-
-                  <ArrowRight className="w-3.5 h-3.5 text-[#4a4940] dark:text-[#a09880] shrink-0" />
-
-                  {/* To */}
-                  <div className="flex items-center gap-1.5 min-w-0 flex-1">
-                    <div className="relative shrink-0">
-                      <div
-                        className="w-7 h-7 rounded-full flex items-center justify-center text-white text-[10px] font-bold"
-                        style={{ background: to.color }}
-                      >
-                        {to.name[0]?.toUpperCase()}
-                      </div>
-                      {isInr && to.upiId && (
-                        <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-[#b9f542] border border-[#0a0a0a] flex items-center justify-center">
-                          <AtSign className="w-1.5 h-1.5 text-[#0a0a0a]" />
-                        </div>
-                      )}
-                    </div>
-                    <span className="text-sm font-mono font-medium text-[#0a0a0a] dark:text-[#f0ede5] truncate max-w-[70px]">
-                      {to.name}
-                    </span>
-                  </div>
-
-                  {/* Amount */}
-                  <span className="text-sm font-mono font-bold text-[#f59e0b] shrink-0">
-                    {formatCurrency(debt.amount, group.currency)}
-                  </span>
-
-                  {/* Actions wrap to their own line on narrow phones (360px) instead of squeezing the names */}
-                  <div className="flex items-center gap-2 ml-auto">
-                  {/* UPI (active) or Remind (WhatsApp) — no dead-end dimmed state */}
-                  {isInr && memberMap[debt.to]?.upiId ? (
-                    <button
-                      onClick={() => handleUpiClick(debt)}
-                      className="shrink-0 flex items-center gap-1 text-[9px] font-mono font-bold px-2 py-1 rounded border uppercase tracking-wider bg-white dark:bg-[#1a1a17] text-[#0a0a0a] dark:text-[#f0ede5] border-[#0a0a0a] dark:border-[#f0ede5] hover:translate-x-[1px] hover:translate-y-[1px] transition-all"
-                      title="Pay via UPI"
-                    >
-                      <QrCode className="w-3 h-3" />
-                      UPI
-                    </button>
-                  ) : (
-                    <button
-                      onClick={() => handleRemindWhatsApp(debt)}
-                      className="shrink-0 flex items-center gap-1 text-[9px] font-mono font-bold px-2 py-1 rounded border uppercase tracking-wider border-[#22c55e]/40 bg-[#22c55e]/10 text-[#16a34a] dark:text-[#22c55e] hover:bg-[#22c55e]/20 transition-colors"
-                      title={`Remind ${memberMap[debt.to]?.name ?? ''} via WhatsApp`}
-                    >
-                      <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
-                      </svg>
-                      Remind
-                    </button>
-                  )}
-
-                  {/* Settle button */}
-                  <button
-                    onClick={() => setPaymentTarget({ fromId: debt.from, toId: debt.to, amount: debt.amount })}
-                    className="shrink-0 text-[9px] font-mono font-bold px-2.5 py-1 rounded bg-[#b9f542] text-[#0a0a0a] border border-[#0a0a0a] uppercase tracking-wider hover:translate-x-[1px] hover:translate-y-[1px] transition-all"
-                  >
-                    Settle
-                  </button>
-                  </div>
-                </div>
+                </Card>
               )
             })}
           </div>
         )}
-      </div>
+      </section>
 
-      {/* Member balances */}
-      <div className="bg-white dark:bg-[#1e1e1a] border-2 border-[#0a0a0a] dark:border-[#f0ede5] rounded overflow-hidden">
-        <div className="bg-[#0a0a0a] dark:bg-[#1a1a17] px-4 py-2.5">
-          <p className="text-xs font-bold uppercase tracking-[0.1em] text-[#f0ede5]">
-            Individual balances
-          </p>
-        </div>
-        {balances.map((b) => {
-          const m = memberMap[b.memberId]
-          if (!m) return null
-          const isPos = b.net > 0.01
-          const isNeg = b.net < -0.01
-          return (
-            <div
-              key={b.memberId}
-              className="flex items-center gap-3 px-4 py-3 border-b border-[#0a0a0a]/10 dark:border-[#f0ede5]/10 last:border-0"
-            >
-              <div
-                className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0"
-                style={{ background: m.color }}
-              >
-                {m.name[0]?.toUpperCase()}
-              </div>
-              <span className="flex-1 text-sm font-mono font-medium text-[#0a0a0a] dark:text-[#f0ede5]">{m.name}</span>
-              <div className="text-right">
-                {isPos && (
-                  <p className="text-sm font-mono font-bold text-[#22c55e]">
-                    +{formatCurrency(b.net, group.currency)}
-                  </p>
+      {/* Net balance per member — sign + word + arrow, never colour alone */}
+      <section>
+        <SectionHeader title="Balances" />
+        <Card className="overflow-hidden">
+          {balances.map((b) => {
+            const m = memberMap[b.memberId]
+            if (!m) return null
+            const isPos = b.net > 0.01
+            const isNeg = b.net < -0.01
+            const Icon = isPos ? ArrowDownLeft : isNeg ? ArrowUpRight : Check
+            const word = isPos ? 'gets back' : isNeg ? 'owes' : 'settled up'
+            return (
+              <ListRow
+                key={b.memberId}
+                divider
+                leading={<Avatar name={m.name} />}
+                title={m.name}
+                subtitle={
+                  <span className="inline-flex items-center gap-1">
+                    <Icon className="size-3.5 shrink-0" aria-hidden />
+                    {word}
+                  </span>
+                }
+                trailing={(isPos || isNeg) ? (
+                  <Money
+                    amount={b.net}
+                    currency={group.currency}
+                    showSign
+                    tone={isPos ? 'positive' : 'negative'}
+                    className={isNeg ? 'font-semibold' : 'font-medium'}
+                  />
+                ) : (
+                  <span className="text-body text-fg-muted">—</span>
                 )}
-                {isNeg && (
-                  <p className="text-sm font-mono font-bold text-[#ff5c3d]">
-                    -{formatCurrency(Math.abs(b.net), group.currency)}
-                  </p>
-                )}
-                {!isPos && !isNeg && (
-                  <p className="text-sm font-mono font-medium text-[#4a4940] dark:text-[#a09880]">Settled</p>
-                )}
-                <p className="text-[10px] font-medium uppercase tracking-wide text-[#4a4940] dark:text-[#a09880] mt-0.5">
-                  {isPos ? 'gets back' : isNeg ? 'owes' : ''}
-                </p>
-              </div>
-            </div>
-          )
-        })}
-      </div>
+              />
+            )
+          })}
+        </Card>
+      </section>
 
       {/* Payment history */}
       {payments.length > 0 && (
-        <div className="bg-white dark:bg-[#1e1e1a] border-2 border-[#0a0a0a] dark:border-[#f0ede5] rounded overflow-hidden">
-          <button
-            onClick={() => setShowHistory((v) => !v)}
-            className="w-full bg-[#0a0a0a] dark:bg-[#1a1a17] px-4 py-2.5 flex items-center justify-between hover:opacity-90 transition-opacity"
-          >
-            <p className="text-xs font-bold uppercase tracking-[0.1em] text-[#f0ede5]">
-              Payment history <span className="font-mono">({payments.length})</span>
-            </p>
-            {showHistory
-              ? <ChevronUp className="w-4 h-4 text-[#f0ede5]/60" />
-              : <ChevronDown className="w-4 h-4 text-[#f0ede5]/60" />
+        <section>
+          <SectionHeader
+            title="Payments"
+            count={payments.length}
+            action={
+              <Button variant="ghost" size="sm" aria-expanded={showHistory} onClick={() => setShowHistory((v) => !v)}>
+                {showHistory ? 'Hide' : 'Show'}
+              </Button>
             }
-          </button>
+          />
           {showHistory && (
-            <div>
+            <Card className="overflow-hidden">
               {payments.map((p) => {
                 const from = memberMap[p.fromMemberId]
                 const to = memberMap[p.toMemberId]
                 return (
-                  <div
+                  <ListRow
                     key={p.id}
-                    className="flex items-center gap-3 px-4 py-3 border-b border-[#0a0a0a]/10 dark:border-[#f0ede5]/10 last:border-0"
-                  >
-                    {from && (
-                      <div
-                        className="w-7 h-7 rounded-full flex items-center justify-center text-white text-[10px] font-bold shrink-0"
-                        style={{ background: from.color }}
-                      >
-                        {from.name[0]?.toUpperCase()}
+                    divider
+                    className="pr-1"
+                    leading={from && <Avatar name={from.name} />}
+                    title={`${from?.name ?? '?'} paid ${to?.name ?? '?'}`}
+                    subtitle={`${fmtDate(p.date)}${p.note ? ` · ${p.note}` : ''}`}
+                    trailing={
+                      <div className="flex items-center">
+                        <Money amount={p.amount} currency={group.currency} className="font-medium" />
+                        <IconButton
+                          aria-label="Delete payment"
+                          className="text-fg-muted"
+                          onClick={() => setConfirmConfig({
+                            title: 'Delete payment?',
+                            description: 'This payment record will be removed. Balances will be recalculated.',
+                            confirmLabel: 'Delete',
+                            danger: true,
+                            onConfirm: () => { deletePayment(group.id, p.id); setConfirmConfig(null) },
+                          })}
+                        >
+                          <Trash2 />
+                        </IconButton>
                       </div>
-                    )}
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-mono font-medium text-[#0a0a0a] dark:text-[#f0ede5]">
-                        {from?.name ?? '?'} → {to?.name ?? '?'}
-                      </p>
-                      <p className="text-xs font-medium text-[#4a4940] dark:text-[#a09880] mt-0.5">
-                        {fmtDate(p.date)}{p.note ? ` · ${p.note}` : ''}
-                      </p>
-                    </div>
-                    <span className="text-sm font-mono font-bold text-[#22c55e] shrink-0">
-                      {formatCurrency(p.amount, group.currency)}
-                    </span>
-                    <button aria-label="Delete payment"
-                      onClick={() => setConfirmConfig({
-                        title: 'Delete payment?',
-                        description: 'This payment record will be removed. Balances will be recalculated.',
-                        confirmLabel: 'Delete',
-                        danger: true,
-                        onConfirm: () => { deletePayment(group.id, p.id); setConfirmConfig(null) },
-                      })}
-                      className="p-1 rounded text-[#4a4940] dark:text-[#a09880] hover:text-[#ff5c3d] hover:bg-[#ff5c3d]/10 transition-colors"
-                      title="Delete"
-                    >
-                      <svg className="w-3.5 h-3.5" viewBox="0 0 16 16" fill="none">
-                        <path d="M3 4h10M6 4V2.5h4V4M6.5 7v5M9.5 7v5M4 4l.8 9.5h6.4L12 4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                    </button>
-                  </div>
+                    }
+                  />
                 )
               })}
-            </div>
+            </Card>
           )}
-        </div>
+        </section>
       )}
 
-      {/* Record payment button */}
-      <Button
-        variant="secondary"
-        className="w-full"
-        onClick={() => setPaymentTarget({ fromId: group.members[0]?.id, toId: group.members[1]?.id })}
-      >
-        <PlusCircle className="w-4 h-4" />
+      <Button variant="secondary" fullWidth onClick={recordPayment}>
+        <PlusCircle className="size-4" />
         Record a payment
       </Button>
 

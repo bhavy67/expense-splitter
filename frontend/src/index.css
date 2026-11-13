@@ -194,6 +194,9 @@ summary {
   to   { opacity: 1; }
 }
 @supports (animation-timeline: scroll()) {
+  /* Base state = top of page (also used when the page is too short to scroll) */
+  .topbar { border-bottom-color: transparent; }
+  .topbar-title-large { opacity: 0; }
   .topbar {
     animation: topbar-hairline linear both;
     animation-timeline: scroll();

@@ -49,7 +49,7 @@ export function AvatarStack({ names, max = 5, size = 28, className }: AvatarStac
   const shown = names.slice(0, max)
   const extra = names.length - shown.length
   return (
-    <div className={cn('flex items-center -space-x-1.5', className)}>
+    <div className={cn('flex items-center -space-x-1', className)}>
       {shown.map((n, i) => (
         <Avatar key={i} name={n} size={size} className="ring-2 ring-bg" />
       ))}

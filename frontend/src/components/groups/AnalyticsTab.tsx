@@ -3,7 +3,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer,
 } from 'recharts'
 import { Download, FileSpreadsheet, Archive } from 'lucide-react'
-import { CATEGORY_EMOJIS } from '@/components/expenses/ExpenseCard'
+import { CATEGORY_EMOJIS } from '@/lib/icons'
 import { formatCurrency } from '@/lib/currency'
 import { getTotalExpenses } from '@/lib/calculations'
 import { downloadExpensesCSV, downloadGroupJSON } from '@/lib/export'

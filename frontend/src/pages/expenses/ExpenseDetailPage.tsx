@@ -10,7 +10,7 @@ import { useGroup } from '@/hooks/useStore'
 import { getExpense, deleteExpense, getPayments } from '@/lib/storage'
 import { formatCurrency } from '@/lib/currency'
 import { toast } from '@/components/common/Toast'
-import { CATEGORY_EMOJIS } from '@/components/expenses/ExpenseCard'
+import { CATEGORY_EMOJIS } from '@/lib/icons'
 import type { Member } from '@/types'
 
 const SPLIT_LABELS: Record<string, string> = {
