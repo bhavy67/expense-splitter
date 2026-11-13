@@ -112,7 +112,7 @@ export default function DashboardPage() {
     <AppShell>
       <TopBar
         title="Groups"
-        largeTitle
+        brand
         actions={
           <IconButton aria-label="Import a backup" onClick={openImport}>
             <Upload />

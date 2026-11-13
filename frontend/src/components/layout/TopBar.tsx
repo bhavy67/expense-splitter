@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useThemeStore } from '@/store/theme'
 import { IconButton } from '@/components/ui/IconButton'
 import { cn } from '@/lib/utils'
+import { Logo } from '@/components/common/Logo'
 
 interface TopBarProps {
   title: string
@@ -10,9 +11,11 @@ interface TopBarProps {
   actions?: React.ReactNode
   /** The page shows its own title-lg heading; fade this title in only once that scrolls away. */
   largeTitle?: boolean
+  /** Root screen: show the logo at top left instead of the title. */
+  brand?: boolean
 }
 
-export function TopBar({ title, showBack, actions, largeTitle }: TopBarProps) {
+export function TopBar({ title, showBack, actions, largeTitle, brand }: TopBarProps) {
   const navigate = useNavigate()
   const { theme, toggle } = useThemeStore()
   const Title = largeTitle ? 'p' : 'h1'
@@ -28,13 +31,20 @@ export function TopBar({ title, showBack, actions, largeTitle }: TopBarProps) {
           <ArrowLeft />
         </IconButton>
       )}
-      {/* With largeTitle the page renders its own <h1>, so this copy stays out of the outline. */}
-      <Title
-        aria-hidden={largeTitle || undefined}
-        className={cn('min-w-0 flex-1 truncate text-[17px] font-semibold text-fg', !showBack && 'pl-2', largeTitle && 'topbar-title-large')}
-      >
-        {title}
-      </Title>
+      {brand ? (
+        <div className="min-w-0 flex-1 pl-2">
+          <Logo size={24} />
+          <span className="sr-only">{title}</span>
+        </div>
+      ) : (
+        /* With largeTitle the page renders its own <h1>, so this copy stays out of the outline. */
+        <Title
+          aria-hidden={largeTitle || undefined}
+          className={cn('min-w-0 flex-1 truncate text-[17px] font-semibold text-fg', !showBack && 'pl-2', largeTitle && 'topbar-title-large')}
+        >
+          {title}
+        </Title>
+      )}
       {actions}
       <IconButton aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'} onClick={toggle}>
         {theme === 'dark' ? <Sun /> : <Moon />}
