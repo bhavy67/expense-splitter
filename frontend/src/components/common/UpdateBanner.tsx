@@ -19,14 +19,14 @@ export function UpdateBanner() {
   if (!needRefresh) return null
 
   return (
-    <div role="status" className="fixed bottom-24 md:bottom-6 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-sm">
-      <div className="bg-[#0a0a0a] dark:bg-[#1e1e1a] border-2 border-[#0a0a0a] dark:border-[#f0ede5] rounded shadow-[3px_3px_0_#b9f542] px-4 py-3 flex items-center gap-3">
-        <p className="flex-1 text-sm font-bold text-[#f0ede5]">A new version is ready</p>
+    <div role="status" className="fixed bottom-24 left-1/2 z-50 w-[calc(100%-2rem)] max-w-sm -translate-x-1/2 md:bottom-6">
+      <div className="flex items-center gap-3 rounded-lg bg-inverse-bg py-2 pr-2 pl-4 text-inverse-fg shadow-float animate-[fade-up_200ms_var(--ease-out)_both]">
+        <p className="flex-1 text-body-sm font-medium">A new version is ready</p>
         <button
           onClick={() => updateServiceWorker(true)}
-          className="shrink-0 flex items-center gap-1.5 px-3 min-h-[44px] rounded border-2 border-[#0a0a0a] bg-[#b9f542] text-[#0a0a0a] text-xs font-bold uppercase tracking-wider active:scale-[0.97] transition-transform"
+          className="flex min-h-11 shrink-0 items-center gap-1.5 rounded-md bg-inverse-fg px-3 text-body-sm font-medium text-inverse-bg active:scale-[0.98]"
         >
-          <RefreshCw className="w-3.5 h-3.5" />
+          <RefreshCw className="size-4" />
           Reload
         </button>
       </div>

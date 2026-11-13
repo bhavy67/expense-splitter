@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ArrowRight, ArrowDownLeft, ArrowUpRight, Check, PlusCircle, QrCode, AtSign, Scale, Trash2, MessageCircle } from 'lucide-react'
-import { AnimatePresence } from 'framer-motion'
 import { whatsappRemindText } from '@/lib/upi'
 import { Button } from '@/components/ui/Button'
 import { IconButton } from '@/components/ui/IconButton'
@@ -312,16 +311,14 @@ export function BalancesTab({ group, expenses, payments }: Props) {
         />
       )}
 
-      <AnimatePresence>
-        {upiDebt && (
-          <UpiQrModal
-            debt={upiDebt}
-            group={group}
-            members={group.members}
-            onClose={() => setUpiDebt(null)}
-          />
-        )}
-      </AnimatePresence>
+      {upiDebt && (
+        <UpiQrModal
+          debt={upiDebt}
+          group={group}
+          members={group.members}
+          onClose={() => setUpiDebt(null)}
+        />
+      )}
 
       {confirmConfig && (
         <ConfirmModal

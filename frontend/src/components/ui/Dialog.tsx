@@ -35,6 +35,9 @@ export function Dialog({
     const trigger = document.activeElement as HTMLElement | null
     closedByProp.current = false
     if (!d.open) d.showModal()
+    // showModal() focuses the first focusable element (usually Close); React's autoFocus
+    // doesn't render an attribute, so fields opt in with data-autofocus instead.
+    d.querySelector<HTMLElement>('[data-autofocus]')?.focus()
     return () => {
       closedByProp.current = true
       if (d.open) d.close()

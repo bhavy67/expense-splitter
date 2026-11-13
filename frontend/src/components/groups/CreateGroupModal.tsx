@@ -1,26 +1,17 @@
 import { useState } from 'react'
-import { X, Plus, Trash2 } from 'lucide-react'
+import { Plus, X } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
-import { Button } from '@/components/common/Button'
+import { Button } from '@/components/ui/Button'
+import { IconButton } from '@/components/ui/IconButton'
+import { Field, Input } from '@/components/ui/Field'
+import { Chip } from '@/components/ui/Chip'
+import { Avatar } from '@/components/ui/Avatar'
+import { Sheet } from '@/components/ui/Dialog'
+import { GROUP_TYPE_ICONS } from '@/lib/icons'
+import { GROUP_TYPE_LABELS, MEMBER_COLORS } from '@/lib/memberColors'
 import { saveGroup, generateId } from '@/lib/storage'
 import { toast } from '@/components/common/Toast'
-import { cn } from '@/lib/utils'
 import type { Group, GroupType, Member } from '@/types'
-
-const MEMBER_COLORS = [
-  '#6366f1', '#8b5cf6', '#ec4899', '#f97316',
-  '#10b981', '#3b82f6', '#f59e0b', '#ef4444',
-  '#14b8a6', '#a855f7',
-]
-
-const GROUP_TYPES: { value: GroupType; label: string; icon: string }[] = [
-  { value: 'travel',    label: 'Trip',    icon: '✈️' },
-  { value: 'roommates', label: 'Home',    icon: '🏠' },
-  { value: 'friends',   label: 'Friends', icon: '👯' },
-  { value: 'dinner',    label: 'Dinner',  icon: '🍽️' },
-  { value: 'other',     label: 'Other',   icon: '👥' },
-]
-
 
 interface Props {
   open: boolean
@@ -32,8 +23,6 @@ export function CreateGroupModal({ open, onClose }: Props) {
   const [name, setName] = useState('')
   const [type, setType] = useState<GroupType>('other')
   const [members, setMembers] = useState<string[]>(['', ''])
-
-  if (!open) return null
 
   function reset() {
     setName(''); setType('other'); setMembers(['', ''])
@@ -92,111 +81,66 @@ export function CreateGroupModal({ open, onClose }: Props) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
-      <div className="absolute inset-0 bg-[#0a0a0a]/60" onClick={handleClose} />
+    <Sheet
+      open={open}
+      onClose={handleClose}
+      title="New group"
+      footer={<Button type="submit" form="create-group-form" fullWidth>Create group</Button>}
+    >
+      <form id="create-group-form" onSubmit={handleSubmit} className="flex flex-col gap-5">
+        <Field label="Group name">
+          <Input
+            data-autofocus
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            maxLength={60}
+            placeholder="Goa trip, Flat 4B, Friday dinners"
+          />
+        </Field>
 
-      <div className="relative z-10 w-full sm:max-w-md bg-white dark:bg-[#1e1e1a] rounded-t sm:rounded border-2 border-[#0a0a0a] dark:border-[#f0ede5] shadow-[5px_5px_0_#0a0a0a] dark:shadow-[5px_5px_0_#b9f542] sm:mx-4 max-h-[92vh] overflow-y-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b-2 border-[#0a0a0a] dark:border-[#f0ede5]">
-          <h2 className="text-base font-black uppercase tracking-[0.06em] text-[#0a0a0a] dark:text-[#f0ede5]">New group</h2>
-          <button aria-label="Close"
-            onClick={handleClose}
-            className="p-1.5 rounded text-[#4a4940] dark:text-[#a09880] hover:bg-[#f0ede5] dark:hover:bg-[#1a1a17] border border-[#0a0a0a] dark:border-[#f0ede5]/30 transition-colors"
-          >
-            <X className="w-4 h-4" />
-          </button>
+        <div>
+          <p className="mb-1.5 text-caption text-fg-muted">Type</p>
+          <div role="group" aria-label="Group type" className="flex flex-wrap gap-2">
+            {(Object.keys(GROUP_TYPE_LABELS) as GroupType[]).map((t) => {
+              const Icon = GROUP_TYPE_ICONS[t]
+              return (
+                <Chip key={t} selected={type === t} onClick={() => setType(t)}>
+                  <Icon />
+                  {GROUP_TYPE_LABELS[t]}
+                </Chip>
+              )
+            })}
+          </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-5 px-6 py-5 pb-8 sm:pb-6">
-          {/* Name */}
-          <div>
-            <label className="block text-[10px] font-mono font-bold uppercase tracking-[0.12em] text-[#4a4940] dark:text-[#a09880] mb-1.5">
-              Group name
-            </label>
-            <input
-              autoFocus
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              maxLength={60}
-              placeholder="e.g. Goa Trip, Flat 4B, Friday dinners"
-              className="w-full h-10 px-3 rounded border-2 border-[#0a0a0a] dark:border-[#f0ede5]/50 bg-white dark:bg-[#1a1a17] text-[#0a0a0a] dark:text-[#f0ede5] text-[13px] font-medium focus:outline-none focus:border-[#b9f542] focus:shadow-[2px_2px_0_#b9f542] transition-all placeholder:text-[#4a4940]/40 dark:placeholder:text-[#a09880]/40"
-            />
+        <div>
+          <p className="text-caption text-fg-muted">Members</p>
+          <p className="mb-2 text-body-sm text-fg-subtle">No accounts needed, just names.</p>
+          <div className="flex flex-col gap-2">
+            {members.map((m, i) => (
+              <div key={i} className="flex items-center gap-2">
+                <Avatar name={m.trim() || String(i + 1)} />
+                <Input
+                  aria-label={`Member ${i + 1} name`}
+                  value={m}
+                  onChange={(e) => updateMember(i, e.target.value)}
+                  maxLength={40}
+                  placeholder={`Member ${i + 1}`}
+                />
+                {members.length > 1 && (
+                  <IconButton aria-label={`Remove member ${i + 1}`} onClick={() => removeMember(i)} className="-mr-2">
+                    <X />
+                  </IconButton>
+                )}
+              </div>
+            ))}
+            <Button type="button" variant="ghost" size="sm" onClick={addMember} className="-ml-2 self-start">
+              <Plus className="size-4" />
+              Add member
+            </Button>
           </div>
-
-          {/* Type */}
-          <div>
-            <label className="block text-[10px] font-mono font-bold uppercase tracking-[0.12em] text-[#4a4940] dark:text-[#a09880] mb-2">
-              Type
-            </label>
-            <div className="flex gap-2 flex-wrap">
-              {GROUP_TYPES.map((t) => (
-                <button
-                  key={t.value}
-                  type="button"
-                  onClick={() => setType(t.value)}
-                  className={cn(
-                    'flex items-center gap-1.5 px-3 py-1.5 rounded border-2 text-[11px] font-bold uppercase tracking-wider transition-all',
-                    type === t.value
-                      ? 'border-[#0a0a0a] bg-[#b9f542] text-[#0a0a0a] shadow-[2px_2px_0_#0a0a0a] dark:shadow-[2px_2px_0_#f0ede5] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none'
-                      : 'border-[#0a0a0a]/20 dark:border-[#f0ede5]/20 text-[#4a4940] dark:text-[#a09880] hover:border-[#0a0a0a] dark:hover:border-[#f0ede5]'
-                  )}
-                >
-                  <span>{t.icon}</span>
-                  <span>{t.label}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Members */}
-          <div>
-            <label className="block text-[10px] font-mono font-bold uppercase tracking-[0.12em] text-[#4a4940] dark:text-[#a09880] mb-0.5">
-              Members
-            </label>
-            <p className="text-xs text-[#4a4940] dark:text-[#a09880] mb-3">No accounts needed — just add names</p>
-            <div className="flex flex-col gap-2 max-h-52 overflow-y-auto">
-              {members.map((m, i) => (
-                <div key={i} className="flex items-center gap-2">
-                  <div
-                    className="w-7 h-7 rounded-full shrink-0 flex items-center justify-center text-white text-[10px] font-bold"
-                    style={{ background: MEMBER_COLORS[i % MEMBER_COLORS.length] }}
-                  >
-                    {m.trim()[0]?.toUpperCase() ?? (i + 1)}
-                  </div>
-                  <input
-                    value={m}
-                    onChange={(e) => updateMember(i, e.target.value)}
-                    maxLength={40}
-                    placeholder={`Member ${i + 1}`}
-                    className="flex-1 h-9 px-3 rounded border-2 border-[#0a0a0a] dark:border-[#f0ede5]/50 bg-white dark:bg-[#1a1a17] text-[#0a0a0a] dark:text-[#f0ede5] text-[13px] font-medium focus:outline-none focus:border-[#b9f542] transition-all placeholder:text-[#4a4940]/40 dark:placeholder:text-[#a09880]/40"
-                  />
-                  {members.length > 1 && (
-                    <button aria-label="Remove member"
-                      type="button"
-                      onClick={() => removeMember(i)}
-                      className="p-1.5 rounded text-[#4a4940] dark:text-[#a09880] hover:text-[#ff5c3d] hover:bg-[#ff5c3d]/10 border border-[#0a0a0a]/20 dark:border-[#f0ede5]/20 transition-colors"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  )}
-                </div>
-              ))}
-              <button
-                type="button"
-                onClick={addMember}
-                className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#4d6e08] dark:text-[#b9f542] hover:opacity-80 px-1 py-1 transition-opacity self-start mt-1"
-              >
-                <Plus className="w-3.5 h-3.5" />
-                Add member
-              </button>
-            </div>
-          </div>
-
-          <Button type="submit" className="w-full mt-1">
-            Create group
-          </Button>
-        </form>
-      </div>
-    </div>
+        </div>
+      </form>
+    </Sheet>
   )
 }

@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { Download, X } from 'lucide-react'
-import { motion, AnimatePresence } from 'framer-motion'
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>
@@ -41,40 +40,31 @@ export function InstallPrompt() {
     else dismiss()
   }
 
+  if (!visible) return null
+
   return (
-    <AnimatePresence>
-      {visible && (
-        <motion.div
-          initial={{ opacity: 0, y: 80 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 80 }}
-          transition={{ type: 'spring', duration: 0.4, bounce: 0.2 }}
-          className="fixed bottom-24 md:bottom-6 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-sm"
+    <div
+      role="dialog"
+      aria-label="Install SplitItt"
+      className="fixed bottom-24 left-1/2 z-50 w-[calc(100%-2rem)] max-w-sm -translate-x-1/2 md:bottom-6"
+    >
+      <div className="flex items-center gap-3 rounded-lg bg-inverse-bg py-3 pr-2 pl-3 text-inverse-fg shadow-float animate-[fade-up_200ms_var(--ease-out)_both]">
+        <img src="/icons/icon-192.png" alt="" className="size-10 shrink-0 rounded-md" />
+        <div className="min-w-0 flex-1">
+          <p className="text-body-sm font-medium">Add to home screen</p>
+          <p className="truncate text-caption font-normal opacity-70">Install SplitItt for quick access</p>
+        </div>
+        <button
+          onClick={install}
+          className="flex h-9 shrink-0 items-center gap-1.5 rounded-md bg-inverse-fg px-3 text-body-sm font-medium text-inverse-bg active:scale-[0.98]"
         >
-          <div className="bg-white dark:bg-[#1e1e1a] border-2 border-[#0a0a0a] dark:border-[#f0ede5] rounded shadow-[5px_5px_0_#0a0a0a] dark:shadow-[5px_5px_0_#b9f542] px-4 py-3.5 flex items-center gap-3">
-            <div className="w-10 h-10 rounded border-2 border-[#0a0a0a] dark:border-[#f0ede5] bg-[#0a0a0a] flex items-center justify-center shrink-0">
-              <img src="/icons/icon-192.png" alt="SplitItt" className="w-8 h-8 rounded" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-black uppercase tracking-[0.04em] text-[#0a0a0a] dark:text-[#f0ede5]">Add to Home Screen</p>
-              <p className="text-xs text-[#4a4940] dark:text-[#a09880] truncate">Install SplitItt for quick access</p>
-            </div>
-            <button
-              onClick={install}
-              className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded border-2 border-[#0a0a0a] bg-[#b9f542] text-[#0a0a0a] text-xs font-bold uppercase tracking-wider shadow-[2px_2px_0_#0a0a0a] dark:shadow-[2px_2px_0_#f0ede5] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all"
-            >
-              <Download className="w-3.5 h-3.5" />
-              Install
-            </button>
-            <button aria-label="Dismiss"
-              onClick={dismiss}
-              className="shrink-0 w-7 h-7 rounded border border-[#0a0a0a]/20 dark:border-[#f0ede5]/20 flex items-center justify-center text-[#4a4940] dark:text-[#a09880] hover:bg-[#f0ede5] dark:hover:bg-[#1a1a17] transition-colors"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+          <Download className="size-4" />
+          Install
+        </button>
+        <button aria-label="Dismiss" onClick={dismiss} className="flex size-11 shrink-0 items-center justify-center rounded-full opacity-70 hover:opacity-100">
+          <X className="size-4" />
+        </button>
+      </div>
+    </div>
   )
 }
