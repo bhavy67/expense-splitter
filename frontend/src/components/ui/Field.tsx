@@ -21,7 +21,7 @@ export const Select = forwardRef<HTMLSelectElement, React.SelectHTMLAttributes<H
 )
 Select.displayName = 'Select'
 
-interface MoneyInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'type' | 'prefix'> {
+interface MoneyInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'prefix'> {
   prefix?: React.ReactNode // currency symbol or a currency chip
 }
 

@@ -289,3 +289,5 @@ export function useAddExpenseForm() {
     distributeExactEqually, toggleItemMember, addItem, removeItem, handleSubmit,
   }
 }
+
+export type AddExpenseForm = NonNullable<ReturnType<typeof useAddExpenseForm>>
