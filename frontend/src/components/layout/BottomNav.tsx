@@ -1,12 +1,12 @@
 import { NavLink, useNavigate, useLocation } from 'react-router-dom'
 import { LayoutDashboard, Plus, Info } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { cn, hidesBottomNav } from '@/lib/utils'
 
 export function BottomNav() {
   const navigate = useNavigate()
   const { pathname } = useLocation()
 
-  if (pathname.includes('/expenses/new')) return null
+  if (hidesBottomNav(pathname)) return null
   // Inside a group the + adds an expense; everywhere else it creates a group.
   const groupId = pathname.match(/^\/g\/([^/]+)/)?.[1]
 
