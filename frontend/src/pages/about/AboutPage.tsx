@@ -7,7 +7,7 @@ import { TopBar } from '@/components/layout/TopBar'
 import { Button } from '@/components/ui/Button'
 import { PageTransition } from '@/components/common/PageTransition'
 
-const UPDATED = '21 October 2026'
+const UPDATED = '15 November 2026'
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -52,12 +52,8 @@ export default function AboutPage() {
           </Section>
 
           <Section title="Network requests">
-            <p>The app only connects to the internet to:</p>
-            <ul className="list-disc pl-5 space-y-1">
-              <li>load the app itself from this website, and</li>
-              <li>load the DM Sans and DM Mono fonts from Google Fonts (fonts.googleapis.com, fonts.gstatic.com). Google receives your IP address and browser details, as with any website visit. See Google's privacy policy.</li>
-            </ul>
-            <p>None of your expense data is included in these requests.</p>
+            <p>The app only connects to the internet to load the app itself from this website. Fonts and icons are bundled with the app, so nothing is requested from Google or any other third party.</p>
+            <p>None of your expense data is included in that request.</p>
           </Section>
 
           <Section title="Sharing and payments">
