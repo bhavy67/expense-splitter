@@ -68,9 +68,9 @@ function SummaryStrip({ groups }: { groups: Group[] }) {
   ]
 
   return (
-    <Card variant="inset" className="mb-6 grid grid-flow-col auto-cols-fr divide-x divide-border">
+    <Card variant="inset" className="mb-6 flex divide-x divide-border">
       {stats.map((s) => (
-        <div key={s.label} className="min-w-0 px-3 py-3">
+        <div key={s.label} className="min-w-0 flex-auto px-3 py-3">
           <p className="text-caption text-fg-muted">{s.label}</p>
           <p className="text-body font-semibold tabular-nums [overflow-wrap:anywhere]">{s.value}</p>
         </div>
